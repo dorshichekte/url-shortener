@@ -4,21 +4,15 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
+	"github.com/go-chi/chi/v5"
 	urlS "url-shortener/internal/app/services/url"
 )
 
 func GetURL(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
+	id := chi.URLParam(req, "id")
+	originalURL, err := urlS.GetOriginal(id)
 
-	path := req.URL.Path
-	shortURL := strings.TrimPrefix(path, "/")
-
-	originalURL, err := urlS.GetOriginal(shortURL)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -29,11 +23,6 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 }
 
 func AddURL(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)

@@ -2,13 +2,15 @@ package handlers
 
 import (
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func Register() http.Handler {
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	mux.HandleFunc("/", AddURL)
-	mux.HandleFunc("/{id}", GetURL)
+	r.Post("/", AddURL)
+	r.Get("/{id}", GetURL)
 
-	return mux
+	return r
 }
