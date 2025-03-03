@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"url-shortener/internal/app/handlers"
 	"url-shortener/internal/app/services/url"
 )
 
@@ -38,7 +37,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method,
 func TestRoute(t *testing.T) {
 	mockURL := "https://ya.ru"
 	mockTestData := url.CreateShort(mockURL)
-	ts := httptest.NewServer(handlers.Register())
+	ts := httptest.NewServer(Register())
 
 	defer ts.Close()
 
