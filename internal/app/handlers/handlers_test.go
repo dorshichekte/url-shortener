@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"url-shortener/internal/app/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"url-shortener/internal/app/services/url"
@@ -38,6 +39,7 @@ func TestRoute(t *testing.T) {
 	mockURL := "https://ya.ru"
 	mockTestData := url.CreateShort(mockURL)
 	ts := httptest.NewServer(Register())
+	baseURL := config.GetConfig().BaseURL
 
 	defer ts.Close()
 
@@ -110,7 +112,7 @@ func TestRoute(t *testing.T) {
 			},
 			want: want{
 				status: http.StatusCreated,
-				body:   ts.URL + "/" + mockTestData,
+				body:   baseURL + "/" + mockTestData,
 			},
 		},
 		{
