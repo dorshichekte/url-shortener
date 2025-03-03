@@ -11,7 +11,7 @@ import (
 func CreateShort(url string) (string, error) {
 	store := storage.GetInstance()
 
-	if hasURL := store.Has(url, storage.DefaultUrlType); hasURL {
+	if hasURL := store.Has(url, storage.DefaultURLType); hasURL {
 		return "", errors.New(errorMessage.URLAlreadyExists)
 	}
 
@@ -25,7 +25,7 @@ func CreateShort(url string) (string, error) {
 func GetOriginal(shortURL string) (string, error) {
 	store := storage.GetInstance()
 
-	if hasURL := store.Has(shortURL, storage.ShortUrlType); !hasURL {
+	if hasURL := store.Has(shortURL, storage.ShortURLType); !hasURL {
 		return "", errors.New(errorMessage.URLNotFound)
 	}
 
