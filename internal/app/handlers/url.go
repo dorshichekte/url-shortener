@@ -7,13 +7,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"url-shortener/internal/app/config"
-	urlS "url-shortener/internal/app/services/url"
+	urlService "url-shortener/internal/app/services/url"
 )
 
-func GetURL(res http.ResponseWriter, req *http.Request) {
+func Get(res http.ResponseWriter, req *http.Request) {
 	id := chi.URLParam(req, "id")
-	originalURL, err := urlS.GetOriginal(id)
-
+	originalURL, err := urlService.GetOriginal(id)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -23,7 +22,7 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func AddURL(res http.ResponseWriter, req *http.Request) {
+func Add(res http.ResponseWriter, req *http.Request) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
@@ -42,8 +41,7 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL := urlS.CreateShort(string(body))
-
+	shortURL := urlService.CreateShort(string(body))
 	baseURL := config.GetConfig().BaseURL
 	fullURL := baseURL + "/" + shortURL
 

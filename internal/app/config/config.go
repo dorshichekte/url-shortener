@@ -8,7 +8,10 @@ import (
 	"sync"
 )
 
-const DefaultAddress = "http://localhost:8080"
+const (
+	DefaultAddress             = "localhost:8080"
+	DefaultAddressWithProtocol = "http://localhost:8080"
+)
 
 type ServerAddress struct {
 	Host string
@@ -47,7 +50,7 @@ func (sa *ServerAddress) Set(s string) error {
 
 func Create() {
 	address := flag.String("a", DefaultAddress, "server address")
-	baseURL := flag.String("b", DefaultAddress, "base host URL")
+	baseURL := flag.String("b", DefaultAddressWithProtocol, "base host URL")
 
 	flag.Parse()
 

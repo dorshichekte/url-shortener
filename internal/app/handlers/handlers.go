@@ -9,8 +9,8 @@ import (
 func Register() http.Handler {
 	r := chi.NewRouter()
 
-	r.Post("/", AddURL)
-	r.Get("/{id}", GetURL)
+	r.Post("/", Add)
+	r.Get("/{id}", Get)
 
 	return r
 }
