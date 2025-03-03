@@ -1,6 +1,8 @@
 package storage
 
-import "sync"
+import (
+	"sync"
+)
 
 type URLType string
 
@@ -19,7 +21,7 @@ type URLStorage struct {
 type Storage interface {
 	Get(shortURL string) string
 	Add(url, shortURL string)
-	Has(url string) bool
+	Has(url string) (string, bool)
 }
 
 var (
@@ -39,16 +41,16 @@ func GetInstance() *URLStorage {
 	return instance
 }
 
-func (us *URLStorage) Has(url string, urlType URLType) bool {
+func (us *URLStorage) Has(url string, urlType URLType) (string, bool) {
 	switch urlType {
 	case DefaultURLType:
-		_, has := us.mapURL[url]
-		return has
+		value, has := us.mapURL[url]
+		return value, has
 	case ShortURLType:
-		_, has := us.mapShortURL[url]
-		return has
+		value, has := us.mapShortURL[url]
+		return value, has
 	default:
-		return false
+		return "", false
 	}
 }
 

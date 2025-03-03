@@ -53,11 +53,7 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL, err := urlS.CreateShort(trimmedURL)
-	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	shortURL := urlS.CreateShort(trimmedURL)
 
 	res.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	res.WriteHeader(http.StatusCreated)

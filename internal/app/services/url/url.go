@@ -8,24 +8,26 @@ import (
 	stringU "url-shortener/internal/app/utils"
 )
 
-func CreateShort(url string) (string, error) {
+func CreateShort(url string) string {
 	store := storage.GetInstance()
+	var shortURL string
 
-	if hasURL := store.Has(url, storage.DefaultURLType); hasURL {
-		return "", errors.New(errorMessage.URLAlreadyExists)
+	shortURL, has := store.Has(url, storage.DefaultURLType)
+	if has {
+		return shortURL
 	}
 
-	shortURL := stringU.CreateRandomString()
+	shortURL = stringU.CreateRandomString()
 
 	store.Add(url, shortURL)
 
-	return shortURL, nil
+	return shortURL
 }
 
 func GetOriginal(shortURL string) (string, error) {
 	store := storage.GetInstance()
 
-	if hasURL := store.Has(shortURL, storage.ShortURLType); !hasURL {
+	if _, hasURL := store.Has(shortURL, storage.ShortURLType); !hasURL {
 		return "", errors.New(errorMessage.URLNotFound)
 	}
 
