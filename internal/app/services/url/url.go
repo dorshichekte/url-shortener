@@ -27,11 +27,11 @@ func CreateShort(url string) string {
 func GetOriginal(shortURL string) (string, error) {
 	store := storage.GetInstance()
 
-	originalUrl, hasURL := store.Has(shortURL, storage.ShortURLType)
+	originalURL, hasURL := store.Has(shortURL, storage.ShortURLType)
 	if !hasURL {
 		fmt.Println("short url does not exist")
 		return "", errors.New(errorMessage.URLNotFound)
 	}
 
-	return originalUrl, nil
+	return originalURL, nil
 }
