@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -53,15 +54,16 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL := urlS.CreateShort(string(body))
-
-	var fullURL string
-
-	if strings.HasSuffix(string(body), "/") {
-		fullURL = string(body) + shortURL
-	} else {
-		fullURL = string(body) + "/" + shortURL
+	parsedURL, err := url.Parse(string(body))
+	if err != nil {
+		res.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	shortURL := urlS.CreateShort(string(body))
+	baseURL := fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
+
+	fullURL := baseURL + "/" + shortURL
 
 	res.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	res.WriteHeader(http.StatusCreated)
