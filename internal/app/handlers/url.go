@@ -18,9 +18,9 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 
 	path := req.URL.Path
 	shortURL := strings.TrimPrefix(path, "/")
-	fmt.Println(shortURL)
+
 	originalURL, err := urlS.GetOriginal(shortURL)
-	fmt.Println(originalURL)
+
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
