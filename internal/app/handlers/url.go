@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
+	"url-shortener/internal/app/config"
 	urlS "url-shortener/internal/app/services/url"
 )
 
@@ -43,7 +44,7 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 
 	shortURL := urlS.CreateShort(string(body))
 
-	baseURL := "http://" + req.Host
+	baseURL := config.GetConfig().BaseUrl
 	fullURL := baseURL + "/" + shortURL
 
 	res.Header().Set("Content-Type", "text/plain")
