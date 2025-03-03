@@ -17,7 +17,7 @@ type ServerAddress struct {
 
 type Config struct {
 	ServerAddress ServerAddress
-	BaseUrl       string
+	BaseURL       string
 }
 
 var (
@@ -52,7 +52,7 @@ func Create() {
 	flag.Parse()
 
 	Instance = &Config{
-		BaseUrl: *baseURL,
+		BaseURL: *baseURL,
 	}
 
 	err := Instance.ServerAddress.Set(*address)

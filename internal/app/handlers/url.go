@@ -44,7 +44,7 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 
 	shortURL := urlS.CreateShort(string(body))
 
-	baseURL := config.GetConfig().BaseUrl
+	baseURL := config.GetConfig().BaseURL
 	fullURL := baseURL + "/" + shortURL
 
 	res.Header().Set("Content-Type", "text/plain")
