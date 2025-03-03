@@ -2,7 +2,6 @@ package url
 
 import (
 	"errors"
-	"fmt"
 
 	errorMessage "url-shortener/internal/app/constants"
 	"url-shortener/internal/app/storage"
