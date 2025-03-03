@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"net/http"
-
-	"url-shortener/internal/app/handlers/middlewares"
 )
 
 func Register() http.Handler {
