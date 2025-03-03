@@ -25,7 +25,7 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	res.Header().Add("Location", originalURL)
+	res.Write([]byte(originalURL))
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
@@ -47,18 +47,25 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	trimmedURL := strings.TrimSpace(string(body))
-	_, err = url.ParseRequestURI(trimmedURL)
+	_, err = url.ParseRequestURI(string(body))
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	shortURL := urlS.CreateShort(trimmedURL)
+	shortURL := urlS.CreateShort(string(body))
+
+	var fullURL string
+
+	if strings.HasSuffix(string(body), "/") {
+		fullURL = string(body) + shortURL
+	} else {
+		fullURL = string(body) + "/" + shortURL
+	}
 
 	res.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	res.WriteHeader(http.StatusCreated)
-	_, err = res.Write([]byte(shortURL))
+	_, err = res.Write([]byte(fullURL))
 
 	if err != nil {
 		return
