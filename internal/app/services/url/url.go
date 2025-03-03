@@ -27,10 +27,10 @@ func CreateShort(url string) string {
 func GetOriginal(shortURL string) (string, error) {
 	store := storage.GetInstance()
 
-	if _, hasURL := store.Has(shortURL, storage.ShortURLType); !hasURL {
+	shortURL, hasURL := store.Has(shortURL, storage.ShortURLType)
+	if !hasURL {
 		return "", errors.New(errorMessage.URLNotFound)
 	}
 
-	originalURL := store.Get(shortURL)
-	return originalURL, nil
+	return shortURL, nil
 }
