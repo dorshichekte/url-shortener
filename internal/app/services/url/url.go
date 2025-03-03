@@ -2,6 +2,7 @@ package url
 
 import (
 	"errors"
+	"fmt"
 
 	errorMessage "url-shortener/internal/app/constants"
 	"url-shortener/internal/app/storage"
@@ -32,6 +33,6 @@ func GetOriginal(shortURL string) (string, error) {
 	}
 
 	originalURL := store.Get(shortURL)
-
+	fmt.Println(originalURL)
 	return originalURL, nil
 }

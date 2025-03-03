@@ -24,6 +24,7 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	res.Header().Add("Location", originalURL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
