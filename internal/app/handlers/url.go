@@ -9,26 +9,26 @@ import (
 	urlS "url-shortener/internal/app/services/url"
 )
 
-func GetUrl(res http.ResponseWriter, req *http.Request) {
+func GetURL(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
 	path := req.URL.Path
-	shortUrl := strings.TrimPrefix(path, "/")
+	shortURL := strings.TrimPrefix(path, "/")
 
-	originalUrl, err := urlS.GetOriginal(shortUrl)
+	originalURL, err := urlS.GetOriginal(shortURL)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	res.Header().Add("Location", originalUrl)
+	res.Header().Add("Location", originalURL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func AddUrl(res http.ResponseWriter, req *http.Request) {
+func AddURL(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		res.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -46,14 +46,14 @@ func AddUrl(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	trimmedUrl := strings.TrimSpace(string(body))
-	_, err = url.ParseRequestURI(trimmedUrl)
+	trimmedURL := strings.TrimSpace(string(body))
+	_, err = url.ParseRequestURI(trimmedURL)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	shortUrl, err := urlS.CreateShort(trimmedUrl)
+	shortURL, err := urlS.CreateShort(trimmedURL)
 	if err != nil {
 		res.WriteHeader(http.StatusBadRequest)
 		return
@@ -61,7 +61,7 @@ func AddUrl(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Add("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	_, err = res.Write([]byte(shortUrl))
+	_, err = res.Write([]byte(shortURL))
 
 	if err != nil {
 		return

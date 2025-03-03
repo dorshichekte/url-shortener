@@ -2,23 +2,23 @@ package storage
 
 import "sync"
 
-type UrlType string
+type URLType string
 
 const (
-	DefaultUrlType UrlType = "default"
-	ShortUrlType   UrlType = "short"
+	DefaultURLType URLType = "default"
+	ShortURLType   URLType = "short"
 )
 
-type MapUrl map[string]string
+type MapURL map[string]string
 
 type URLStorage struct {
-	mapUrl      MapUrl
-	mapShortUrl MapUrl
+	mapURL      MapURL
+	mapShortURL MapURL
 }
 
 type Storage interface {
-	Get(shortUrl string) string
-	Add(url, shortUrl string)
+	Get(shortURL string) string
+	Add(url, shortURL string)
 	Has(url string) bool
 }
 
@@ -31,32 +31,32 @@ func GetInstance() *URLStorage {
 	once.Do(
 		func() {
 			instance = &URLStorage{
-				mapUrl:      make(map[string]string),
-				mapShortUrl: make(map[string]string),
+				mapURL:      make(map[string]string),
+				mapShortURL: make(map[string]string),
 			}
 		})
 
 	return instance
 }
 
-func (us *URLStorage) Has(url string, urlType UrlType) bool {
+func (us *URLStorage) Has(url string, urlType URLType) bool {
 	switch urlType {
-	case DefaultUrlType:
-		_, has := us.mapUrl[url]
+	case DefaultURLType:
+		_, has := us.mapURL[url]
 		return has
-	case ShortUrlType:
-		_, has := us.mapShortUrl[url]
+	case ShortURLType:
+		_, has := us.mapShortURL[url]
 		return has
 	default:
 		return false
 	}
 }
 
-func (us *URLStorage) Get(shortUrl string) string {
-	return us.mapShortUrl[shortUrl]
+func (us *URLStorage) Get(shortURL string) string {
+	return us.mapShortURL[shortURL]
 }
 
-func (us *URLStorage) Add(url, shortUrl string) {
-	us.mapUrl[url] = shortUrl
-	us.mapShortUrl[shortUrl] = url
+func (us *URLStorage) Add(url, shortURL string) {
+	us.mapURL[url] = shortURL
+	us.mapShortURL[shortURL] = url
 }

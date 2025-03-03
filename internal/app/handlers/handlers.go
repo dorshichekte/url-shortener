@@ -9,8 +9,8 @@ import (
 func Register() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", AddUrl)
-	mux.HandleFunc("/{id}", GetUrl)
+	mux.HandleFunc("/", AddURL)
+	mux.HandleFunc("/{id}", GetURL)
 
 	wrappedMux := middlewares.RegisterDefault(mux, middlewares.CheckContentType)
 
