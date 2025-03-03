@@ -62,7 +62,7 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   "https://ya.ru",
+				body:   mockURL,
 			},
 			want: want{
 				status: http.StatusCreated,
@@ -73,7 +73,7 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "GET",
-				body:   "https://ya.ru",
+				body:   mockURL,
 			},
 			want: want{
 				status: http.StatusMethodNotAllowed,
@@ -106,11 +106,11 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   "https://ya.ru",
+				body:   mockURL,
 			},
 			want: want{
 				status: http.StatusCreated,
-				body:   "https://ya.ru/" + mockTestData,
+				body:   ts.URL + "/" + mockTestData,
 			},
 		},
 		{
@@ -122,7 +122,7 @@ func TestRoute(t *testing.T) {
 			},
 			want: want{
 				status: http.StatusTemporaryRedirect,
-				body:   "https://ya.ru",
+				body:   mockURL,
 			},
 		},
 		{
