@@ -12,7 +12,5 @@ func Register() http.Handler {
 	mux.HandleFunc("/", AddURL)
 	mux.HandleFunc("/{id}", GetURL)
 
-	wrappedMux := middlewares.RegisterDefault(mux, middlewares.CheckContentType)
-
-	return wrappedMux
+	return mux
 }
