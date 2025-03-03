@@ -26,7 +26,7 @@ func GetURL(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	res.Write([]byte(originalURL))
+	res.Header().Set("Location", originalURL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
@@ -65,11 +65,7 @@ func AddURL(res http.ResponseWriter, req *http.Request) {
 
 	fullURL := baseURL + "/" + shortURL
 
-	res.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	_, err = res.Write([]byte(fullURL))
-
-	if err != nil {
-		return
-	}
+	res.Write([]byte(fullURL))
 }

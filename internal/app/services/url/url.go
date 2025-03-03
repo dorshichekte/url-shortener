@@ -33,6 +33,5 @@ func GetOriginal(shortURL string) (string, error) {
 	}
 
 	originalURL := store.Get(shortURL)
-	fmt.Println(originalURL)
 	return originalURL, nil
 }
