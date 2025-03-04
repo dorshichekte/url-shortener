@@ -2,6 +2,7 @@ package url
 
 import (
 	"errors"
+	"fmt"
 
 	errorMessage "url-shortener/internal/app/constants"
 	"url-shortener/internal/app/storage"
@@ -20,17 +21,17 @@ func CreateShort(url string) string {
 	shortURL = stringU.CreateRandomString()
 
 	store.Add(url, shortURL)
-
 	return shortURL
 }
 
 func GetOriginal(shortURL string) (string, error) {
 	store := storage.GetInstance()
 
-	shortURL, hasURL := store.Has(shortURL, storage.ShortURLType)
+	originalURL, hasURL := store.Has(shortURL, storage.ShortURLType)
 	if !hasURL {
+		fmt.Println("short url does not exist")
 		return "", errors.New(errorMessage.URLNotFound)
 	}
 
-	return shortURL, nil
+	return originalURL, nil
 }
