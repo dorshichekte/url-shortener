@@ -42,7 +42,7 @@ func Add(res http.ResponseWriter, req *http.Request) {
 	}
 
 	shortURL := urlService.CreateShort(string(body))
-	baseURL := config.GetConfig().BaseURL
+	baseURL := config.Get().BaseURL
 	fullURL := baseURL + "/" + shortURL
 
 	res.Header().Set("Content-Type", "text/plain")

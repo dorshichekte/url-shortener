@@ -1,11 +1,10 @@
 package config
 
 import (
-	"errors"
 	"flag"
-	"strconv"
-	"strings"
 	"sync"
+
+	"github.com/caarlos0/env"
 )
 
 const (
@@ -13,14 +12,9 @@ const (
 	DefaultAddressWithProtocol = "http://localhost:8080"
 )
 
-type ServerAddress struct {
-	Host string
-	Port int
-}
-
 type Config struct {
-	ServerAddress ServerAddress
-	BaseURL       string
+	ServerAddress string `env:"SERVER_ADDRESS"`
+	BaseURL       string `env:"BASE_URL"`
 }
 
 var (
@@ -28,47 +22,38 @@ var (
 	once     sync.Once
 )
 
-func (sa *ServerAddress) String() string {
-	return sa.Host + ":" + strconv.Itoa(sa.Port)
-}
-
-func (sa *ServerAddress) Set(s string) error {
-	hp := strings.Split(s, ":")
-	if len(hp) != 2 {
-		return errors.New("need address in a form host:port")
-	}
-
-	port, err := strconv.Atoi(hp[1])
-	if err != nil {
+func initEnv(cfg *Config) error {
+	if err := env.Parse(cfg); err != nil {
 		return err
 	}
 
-	sa.Host = hp[0]
-	sa.Port = port
 	return nil
 }
 
-func Create() {
-	address := flag.String("a", DefaultAddress, "server address")
-	baseURL := flag.String("b", DefaultAddressWithProtocol, "base host URL")
+func initFlags(cfg *Config) {
+	flag.StringVar(&cfg.ServerAddress, "a", DefaultAddress, "server address")
+	flag.StringVar(&cfg.BaseURL, "b", DefaultAddressWithProtocol, "base host URL")
 
 	flag.Parse()
-
-	Instance = &Config{
-		BaseURL: *baseURL,
-	}
-
-	err := Instance.ServerAddress.Set(*address)
-	if err != nil {
-		panic(err)
-	}
 }
 
-func GetConfig() *Config {
+func Create() {
+	Instance = &Config{}
+
+	err := initEnv(Instance)
+	if err == nil {
+		return
+	}
+
+	initFlags(Instance)
+}
+
+func Get() *Config {
 	if Instance == nil {
 		once.Do(func() {
 			Create()
 		})
 	}
+
 	return Instance
 }

@@ -9,10 +9,9 @@ import (
 
 func Start() {
 	mux := handlers.Register()
-	conf := config.GetConfig()
-	as := conf.ServerAddress.String()
+	cfg := config.Get()
 
-	err := http.ListenAndServe(as, mux)
+	err := http.ListenAndServe(cfg.ServerAddress, mux)
 
 	if err != nil {
 		panic(err)

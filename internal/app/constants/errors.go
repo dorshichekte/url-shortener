@@ -1,6 +1,7 @@
 package constants
 
-const (
-	URLAlreadyExists = "URL already exists"
-	URLNotFound      = "URL not found"
+import "errors"
+
+var (
+	URLNotFound = errors.New("URL not found")
 )
