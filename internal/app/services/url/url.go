@@ -29,7 +29,7 @@ func GetOriginal(shortURL string) (string, error) {
 	originalURL, hasURL := store.Has(shortURL, storage.ShortURLType)
 	if !hasURL {
 		fmt.Println("short url does not exist")
-		return "", constants.URLNotFound
+		return "", constants.ErrURLNotFound
 	}
 
 	return originalURL, nil
