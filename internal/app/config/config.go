@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"sync"
 
 	"github.com/caarlos0/env"
@@ -22,12 +23,10 @@ var (
 	once     sync.Once
 )
 
-func initEnv(cfg *Config) error {
+func initEnv(cfg *Config) {
 	if err := env.Parse(cfg); err != nil {
-		return err
+		fmt.Println(err)
 	}
-
-	return nil
 }
 
 func initFlags(cfg *Config) {
@@ -40,12 +39,12 @@ func initFlags(cfg *Config) {
 func Create() {
 	Instance = &Config{}
 
-	err := initEnv(Instance)
-	if err == nil {
-		return
-	}
+	initEnv(Instance)
 
-	initFlags(Instance)
+	isInstanceEmpty := Instance.BaseURL == "" || Instance.ServerAddress == ""
+	if isInstanceEmpty {
+		initFlags(Instance)
+	}
 }
 
 func Get() *Config {
