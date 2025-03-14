@@ -1,61 +1,23 @@
 package storage
 
-import (
-	"sync"
-)
-
-type URLType string
-
-const (
-	DefaultURLType URLType = "default"
-	ShortURLType   URLType = "short"
-)
-
-type MapURL map[string]string
-
-type URLStorage struct {
-	mapURL      MapURL
-	mapShortURL MapURL
-}
-
-type Storage interface {
-	Get(shortURL string) string
-	Add(url, shortURL string)
-	Has(url string) (string, bool)
-}
-
-var (
-	instance *URLStorage
-	once     sync.Once
-)
-
-func GetInstance() *URLStorage {
-	once.Do(
-		func() {
-			instance = &URLStorage{
-				mapURL:      make(map[string]string),
-				mapShortURL: make(map[string]string),
-			}
-		})
-
-	return instance
-}
-
-func (us *URLStorage) Has(url string, urlType URLType) (string, bool) {
-	switch urlType {
-	case DefaultURLType:
-		value, has := us.mapURL[url]
-		return value, has
-	case ShortURLType:
-		value, has := us.mapShortURL[url]
-		return value, has
-	default:
-		return "", false
+func NewURLStorage() *URLStorage {
+	return &URLStorage{
+		mapURL:      make(map[string]string),
+		mapShortURL: make(map[string]string),
 	}
 }
 
-func (us *URLStorage) Get(shortURL string) string {
-	return us.mapShortURL[shortURL]
+func (us *URLStorage) Get(url string, urlType URLType) string {
+	switch urlType {
+	case DefaultURLType:
+		value, _ := us.mapURL[url]
+		return value
+	case ShortURLType:
+		value, _ := us.mapShortURL[url]
+		return value
+	default:
+		return ""
+	}
 }
 
 func (us *URLStorage) Add(url, shortURL string) {

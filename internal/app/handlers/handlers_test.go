@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/services/url"
+	"url-shortener/internal/app/storage"
 )
 
 func testRequest(t *testing.T, ts *httptest.Server, method,
@@ -36,12 +37,17 @@ func testRequest(t *testing.T, ts *httptest.Server, method,
 }
 
 func TestRoute(t *testing.T) {
-	mockURL := "https://ya.ru"
-	mockTestData := url.CreateShort(mockURL)
-	ts := httptest.NewServer(Register())
-	baseURL := config.Get().BaseURL
+	cfg := config.NewConfig()
+	s := storage.NewURLStorage()
+	urlService := url.NewURLService(s)
+	handler := NewHandler(urlService, cfg)
 
+	ts := httptest.NewServer(handler.Register())
 	defer ts.Close()
+
+	mockURL := "https://ya.ru"
+	baseURL := cfg.BaseURL
+	mockTestData := urlService.CreateShort(mockURL)
 
 	type values struct {
 		url    string
@@ -93,7 +99,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #4 не валидный URL",
+			name: "Test #4 не валидный Service",
 			values: values{
 				url:    "/",
 				method: "POST",
@@ -116,7 +122,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #6 проверка извлечения URL по сокращенной ссылке",
+			name: "Test #6 проверка извлечения Service по сокращенной ссылке",
 			values: values{
 				url:    "/" + mockTestData,
 				method: "GET",

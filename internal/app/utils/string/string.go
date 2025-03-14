@@ -1,16 +1,11 @@
-package utils
+package string
 
 import (
 	"math/rand"
 	"time"
 )
 
-const (
-	defaultRandomStringLength = 6
-	charset                   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-)
-
-func CreateRandomString() string {
+func CreateRandom() string {
 	scr := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(scr)
 

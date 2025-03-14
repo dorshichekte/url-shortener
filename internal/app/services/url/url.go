@@ -1,34 +1,34 @@
 package url
 
 import (
-	"fmt"
-
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/storage"
-	"url-shortener/internal/app/utils"
+	stringUtils "url-shortener/internal/app/utils/string"
 )
 
-func CreateShort(url string) string {
-	store := storage.GetInstance()
+func NewURLService(store *storage.URLStorage) *Service {
+	return &Service{store: *store}
+}
+
+func (u *Service) CreateShort(url string) string {
 	var shortURL string
 
-	shortURL, has := store.Has(url, storage.DefaultURLType)
-	if has {
-		return shortURL
+	shortURL = u.store.Get(url, storage.DefaultURLType)
+
+	isURLEmpty := len(shortURL) == 0
+	if isURLEmpty {
+		shortURL = stringUtils.CreateRandom()
+		u.store.Add(url, shortURL)
 	}
 
-	shortURL = utils.CreateRandomString()
-
-	store.Add(url, shortURL)
 	return shortURL
 }
 
-func GetOriginal(shortURL string) (string, error) {
-	store := storage.GetInstance()
+func (u *Service) GetOriginal(shortURL string) (string, error) {
+	originalURL := u.store.Get(shortURL, storage.ShortURLType)
 
-	originalURL, hasURL := store.Has(shortURL, storage.ShortURLType)
-	if !hasURL {
-		fmt.Println("short url does not exist")
+	isURLEmpty := len(originalURL) == 0
+	if isURLEmpty {
 		return "", constants.ErrURLNotFound
 	}
 
