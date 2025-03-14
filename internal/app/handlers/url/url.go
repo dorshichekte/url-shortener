@@ -29,7 +29,7 @@ func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
 	defer req.Body.Close()
 
 	if len(body) == 0 {
-		return "", constants.EmptyRequestBody
+		return "", constants.ErrEmptyRequestBody
 	}
 
 	_, err = url.ParseRequestURI(string(body))

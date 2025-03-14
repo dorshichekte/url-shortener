@@ -10,10 +10,16 @@ func NewURLStorage() *URLStorage {
 func (us *URLStorage) Get(url string, urlType URLType) string {
 	switch urlType {
 	case DefaultURLType:
-		value, _ := us.mapURL[url]
+		value, found := us.mapURL[url]
+		if !found {
+			return ""
+		}
 		return value
 	case ShortURLType:
-		value, _ := us.mapShortURL[url]
+		value, found := us.mapShortURL[url]
+		if !found {
+			return ""
+		}
 		return value
 	default:
 		return ""
