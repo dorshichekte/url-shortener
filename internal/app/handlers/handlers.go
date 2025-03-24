@@ -19,7 +19,10 @@ func NewHandler(urlService *u.Service, cfg *config.Config) *Handler {
 
 func (h *Handler) Register(logger *zap.Logger) http.Handler {
 	r := chi.NewRouter()
+
 	r.Use(middleware.Log(logger))
+	r.Use(middleware.Gzip)
+	r.Use(middleware.Decompress)
 
 	r.Post("/", h.urlHandler.Add)
 	r.Get("/{id}", h.urlHandler.Get)
