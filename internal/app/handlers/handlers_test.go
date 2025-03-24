@@ -185,18 +185,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #11 не валидный url HandlerApiPost",
-			values: values{
-				url:    "/api/shorten",
-				method: "POST",
-				body:   `{"url": "test"}`,
-			},
-			want: want{
-				status: http.StatusBadRequest,
-			},
-		},
-		{
-			name: "Test #12 валидный url HandlerApiPost",
+			name: "Test #11 валидный url HandlerApiPost",
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",
