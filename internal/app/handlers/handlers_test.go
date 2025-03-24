@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"url-shortener/internal/app/logger"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -41,8 +43,13 @@ func TestRoute(t *testing.T) {
 	s := storage.NewURLStorage()
 	urlService := url.NewURLService(s)
 	handler := NewHandler(urlService, cfg)
+	logger, err := logger.New()
+	if err != nil {
+		log.Fatalf("Failed initialization logger: %v", err)
+	}
+	defer logger.Sync()
 
-	ts := httptest.NewServer(handler.Register())
+	ts := httptest.NewServer(handler.Register(logger))
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
