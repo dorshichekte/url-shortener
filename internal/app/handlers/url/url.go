@@ -1,6 +1,8 @@
 package url
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -8,17 +10,27 @@ import (
 	"github.com/go-chi/chi/v5"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
-	u "url-shortener/internal/app/services/url"
+	urlService "url-shortener/internal/app/services/url"
 )
 
-func NewHandler(service *u.Service, cfg *config.Config) *Handler {
+func NewHandler(service *urlService.Service, cfg *config.Config) *Handler {
 	return &Handler{
 		service: service,
 		config:  cfg,
 	}
 }
+
 func (h *Handler) handleError(res http.ResponseWriter, statusCode int) {
 	res.WriteHeader(statusCode)
+}
+
+func (h *Handler) jsonDecode(req *http.Request) (ShortenRequest, error) {
+	var request ShortenRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return request, err
+	}
+
+	return request, nil
 }
 
 func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
@@ -36,6 +48,7 @@ func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(body)
 
 	return string(body), nil
 }
@@ -66,4 +79,27 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(fullURL))
+}
+
+func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
+	url, err := h.jsonDecode(req)
+	if err != nil {
+		h.handleError(res, http.StatusBadRequest)
+		return
+	}
+
+	shortURL := h.service.CreateShort(url.OriginalURL)
+	baseURL := h.config.BaseURL
+	fullURL := baseURL + "/" + shortURL
+
+	response := ShortenResponse{
+		ShortURL: fullURL,
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
 }

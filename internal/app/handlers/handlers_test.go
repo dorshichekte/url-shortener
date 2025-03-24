@@ -162,6 +162,50 @@ func TestRoute(t *testing.T) {
 				status: http.StatusBadRequest,
 			},
 		},
+		{
+			name: "Test #9 не тот метод HandlerApiPost",
+			values: values{
+				url:    "/api/shorten",
+				method: "GET",
+				body:   `{"url": "https://ya.ru"}`,
+			},
+			want: want{
+				status: http.StatusMethodNotAllowed,
+			},
+		},
+		{
+			name: "Test #10 не корректный JSON HandlerApiPost",
+			values: values{
+				url:    "/api/shorten",
+				method: "POST",
+				body:   `{"https://ya.ru/"}`,
+			},
+			want: want{
+				status: http.StatusInternalServerError,
+			},
+		},
+		{
+			name: "Test #11 не валидный url HandlerApiPost",
+			values: values{
+				url:    "/api/shorten",
+				method: "POST",
+				body:   `{"url": "test"}`,
+			},
+			want: want{
+				status: http.StatusBadRequest,
+			},
+		},
+		{
+			name: "Test #12 валидный url HandlerApiPost",
+			values: values{
+				url:    "/api/shorten",
+				method: "POST",
+				body:   `{"url": "https://ya.ru"}`,
+			},
+			want: want{
+				status: http.StatusCreated,
+			},
+		},
 	}
 
 	for num, test := range tests {

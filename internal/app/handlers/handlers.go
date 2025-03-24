@@ -23,6 +23,7 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 
 	r.Post("/", h.urlHandler.Add)
 	r.Get("/{id}", h.urlHandler.Get)
+	r.Post("/api/shorten", h.urlHandler.Shorten)
 
 	return r
 }

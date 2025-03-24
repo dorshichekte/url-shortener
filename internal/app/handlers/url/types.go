@@ -9,3 +9,11 @@ type Handler struct {
 	service *url.Service
 	config  *config.Config
 }
+
+type ShortenRequest struct {
+	OriginalURL string `json:"url"`
+}
+
+type ShortenResponse struct {
+	ShortURL string `json:"result"`
+}
