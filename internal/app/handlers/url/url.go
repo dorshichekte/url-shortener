@@ -84,7 +84,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	url, err := h.jsonDecode(req)
 	if err != nil {
-		h.handleError(res, http.StatusBadRequest)
+		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
 
