@@ -7,9 +7,13 @@ import (
 	"os"
 )
 
-const fileName = "/url-db.json"
+const fileName = "url-db.json"
 
 func NewConsumer(filePath string) (*Consumer, error) {
+	if filePath[len(filePath)-1] != '/' {
+		filePath += "/"
+	}
+
 	file, err := os.OpenFile(filePath+fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return nil, err
@@ -30,11 +34,15 @@ func (c *Consumer) Close() error {
 }
 
 func NewProducer(filePath string) (*Producer, error) {
+	if filePath[len(filePath)-1] != '/' {
+		filePath += "/"
+	}
+
 	file, err := os.OpenFile(filePath+fileName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Файл для хранения данных URL создан по пути: %s", filePath)
+	log.Printf("Файл для хранения данных URL создан по пути: %s", filePath+fileName)
 	return &Producer{
 		file:    file,
 		decoder: json.NewDecoder(file),
