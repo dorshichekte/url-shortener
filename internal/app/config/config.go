@@ -35,5 +35,6 @@ func (c *Config) init() {
 	if isInstanceEmpty {
 		c.initFlags()
 	}
-	log.Printf("Конфиг: %s", c)
+
+	log.Println(c, "config")
 }
