@@ -54,7 +54,7 @@ func TestRoute(t *testing.T) {
 
 	mockURL := "https://ya.ru"
 	baseURL := cfg.BaseURL
-	mockTestData := urlService.CreateShort(mockURL)
+	mockTestData := urlService.CreateShort(mockURL, cfg.FileStoragePath)
 
 	type values struct {
 		url    string
