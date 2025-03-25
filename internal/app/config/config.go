@@ -22,6 +22,7 @@ func (c *Config) initEnv() {
 func (c *Config) initFlags() {
 	flag.StringVar(&c.ServerAddress, "a", DefaultAddress, "server address")
 	flag.StringVar(&c.BaseURL, "b", DefaultAddressWithProtocol, "base host URL")
+	flag.StringVar(&c.FileStoragePath, "f", StoragePath, "file storage path")
 
 	flag.Parse()
 }
@@ -29,7 +30,7 @@ func (c *Config) initFlags() {
 func (c *Config) init() {
 	c.initEnv()
 
-	isInstanceEmpty := c.BaseURL == "" || c.ServerAddress == ""
+	isInstanceEmpty := c.BaseURL == "" || c.ServerAddress == "" || c.FileStoragePath == ""
 	if isInstanceEmpty {
 		c.initFlags()
 	}
