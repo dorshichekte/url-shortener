@@ -163,7 +163,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #9 не тот метод HandlerApiPost",
+			name: "Test #9 не тот метод Shorten",
 			values: values{
 				url:    "/api/shorten",
 				method: "GET",
@@ -174,7 +174,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #10 не корректный JSON HandlerApiPost",
+			name: "Test #10 не корректный JSON Shorten",
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",
@@ -185,7 +185,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #11 валидный url HandlerApiPost",
+			name: "Test #11 валидный url Shorten",
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",
