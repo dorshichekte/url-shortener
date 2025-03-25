@@ -41,7 +41,7 @@ func testRequest(t *testing.T, ts *httptest.Server, method,
 func TestRoute(t *testing.T) {
 	cfg := config.NewConfig()
 	s := storage.NewURLStorage()
-	urlService := url.NewURLService(s)
+	urlService := url.NewURLService(s, cfg)
 	handler := NewHandler(urlService, cfg)
 	logger, err := logger.New()
 	if err != nil {
@@ -54,7 +54,7 @@ func TestRoute(t *testing.T) {
 
 	mockURL := "https://ya.ru"
 	baseURL := cfg.BaseURL
-	mockTestData := urlService.CreateShort(mockURL)
+	mockTestData := urlService.CreateShort(mockURL, cfg.FileStoragePath)
 
 	type values struct {
 		url    string

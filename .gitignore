@@ -23,4 +23,4 @@ vendor/
 .vscode
 
 # Log folder
-.logs
+url-db.json

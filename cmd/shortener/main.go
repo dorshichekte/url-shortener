@@ -12,19 +12,25 @@ import (
 )
 
 func main() {
-	logger, err := logger.New()
+	l, err := logger.New()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
-	defer logger.Sync()
+	defer l.Sync()
 
 	cfg := config.NewConfig()
 
 	urlStorage := storage.NewURLStorage()
 
-	urlService := url.NewURLService(urlStorage)
+	err = urlStorage.Load(cfg.FileStoragePath)
+	if err != nil {
+		log.Fatalf("Failed initialization logger: %v", err)
+	}
+	defer l.Sync()
+
+	urlService := url.NewURLService(urlStorage, cfg)
 
 	handler := handlers.NewHandler(urlService, cfg)
 
-	server.Start(cfg, handler, logger)
+	server.Start(cfg, handler, l)
 }

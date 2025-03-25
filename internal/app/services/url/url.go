@@ -1,16 +1,17 @@
 package url
 
 import (
+	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/storage"
 	stringUtils "url-shortener/internal/app/utils/string"
 )
 
-func NewURLService(store *storage.URLStorage) *Service {
-	return &Service{store: *store}
+func NewURLService(store *storage.URLStorage, cfg *config.Config) *Service {
+	return &Service{store: *store, cfg: *cfg}
 }
 
-func (u *Service) CreateShort(url string) string {
+func (u *Service) CreateShort(url string, fileStoragePath string) string {
 	var shortURL string
 
 	shortURL = u.store.Get(url, storage.DefaultURLType)
@@ -18,7 +19,7 @@ func (u *Service) CreateShort(url string) string {
 	isURLEmpty := len(shortURL) == 0
 	if isURLEmpty {
 		shortURL = stringUtils.CreateRandom()
-		u.store.Add(url, shortURL)
+		u.store.Add(url, shortURL, fileStoragePath)
 	}
 
 	return shortURL
