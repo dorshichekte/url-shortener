@@ -3,7 +3,7 @@ package main
 import (
 	"go.uber.org/zap"
 	"log"
-	
+
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/handlers"
 	"url-shortener/internal/app/logger"
@@ -25,8 +25,9 @@ func main() {
 	consumer, err := osfile.NewConsumer(cfg.FileStoragePath)
 	if err != nil {
 		logger.Error("Failed initialization file", zap.Error(err))
+	} else {
+		consumer.Init()
 	}
-	consumer.Init()
 
 	urlStorage := storage.NewURLStorage()
 

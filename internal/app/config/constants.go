@@ -3,5 +3,5 @@ package config
 const (
 	DefaultAddress             = "localhost:8080"
 	DefaultAddressWithProtocol = "http://localhost:8080"
-	StoragePath                = "/tmp/logs.json"
+	StoragePath                = "/tmp/url-shortener-db.json"
 )
