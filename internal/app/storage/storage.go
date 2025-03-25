@@ -28,11 +28,9 @@ func (us *URLStorage) Get(url string, urlType URLType) string {
 	}
 }
 
-func (us *URLStorage) Add(url, shortURL, fileStoragePath string) {
+func (us *URLStorage) Add(url, shortURL string) {
 	us.mapURL[url] = shortURL
 	us.mapShortURL[shortURL] = url
-
-	us.Write(url, shortURL, fileStoragePath)
 }
 
 func (us *URLStorage) Write(url, shortURL, fileStoragePath string) {
@@ -56,7 +54,7 @@ func (us *URLStorage) Load(fileStoragePath string) error {
 	}
 	defer pr.Close()
 
-	_, err = pr.ReadEvent(us, fileStoragePath)
+	_, err = pr.ReadEvent(us)
 	if err != nil {
 		return err
 	}

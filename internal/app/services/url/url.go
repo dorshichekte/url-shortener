@@ -19,7 +19,8 @@ func (u *Service) CreateShort(url string, fileStoragePath string) string {
 	isURLEmpty := len(shortURL) == 0
 	if isURLEmpty {
 		shortURL = stringUtils.CreateRandom()
-		u.store.Add(url, shortURL, fileStoragePath)
+		u.store.Add(url, shortURL)
+		u.store.Write(url, shortURL, fileStoragePath)
 	}
 
 	return shortURL

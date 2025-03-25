@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -37,10 +38,11 @@ func NewProducer(fileName string) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) ReadEvent(s *URLStorage, fileStoragePath string) (*Event, error) {
+func (p *Producer) ReadEvent(s *URLStorage) (*Event, error) {
 	var event Event
 	for p.decoder.Decode(&event) == nil {
-		s.Add(event.OriginalURL, event.ShortURL, fileStoragePath)
+		fmt.Println(event)
+		s.Add(event.OriginalURL, event.ShortURL)
 	}
 	return &event, nil
 }
