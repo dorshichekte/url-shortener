@@ -29,5 +29,9 @@ func (c *Config) initFlags() {
 
 func (c *Config) init() {
 	c.initEnv()
-	c.initFlags()
+
+	isInstanceEmpty := c.BaseURL == "" || c.ServerAddress == "" || c.FileStoragePath == ""
+	if isInstanceEmpty {
+		c.initFlags()
+	}
 }
