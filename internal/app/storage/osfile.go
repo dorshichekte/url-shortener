@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -31,7 +32,7 @@ func NewProducer(fileName string) (*Producer, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	log.Printf("Файл для хранения данных URL создан по пути: %s", fileName)
 	return &Producer{
 		file:    file,
 		decoder: json.NewDecoder(file),
