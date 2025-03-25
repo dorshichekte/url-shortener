@@ -2,13 +2,8 @@ package config
 
 import (
 	"flag"
-	"os"
-)
-
-var (
-	serverAddress   = flag.String("a", DefaultAddress, "server address")
-	baseURL         = flag.String("b", DefaultAddressWithProtocol, "base host URL")
-	fileStoragePath = flag.String("f", StoragePath, "file storage path")
+	"fmt"
+	"github.com/caarlos0/env"
 )
 
 func NewConfig() *Config {
@@ -18,23 +13,17 @@ func NewConfig() *Config {
 }
 
 func (c *Config) initEnv() {
-	c.ServerAddress = os.Getenv("SERVER_ADDRESS")
-	c.BaseURL = os.Getenv("BASE_URL")
-	c.FileStoragePath = os.Getenv("FILE_STORAGE_PATH")
+	if err := env.Parse(c); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (c *Config) initFlags() {
-	if c.ServerAddress == "" {
-		c.ServerAddress = *serverAddress
-	}
+	flag.StringVar(&c.ServerAddress, "a", DefaultAddress, "server address")
+	flag.StringVar(&c.BaseURL, "b", DefaultAddressWithProtocol, "base host URL")
+	flag.StringVar(&c.FileStoragePath, "f", StoragePath, "file storage path")
 
-	if c.BaseURL == "" {
-		c.BaseURL = *baseURL
-	}
-
-	if c.FileStoragePath == "" {
-		c.FileStoragePath = *fileStoragePath
-	}
+	flag.Parse()
 }
 
 func (c *Config) init() {

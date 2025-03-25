@@ -24,6 +24,3 @@ vendor/
 
 # Log folder
 url-db.json
-
-# Test
-shortenertest
