@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/caarlos0/env"
-	"log"
 )
 
 func NewConfig() *Config {
@@ -17,7 +16,6 @@ func (c *Config) initEnv() {
 	if err := env.Parse(c); err != nil {
 		fmt.Println(err)
 	}
-	log.Println(c)
 }
 
 func (c *Config) initFlags() {
