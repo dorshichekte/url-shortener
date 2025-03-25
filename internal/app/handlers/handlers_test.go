@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"url-shortener/internal/app/logger"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,15 +41,20 @@ func testRequest(t *testing.T, ts *httptest.Server, method,
 func TestRoute(t *testing.T) {
 	cfg := config.NewConfig()
 	s := storage.NewURLStorage()
-	urlService := url.NewURLService(s)
+	urlService := url.NewURLService(s, cfg)
 	handler := NewHandler(urlService, cfg)
+	logger, err := logger.New()
+	if err != nil {
+		log.Fatalf("Failed initialization logger: %v", err)
+	}
+	defer logger.Sync()
 
-	ts := httptest.NewServer(handler.Register())
+	ts := httptest.NewServer(handler.Register(logger))
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
 	baseURL := cfg.BaseURL
-	mockTestData := urlService.CreateShort(mockURL)
+	mockTestData := urlService.CreateShort(mockURL, cfg.FileStoragePath)
 
 	type values struct {
 		url    string
@@ -153,6 +160,39 @@ func TestRoute(t *testing.T) {
 			},
 			want: want{
 				status: http.StatusBadRequest,
+			},
+		},
+		{
+			name: "Test #9 не тот метод Shorten",
+			values: values{
+				url:    "/api/shorten",
+				method: "GET",
+				body:   `{"url": "https://ya.ru"}`,
+			},
+			want: want{
+				status: http.StatusMethodNotAllowed,
+			},
+		},
+		{
+			name: "Test #10 не корректный JSON Shorten",
+			values: values{
+				url:    "/api/shorten",
+				method: "POST",
+				body:   `{"https://ya.ru/"}`,
+			},
+			want: want{
+				status: http.StatusInternalServerError,
+			},
+		},
+		{
+			name: "Test #11 валидный url Shorten",
+			values: values{
+				url:    "/api/shorten",
+				method: "POST",
+				body:   `{"url": "https://ya.ru"}`,
+			},
+			want: want{
+				status: http.StatusCreated,
 			},
 		},
 	}

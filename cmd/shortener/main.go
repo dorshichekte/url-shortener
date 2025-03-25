@@ -1,21 +1,36 @@
 package main
 
 import (
+	"log"
+
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/handlers"
+	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/server"
 	"url-shortener/internal/app/services/url"
 	"url-shortener/internal/app/storage"
 )
 
 func main() {
+	l, err := logger.New()
+	if err != nil {
+		log.Fatalf("Failed initialization logger: %v", err)
+	}
+	defer l.Sync()
+
 	cfg := config.NewConfig()
 
 	urlStorage := storage.NewURLStorage()
 
-	urlService := url.NewURLService(urlStorage)
+	err = urlStorage.Load(cfg.FileStoragePath)
+	if err != nil {
+		log.Fatalf("Failed initialization logger: %v", err)
+	}
+	defer l.Sync()
+
+	urlService := url.NewURLService(urlStorage, cfg)
 
 	handler := handlers.NewHandler(urlService, cfg)
 
-	server.Start(cfg, handler)
+	server.Start(cfg, handler, l)
 }
