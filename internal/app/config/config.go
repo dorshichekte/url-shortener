@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/caarlos0/env"
 )
@@ -34,4 +35,5 @@ func (c *Config) init() {
 	if isInstanceEmpty {
 		c.initFlags()
 	}
+	log.Printf("Конфиг: %s", c)
 }
