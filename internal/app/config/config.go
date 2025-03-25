@@ -3,8 +3,6 @@ package config
 import (
 	"flag"
 	"fmt"
-	"log"
-
 	"github.com/caarlos0/env"
 )
 
@@ -30,11 +28,5 @@ func (c *Config) initFlags() {
 
 func (c *Config) init() {
 	c.initEnv()
-
-	isInstanceEmpty := c.BaseURL == "" || c.ServerAddress == "" || c.FileStoragePath == ""
-	if isInstanceEmpty {
-		c.initFlags()
-	}
-
-	log.Println(c, "config")
+	c.initFlags()
 }
