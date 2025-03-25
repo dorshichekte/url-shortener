@@ -14,7 +14,7 @@ func NewConsumer(filePath string) (*Consumer, error) {
 		filePath += "/"
 	}
 
-	file, err := os.OpenFile(filePath+fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(filePath+fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 	if err != nil {
 		return nil, err
 	}
@@ -34,15 +34,19 @@ func (c *Consumer) Close() error {
 }
 
 func NewProducer(filePath string) (*Producer, error) {
+	createFile(filePath)
+
 	if filePath[len(filePath)-1] != '/' {
 		filePath += "/"
 	}
 
-	file, err := os.OpenFile(filePath+fileName, os.O_RDONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(filePath+fileName, os.O_RDONLY|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
 	}
+
 	log.Printf("Файл для хранения данных URL создан по пути: %s", filePath+fileName)
+
 	return &Producer{
 		file:    file,
 		decoder: json.NewDecoder(file),
@@ -60,4 +64,10 @@ func (p *Producer) ReadEvent(s *URLStorage) (*Event, error) {
 
 func (p *Producer) Close() error {
 	return p.file.Close()
+}
+
+func createFile(filePath string) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		os.MkdirAll(filePath, 0755)
+	}
 }
