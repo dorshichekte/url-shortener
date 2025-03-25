@@ -72,7 +72,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL := h.service.CreateShort(originalURL)
+	shortURL := h.service.CreateShort(originalURL, h.config.FileStoragePath)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
@@ -88,7 +88,7 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL := h.service.CreateShort(url.OriginalURL)
+	shortURL := h.service.CreateShort(url.OriginalURL, h.config.FileStoragePath)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 

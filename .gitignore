@@ -22,5 +22,5 @@ vendor/
 .idea
 .vscode
 
-# Log folder
-.logs
+# Util folder
+tmp
