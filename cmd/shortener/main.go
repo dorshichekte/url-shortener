@@ -16,7 +16,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
-	defer l.Sync()
+	defer func() {
+		_ = l.Sync()
+	}()
 
 	cfg := config.NewConfig()
 
@@ -24,13 +26,12 @@ func main() {
 
 	err = urlStorage.Load(cfg.FileStoragePath)
 	if err != nil {
-		log.Fatalf("Failed initialization logger: %v", err)
+		log.Fatalf("Failed initialization storage: %v", err)
 	}
-	defer l.Sync()
 
 	urlService := url.NewURLService(urlStorage, cfg)
 
-	handler := handlers.NewHandler(urlService, cfg)
+	handler := handlers.NewHandler(urlService, cfg, l)
 
 	server.Start(cfg, handler, l)
 }

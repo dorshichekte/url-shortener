@@ -11,9 +11,9 @@ import (
 	u "url-shortener/internal/app/services/url"
 )
 
-func NewHandler(urlService *u.Service, cfg *config.Config) *Handler {
+func NewHandler(urlService *u.Service, cfg *config.Config, logger *zap.Logger) *Handler {
 	return &Handler{
-		urlHandler: url.NewHandler(urlService, cfg),
+		urlHandler: url.NewHandler(urlService, cfg, logger),
 	}
 }
 

@@ -11,8 +11,9 @@ func NewURLService(store *storage.URLStorage, cfg *config.Config) *Service {
 	return &Service{store: *store, cfg: *cfg}
 }
 
-func (u *Service) CreateShort(url string, fileStoragePath string) string {
+func (u *Service) CreateShort(url string, fileStoragePath string) (string, error) {
 	var shortURL string
+	var err error
 
 	shortURL = u.store.Get(url, storage.DefaultURLType)
 
@@ -20,10 +21,10 @@ func (u *Service) CreateShort(url string, fileStoragePath string) string {
 	if isURLEmpty {
 		shortURL = stringUtils.CreateRandom()
 		u.store.Add(url, shortURL)
-		u.store.Write(url, shortURL, fileStoragePath)
+		err = u.store.Write(url, shortURL, fileStoragePath)
 	}
 
-	return shortURL
+	return shortURL, err
 }
 
 func (u *Service) GetOriginal(shortURL string) (string, error) {

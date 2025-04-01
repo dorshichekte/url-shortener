@@ -22,5 +22,8 @@ vendor/
 .idea
 .vscode
 
-# Log folder
+# Db folder
 url-db.json
+
+# Test
+shortenertest

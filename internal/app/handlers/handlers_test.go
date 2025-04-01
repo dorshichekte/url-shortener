@@ -1,24 +1,24 @@
 package handlers
 
 import (
+	"go.uber.org/zap"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"url-shortener/internal/app/logger"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/services/url"
 	"url-shortener/internal/app/storage"
 )
 
-func testRequest(t *testing.T, ts *httptest.Server, method,
-	path, body string) (*http.Response, string) {
-
+func testRequest(t *testing.T, ts *httptest.Server, method, path, body string) (*http.Response, string) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -30,7 +30,9 @@ func testRequest(t *testing.T, ts *httptest.Server, method,
 
 	resp, err := client.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	respBody, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
@@ -42,19 +44,24 @@ func TestRoute(t *testing.T) {
 	cfg := config.NewConfig()
 	s := storage.NewURLStorage()
 	urlService := url.NewURLService(s, cfg)
-	handler := NewHandler(urlService, cfg)
-	logger, err := logger.New()
+	l, err := logger.New()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
-	defer logger.Sync()
+	defer func() {
+		_ = l.Sync()
+	}()
 
-	ts := httptest.NewServer(handler.Register(logger))
+	handler := NewHandler(urlService, cfg, l)
+	ts := httptest.NewServer(handler.Register(l))
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
 	baseURL := cfg.BaseURL
-	mockTestData := urlService.CreateShort(mockURL, cfg.FileStoragePath)
+	mockTestData, err := urlService.CreateShort(mockURL, cfg.FileStoragePath)
+	if err != nil {
+		l.Error("Failed initialization logger: %v", zap.Error(err))
+	}
 
 	type values struct {
 		url    string
@@ -200,7 +207,9 @@ func TestRoute(t *testing.T) {
 	for num, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			resp, URL := testRequest(t, ts, test.values.method, test.values.url, test.values.body)
-			defer resp.Body.Close()
+			defer func() {
+				_ = resp.Body.Close()
+			}()
 
 			assert.Equal(t, test.want.status, resp.StatusCode)
 

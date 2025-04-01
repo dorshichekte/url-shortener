@@ -33,18 +33,22 @@ func (us *URLStorage) Add(url, shortURL string) {
 	us.mapShortURL[shortURL] = url
 }
 
-func (us *URLStorage) Write(url, shortURL, fileStoragePath string) {
+func (us *URLStorage) Write(url, shortURL, fileStoragePath string) error {
 	data := Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
 
 	consumer, err := NewConsumer(fileStoragePath)
 	if err != nil {
-		return
+		return err
 	}
-	defer consumer.Close()
+	defer func() {
+		_ = consumer.Close()
+	}()
 
 	if err = consumer.WriteEvent(&data); err != nil {
-		return
+		return err
 	}
+
+	return nil
 }
 
 func (us *URLStorage) Load(fileStoragePath string) error {
@@ -52,7 +56,9 @@ func (us *URLStorage) Load(fileStoragePath string) error {
 	if err != nil {
 		return err
 	}
-	defer pr.Close()
+	defer func() {
+		_ = pr.Close()
+	}()
 
 	_, err = pr.ReadEvent(us)
 	if err != nil {
