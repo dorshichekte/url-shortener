@@ -1,6 +1,8 @@
 package url
 
 import (
+	"encoding/json"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
@@ -8,17 +10,28 @@ import (
 	"github.com/go-chi/chi/v5"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
-	u "url-shortener/internal/app/services/url"
+	urlService "url-shortener/internal/app/services/url"
 )
 
-func NewHandler(service *u.Service, cfg *config.Config) *Handler {
+func NewHandler(service *urlService.Service, cfg *config.Config, logger *zap.Logger) *Handler {
 	return &Handler{
 		service: service,
 		config:  cfg,
+		logger:  logger,
 	}
 }
+
 func (h *Handler) handleError(res http.ResponseWriter, statusCode int) {
 	res.WriteHeader(statusCode)
+}
+
+func (h *Handler) jsonDecode(req *http.Request) (ShortenRequest, error) {
+	var request ShortenRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return request, err
+	}
+
+	return request, nil
 }
 
 func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
@@ -26,7 +39,6 @@ func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer req.Body.Close()
 
 	if len(body) == 0 {
 		return "", constants.ErrEmptyRequestBody
@@ -44,6 +56,7 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 	id := chi.URLParam(req, "id")
 	originalURL, err := h.service.GetOriginal(id)
 	if err != nil {
+		h.logger.Error("Failed get original URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -55,15 +68,56 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	originalURL, err := h.parseRequestURL(req)
 	if err != nil {
+		h.logger.Error("Failed parse request URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
+	defer func() {
+		_ = req.Body.Close()
+	}()
 
-	shortURL := h.service.CreateShort(originalURL)
+	shortURL, err := h.service.CreateShort(originalURL, h.config.FileStoragePath)
+	if err != nil {
+		h.logger.Error("Failed to create short url", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
 	res.Write([]byte(fullURL))
+}
+
+func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
+	u, err := h.jsonDecode(req)
+	if err != nil {
+		h.logger.Error("Failed decode json", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
+	shortURL, err := h.service.CreateShort(u.OriginalURL, h.config.FileStoragePath)
+	if err != nil {
+		h.logger.Error("Failed to create short url", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
+	baseURL := h.config.BaseURL
+	fullURL := baseURL + "/" + shortURL
+
+	response := ShortenResponse{
+		ShortURL: fullURL,
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
+		h.logger.Error("Failed encode json", zap.Error(resErr))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
 }

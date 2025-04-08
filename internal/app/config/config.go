@@ -3,7 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
-
+	
 	"github.com/caarlos0/env"
 )
 
@@ -20,17 +20,29 @@ func (c *Config) initEnv() {
 }
 
 func (c *Config) initFlags() {
-	flag.StringVar(&c.ServerAddress, "a", DefaultAddress, "server address")
-	flag.StringVar(&c.BaseURL, "b", DefaultAddressWithProtocol, "base host URL")
+	flag.StringVar(&c.ServerAddress, "a", c.ServerAddress, "server address")
+	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "base host URL")
+	flag.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "file storage path")
 
 	flag.Parse()
 }
 
+func (c *Config) initDefault() {
+	if c.ServerAddress == "" {
+		c.ServerAddress = DefaultAddress
+	}
+
+	if c.BaseURL == "" {
+		c.BaseURL = DefaultAddressWithProtocol
+	}
+
+	if c.FileStoragePath == "" {
+		c.FileStoragePath = DefaultStoragePath
+	}
+}
+
 func (c *Config) init() {
 	c.initEnv()
-
-	isInstanceEmpty := c.BaseURL == "" || c.ServerAddress == ""
-	if isInstanceEmpty {
-		c.initFlags()
-	}
+	c.initFlags()
+	c.initDefault()
 }

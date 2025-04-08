@@ -21,3 +21,9 @@ vendor/
 # IDEs directories
 .idea
 .vscode
+
+# Db folder
+url-db.json
+
+# Test
+shortenertest
