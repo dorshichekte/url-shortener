@@ -1,13 +1,16 @@
 package url
 
 import (
+	"database/sql"
 	"encoding/json"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
 
 	"github.com/go-chi/chi/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"go.uber.org/zap"
+
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
 	urlService "url-shortener/internal/app/services/url"
@@ -120,4 +123,25 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
+	ps := h.config.DatabaseDSN
+
+	db, err := sql.Open("pgx", ps)
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = db.Ping()
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	res.WriteHeader(http.StatusOK)
 }
