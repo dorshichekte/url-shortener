@@ -82,12 +82,6 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	shortURL := h.service.CreateShort(originalURL, h.config)
-	//if err != nil {
-	//	h.logger.Error("Failed to create short url", zap.Error(err))
-	//	h.handleError(res, http.StatusInternalServerError)
-	//	return
-	//}
-
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
@@ -105,12 +99,6 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	}
 
 	shortURL := h.service.CreateShort(u.OriginalURL, h.config)
-	//if err != nil {
-	//	h.logger.Error("Failed to create short url", zap.Error(err))
-	//	h.handleError(res, http.StatusInternalServerError)
-	//	return
-	//}
-
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
@@ -147,4 +135,44 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
+	var rq []ShortenBatchRequest
+	var rs []ShortenBatchResponse
+
+	dec := json.NewDecoder(req.Body)
+	if err := dec.Decode(&rq); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer func() {
+		_ = req.Body.Close()
+	}()
+
+	for _, batch := range rq {
+		if batch.ID == "" || batch.OriginalURL == "" {
+			continue
+		}
+
+		shortURL := h.service.CreateShort(batch.OriginalURL, h.config)
+		baseURL := h.config.BaseURL
+		fullURL := baseURL + "/" + shortURL
+
+		resp := ShortenBatchResponse{
+			ID:       batch.ID,
+			ShortURL: fullURL,
+		}
+
+		rs = append(rs, resp)
+
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusCreated)
+	enc := json.NewEncoder(res)
+	if err := enc.Encode(rs); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
