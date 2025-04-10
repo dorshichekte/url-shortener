@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"go.uber.org/zap"
 	"io"
 	"log"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/services/url"
 	"url-shortener/internal/app/storage"
 )
@@ -42,8 +41,6 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path, body string) (
 
 func TestRoute(t *testing.T) {
 	cfg := config.NewConfig()
-	s := storage.NewURLStorage()
-	urlService := url.NewURLService(s, cfg)
 	l, err := logger.New()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
@@ -51,6 +48,8 @@ func TestRoute(t *testing.T) {
 	defer func() {
 		_ = l.Sync()
 	}()
+	s := storage.Create(cfg, l)
+	urlService := url.NewURLService(s, cfg)
 
 	handler := NewHandler(urlService, cfg, l)
 	ts := httptest.NewServer(handler.Register(l))
@@ -58,10 +57,7 @@ func TestRoute(t *testing.T) {
 
 	mockURL := "https://ya.ru"
 	baseURL := cfg.BaseURL
-	mockTestData, err := urlService.CreateShort(mockURL, cfg.FileStoragePath)
-	if err != nil {
-		l.Error("Failed initialization logger: %v", zap.Error(err))
-	}
+	mockTestData := urlService.CreateShort(mockURL, cfg)
 
 	type values struct {
 		url    string
