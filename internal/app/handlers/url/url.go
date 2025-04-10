@@ -1,11 +1,13 @@
 package url
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -79,12 +81,12 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	shortURL, err := h.service.CreateShort(originalURL, h.config.FileStoragePath)
-	if err != nil {
-		h.logger.Error("Failed to create short url", zap.Error(err))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
+	shortURL := h.service.CreateShort(originalURL, h.config)
+	//if err != nil {
+	//	h.logger.Error("Failed to create short url", zap.Error(err))
+	//	h.handleError(res, http.StatusInternalServerError)
+	//	return
+	//}
 
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
@@ -102,12 +104,12 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL, err := h.service.CreateShort(u.OriginalURL, h.config.FileStoragePath)
-	if err != nil {
-		h.logger.Error("Failed to create short url", zap.Error(err))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
+	shortURL := h.service.CreateShort(u.OriginalURL, h.config)
+	//if err != nil {
+	//	h.logger.Error("Failed to create short url", zap.Error(err))
+	//	h.handleError(res, http.StatusInternalServerError)
+	//	return
+	//}
 
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
@@ -133,15 +135,16 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	err = db.Ping()
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	defer func() {
 		_ = db.Close()
 	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	if err = db.PingContext(ctx); err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	res.WriteHeader(http.StatusOK)
 }

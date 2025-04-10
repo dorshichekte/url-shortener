@@ -1,69 +1,56 @@
 package storage
 
-import "strconv"
+import (
+	"fmt"
+	"go.uber.org/zap"
 
-func NewURLStorage() *URLStorage {
-	return &URLStorage{
-		mapURL:      make(map[string]string),
-		mapShortURL: make(map[string]string),
+	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/osfile"
+	"url-shortener/internal/app/storage/db"
+	"url-shortener/internal/app/storage/memory"
+)
+
+func initDatabase(cfg *config.Config) (URLStorage, error) {
+	ps, err := db.NewPostgresStorage(cfg.DatabaseDSN)
+	if err != nil {
+		return nil, err
 	}
+
+	return ps, nil
 }
 
-func (us *URLStorage) Get(url string, urlType URLType) string {
-	switch urlType {
-	case DefaultURLType:
-		value, found := us.mapURL[url]
-		if !found {
-			return ""
+func initMemory(cfg *config.Config) (URLStorage, error) {
+	st := memory.NewURLStorage()
+	consumer := osfile.Consumer{}
+
+	event, err := consumer.Load(cfg.FileStoragePath)
+	if err != nil {
+		return st, err
+	}
+
+	fmt.Println(event)
+
+	return st, nil
+}
+
+func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
+	var store URLStorage
+	var errInitDB error
+	var errInitFileStorage error
+
+	if cfg.DatabaseDSN != "" {
+		store, errInitDB = initDatabase(cfg)
+	}
+
+	isFailedInitDB := errInitDB != nil || store == nil
+	if isFailedInitDB {
+		logger.Error("failed to connect to DB", zap.Error(errInitDB))
+		store, errInitFileStorage = initMemory(cfg)
+
+		if errInitFileStorage != nil {
+			logger.Error("failed open file for memory storage", zap.Error(errInitFileStorage))
 		}
-		return value
-	case ShortURLType:
-		value, found := us.mapShortURL[url]
-		if !found {
-			return ""
-		}
-		return value
-	default:
-		return ""
-	}
-}
-
-func (us *URLStorage) Add(url, shortURL string) {
-	us.mapURL[url] = shortURL
-	us.mapShortURL[shortURL] = url
-}
-
-func (us *URLStorage) Write(url, shortURL, fileStoragePath string) error {
-	data := Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
-
-	consumer, err := NewConsumer(fileStoragePath)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = consumer.Close()
-	}()
-
-	if err = consumer.WriteEvent(&data); err != nil {
-		return err
 	}
 
-	return nil
-}
-
-func (us *URLStorage) Load(fileStoragePath string) error {
-	pr, err := NewProducer(fileStoragePath)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = pr.Close()
-	}()
-
-	_, err = pr.ReadEvent(us)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return store
 }
