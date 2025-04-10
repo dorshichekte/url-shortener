@@ -3,6 +3,7 @@ package url
 import (
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/storage"
+	"url-shortener/internal/app/storage/memory"
 	stringUtils "url-shortener/internal/app/utils/string"
 )
 
@@ -24,7 +25,8 @@ func (u *Service) CreateShort(url string, cfg *config.Config) string {
 
 	isNeedWriteToFile := cfg.DatabaseDSN == ""
 	if isNeedWriteToFile {
-
+		m := memory.Storage{}
+		_ = m.Write(url, shortURL, cfg.FileStoragePath)
 	}
 
 	return shortURL
@@ -35,12 +37,6 @@ func (u *Service) GetOriginal(shortURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	//test
-	//isURLEmpty := len(originalURL) == 0
-	//if isURLEmpty {
-	//	return "", constants.ErrURLNotFound
-	//}
 
 	return originalURL, nil
 }
