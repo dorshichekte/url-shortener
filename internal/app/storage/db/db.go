@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+
 	"url-shortener/internal/app/constants"
 )
 
