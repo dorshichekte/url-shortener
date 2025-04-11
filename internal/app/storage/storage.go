@@ -20,15 +20,14 @@ func initDatabase(cfg *config.Config) (URLStorage, error) {
 }
 
 func initMemory(cfg *config.Config) (URLStorage, error) {
-	st := memory.NewURLStorage(cfg)
+	fmt.Println(cfg, "cfg memort")
+	st := memory.NewURLStorage(*cfg)
 	consumer := osfile.Consumer{}
 
-	event, err := consumer.Load(cfg.FileStoragePath)
+	_, err := consumer.Load(cfg.FileStoragePath)
 	if err != nil {
 		return st, err
 	}
-
-	fmt.Println(event)
 
 	return st, nil
 }
@@ -51,6 +50,6 @@ func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
 			logger.Error("failed open file for memory storage", zap.Error(errInitFileStorage))
 		}
 	}
-
+	fmt.Println(store, "store")
 	return store
 }

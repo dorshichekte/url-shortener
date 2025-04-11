@@ -26,6 +26,23 @@ func (c *Consumer) Close() error {
 	return c.file.Close()
 }
 
+func (c *Consumer) Load(fileStoragePath string) (*Event, error) {
+	pr, err := NewProducer(fileStoragePath)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = pr.Close()
+	}()
+
+	event, err := pr.ReadEvent()
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+
 func NewProducer(filePath string) (*Producer, error) {
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
@@ -53,21 +70,4 @@ func (p *Producer) ReadEvent() (*Event, error) {
 
 func (p *Producer) Close() error {
 	return p.file.Close()
-}
-
-func (c *Consumer) Load(fileStoragePath string) (*Event, error) {
-	pr, err := NewProducer(fileStoragePath)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = pr.Close()
-	}()
-
-	event, err := pr.ReadEvent()
-	if err != nil {
-		return nil, err
-	}
-
-	return event, nil
 }

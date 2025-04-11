@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"fmt"
 	"strconv"
 	"url-shortener/internal/app/config"
 
@@ -9,7 +10,7 @@ import (
 	"url-shortener/internal/app/osfile"
 )
 
-func NewURLStorage(cfg *config.Config) *Storage {
+func NewURLStorage(cfg config.Config) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
 		cfg:    cfg,

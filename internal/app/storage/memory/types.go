@@ -8,5 +8,5 @@ type MapURL map[string]string
 
 type Storage struct {
 	mapURL MapURL
-	cfg    *config.Config
+	cfg    config.Config
 }
