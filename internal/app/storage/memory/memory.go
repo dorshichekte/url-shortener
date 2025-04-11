@@ -28,8 +28,6 @@ func (us *Storage) Get(url string) (string, error) {
 func (us *Storage) Add(url, shortURL string) {
 	us.mapURL[url] = shortURL
 	us.mapURL[shortURL] = url
-
-	us.Write(url, shortURL)
 }
 
 func (us *Storage) Delete(url string) error {

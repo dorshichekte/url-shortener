@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 
 	"url-shortener/internal/app/config"
@@ -23,12 +22,14 @@ func initMemory(cfg *config.Config) (URLStorage, error) {
 	st := memory.NewURLStorage(cfg)
 	consumer := osfile.Consumer{}
 
-	event, err := consumer.Load(cfg.FileStoragePath)
+	listEvents, err := consumer.Load(cfg.FileStoragePath)
 	if err != nil {
 		return st, err
 	}
 
-	fmt.Println(event, "event")
+	for _, event := range *listEvents {
+		st.Add(event.OriginalURL, event.ShortURL)
+	}
 
 	return st, nil
 }
@@ -51,6 +52,6 @@ func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
 			logger.Error("failed open file for memory storage", zap.Error(errInitFileStorage))
 		}
 	}
-	fmt.Println(store, "store")
+
 	return store
 }

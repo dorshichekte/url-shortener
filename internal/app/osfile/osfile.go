@@ -28,7 +28,7 @@ func (c *Consumer) Close() error {
 	return c.file.Close()
 }
 
-func (c *Consumer) Load(fileStoragePath string) (*Event, error) {
+func (c *Consumer) Load(fileStoragePath string) (*[]Event, error) {
 	pr, err := NewProducer(fileStoragePath)
 	if err != nil {
 		return nil, err
@@ -37,12 +37,12 @@ func (c *Consumer) Load(fileStoragePath string) (*Event, error) {
 		_ = pr.Close()
 	}()
 
-	event, err := pr.ReadEvent()
+	listEvents, err := pr.ReadEvent()
 	if err != nil {
 		return nil, err
 	}
 
-	return event, nil
+	return listEvents, nil
 }
 
 func NewProducer(filePath string) (*Producer, error) {
@@ -57,17 +57,20 @@ func NewProducer(filePath string) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) ReadEvent() (*Event, error) {
-	var event Event
+func (p *Producer) ReadEvent() (*[]Event, error) {
+	var events []Event
 	for {
+		var event Event
 		if err := p.decoder.Decode(&event); err != nil {
 			if err == io.EOF {
 				break
 			}
 			return nil, err
 		}
+		events = append(events, event)
 	}
-	return &event, nil
+
+	return &events, nil
 }
 
 func (p *Producer) Close() error {
