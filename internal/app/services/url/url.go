@@ -52,7 +52,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 
 		tmpListBatches = append(tmpListBatches, models.Batch{
 			OriginalURL: batch.OriginalURL,
-			Id:          batch.Id,
+			ID:          batch.ID,
 			ShortURL:    shortURL,
 		})
 	}
@@ -65,7 +65,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 	listResponseBatches := make([]models.BatchResponse, 0, len(listBatches))
 	for _, batch := range tmpListBatches {
 		listResponseBatches = append(listResponseBatches, models.BatchResponse{
-			Id:       batch.Id,
+			ID:       batch.ID,
 			ShortURL: u.cfg.BaseURL + "/" + batch.ShortURL,
 		})
 	}

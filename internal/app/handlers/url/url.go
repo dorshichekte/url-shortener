@@ -171,7 +171,7 @@ func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if v.Id == "" {
+		if v.ID == "" {
 			h.logger.Error("Empty request ID")
 			h.handleError(res, http.StatusBadRequest)
 			return
