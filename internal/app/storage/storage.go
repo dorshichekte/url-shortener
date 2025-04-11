@@ -20,14 +20,15 @@ func initDatabase(cfg *config.Config) (URLStorage, error) {
 }
 
 func initMemory(cfg *config.Config) (URLStorage, error) {
-	fmt.Println(cfg, "cfg memort")
-	st := memory.NewURLStorage(*cfg)
+	st := memory.NewURLStorage(cfg)
 	consumer := osfile.Consumer{}
 
-	_, err := consumer.Load(cfg.FileStoragePath)
+	event, err := consumer.Load(cfg.FileStoragePath)
 	if err != nil {
 		return st, err
 	}
+
+	fmt.Println(event, "event")
 
 	return st, nil
 }

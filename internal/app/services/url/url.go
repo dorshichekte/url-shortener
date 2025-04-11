@@ -4,7 +4,6 @@ import (
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/storage"
-	"url-shortener/internal/app/storage/memory"
 	stringUtils "url-shortener/internal/app/utils/string"
 )
 
@@ -12,7 +11,7 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 	return &Service{store: store, cfg: *cfg}
 }
 
-func (u *Service) CreateShort(url string, cfg *config.Config) string {
+func (u *Service) CreateShort(url string) string {
 	var shortURL string
 	var err error
 
@@ -23,12 +22,6 @@ func (u *Service) CreateShort(url string, cfg *config.Config) string {
 
 	shortURL = stringUtils.CreateRandom()
 	u.store.Add(url, shortURL)
-
-	isNeedWriteToFile := cfg.DatabaseDSN == ""
-	if isNeedWriteToFile {
-		m := memory.Storage{}
-		_ = m.Write(url, shortURL)
-	}
 
 	return shortURL
 }

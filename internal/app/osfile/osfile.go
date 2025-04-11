@@ -2,12 +2,14 @@ package osfile
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 )
 
 func NewConsumer(filePath string) (*Consumer, error) {
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	fmt.Println(filePath, "filepath")
 	if err != nil {
 		return nil, err
 	}
