@@ -3,8 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
-
+	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"url-shortener/internal/app/models"
 
 	"url-shortener/internal/app/constants"
 )
@@ -32,12 +33,12 @@ func NewPostgresStorage(dsn string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (r *Storage) Get(shortURL string) (string, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+func (s *Storage) Get(shortURL string) (string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	var url string
-	err := r.db.QueryRow("SELECT url FROM urls WHERE short_url = $1", shortURL).Scan(&url)
+	err := s.db.QueryRow("SELECT url FROM urls WHERE short_url = $1", shortURL).Scan(&url)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", constants.ErrURLNotFound
@@ -48,21 +49,45 @@ func (r *Storage) Get(shortURL string) (string, error) {
 	return url, nil
 }
 
-func (r *Storage) Add(url string, shortURL string) {
+func (s *Storage) Add(url string, shortURL string) {
 	query := "INSERT INTO urls (url, short_url) VALUES ($1, $2)"
-	r.db.Exec(query, shortURL, url)
+	s.db.Exec(query, shortURL, url)
 }
 
-func (r *Storage) Delete(shortURL string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+func (s *Storage) Delete(shortURL string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	query := "DELETE FROM urls WHERE short_url = $1 AND url = $1"
-	_, err := r.db.Exec(query, shortURL)
+	_, err := s.db.Exec(query, shortURL)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *Storage) AddBatch(listBatches []models.Batch) error {
+	queries := make([]string, 0, len(listBatches))
+
+	for _, batch := range listBatches {
+		query := fmt.Sprintf("INSERT INTO urls (id, original_url) VALUES ('%s', '%s');", batch.ShortURL, batch.OriginalURL)
+		queries = append(queries, query)
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, query := range queries {
+		_, err = tx.Exec(query)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }

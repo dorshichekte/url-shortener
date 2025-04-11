@@ -15,6 +15,7 @@ import (
 
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
+	"url-shortener/internal/app/models"
 	urlService "url-shortener/internal/app/services/url"
 )
 
@@ -30,8 +31,8 @@ func (h *Handler) handleError(res http.ResponseWriter, statusCode int) {
 	res.WriteHeader(statusCode)
 }
 
-func (h *Handler) jsonDecode(req *http.Request) (ShortenRequest, error) {
-	var request ShortenRequest
+func (h *Handler) jsonDecode(req *http.Request) (models.ShortenRequest, error) {
+	var request models.ShortenRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return request, err
 	}
@@ -39,7 +40,7 @@ func (h *Handler) jsonDecode(req *http.Request) (ShortenRequest, error) {
 	return request, nil
 }
 
-func (h *Handler) parseRequestURL(req *http.Request) (string, error) {
+func (h *Handler) parseRequest(req *http.Request) (string, error) {
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return "", err
@@ -71,7 +72,7 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
-	originalURL, err := h.parseRequestURL(req)
+	originalURL, err := h.parseRequest(req)
 	if err != nil {
 		h.logger.Error("Failed parse request URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
@@ -102,7 +103,7 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
-	response := ShortenResponse{
+	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
 
@@ -138,40 +139,65 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
-	var rq []ShortenBatchRequest
-	var rs []ShortenBatchResponse
+	var rq []models.BatchRequest
+	var rs []models.BatchResponse
 
-	dec := json.NewDecoder(req.Body)
-	if err := dec.Decode(&rq); err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		h.logger.Error("Failed read request body", zap.Error(err))
+		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 	defer func() {
 		_ = req.Body.Close()
 	}()
 
-	for _, batch := range rq {
-		if batch.ID == "" || batch.OriginalURL == "" {
-			continue
+	if err := json.Unmarshal(body, &rq); err != nil {
+		h.logger.Error("Failed parse request body", zap.Error(err))
+		h.handleError(res, http.StatusBadRequest)
+		return
+	}
+
+	if len(body) == 0 {
+		h.logger.Error("Empty request body")
+		h.handleError(res, http.StatusBadRequest)
+		return
+	}
+
+	for _, v := range rq {
+		if _, err = url.ParseRequestURI(v.OriginalURL); err != nil {
+			h.logger.Error("Failed parse request URL", zap.Error(err))
+			h.handleError(res, http.StatusBadRequest)
+			return
 		}
 
-		shortURL := h.service.CreateShort(batch.OriginalURL, h.config)
-		baseURL := h.config.BaseURL
-		fullURL := baseURL + "/" + shortURL
-
-		resp := ShortenBatchResponse{
-			ID:       batch.ID,
-			ShortURL: fullURL,
+		if v.Id == "" {
+			h.logger.Error("Empty request Id")
+			h.handleError(res, http.StatusBadRequest)
+			return
 		}
+	}
 
-		rs = append(rs, resp)
+	rs, err = h.service.AddBatch(rq)
+	if err != nil {
+		h.logger.Error("Failed add batches", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
 
+	j, err := json.Marshal(rs)
+	if err != nil {
+		h.logger.Error("Failed marshal json", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
 	}
 
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-	enc := json.NewEncoder(res)
-	if err := enc.Encode(rs); err != nil {
+
+	_, err = res.Write(j)
+	if err != nil {
+		h.logger.Error("Failed write response", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

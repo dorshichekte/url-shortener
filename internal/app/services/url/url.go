@@ -2,6 +2,7 @@ package url
 
 import (
 	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/storage"
 	"url-shortener/internal/app/storage/memory"
 	stringUtils "url-shortener/internal/app/utils/string"
@@ -26,7 +27,7 @@ func (u *Service) CreateShort(url string, cfg *config.Config) string {
 	isNeedWriteToFile := cfg.DatabaseDSN == ""
 	if isNeedWriteToFile {
 		m := memory.Storage{}
-		_ = m.Write(url, shortURL, cfg.FileStoragePath)
+		_ = m.Write(url, shortURL)
 	}
 
 	return shortURL
@@ -39,4 +40,35 @@ func (u *Service) GetOriginal(shortURL string) (string, error) {
 	}
 
 	return originalURL, nil
+}
+
+func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchResponse, error) {
+	var err error
+
+	tmpListBatches := make([]models.Batch, 0, len(listBatches))
+
+	for _, batch := range listBatches {
+		shortURL := stringUtils.CreateRandom()
+
+		tmpListBatches = append(tmpListBatches, models.Batch{
+			OriginalURL: batch.OriginalURL,
+			Id:          batch.Id,
+			ShortURL:    shortURL,
+		})
+	}
+
+	err = u.store.AddBatch(tmpListBatches)
+	if err != nil {
+		return nil, err
+	}
+
+	listResponseBatches := make([]models.BatchResponse, len(listBatches), len(listBatches))
+	for _, batch := range tmpListBatches {
+		listResponseBatches = append(listResponseBatches, models.BatchResponse{
+			Id:       batch.Id,
+			ShortURL: u.cfg.BaseURL + "/" + batch.ShortURL,
+		})
+	}
+
+	return listResponseBatches, nil
 }

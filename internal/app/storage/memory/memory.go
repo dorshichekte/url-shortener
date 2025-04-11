@@ -1,16 +1,18 @@
 package memory
 
 import (
-	"fmt"
 	"strconv"
+	"url-shortener/internal/app/config"
 
 	"url-shortener/internal/app/constants"
+	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
 )
 
-func NewURLStorage() *Storage {
+func NewURLStorage(cfg *config.Config) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
+		cfg:    cfg,
 	}
 }
 
@@ -25,8 +27,6 @@ func (us *Storage) Get(url string) (string, error) {
 func (us *Storage) Add(url, shortURL string) {
 	us.mapURL[url] = shortURL
 	us.mapURL[shortURL] = url
-
-	fmt.Println(us.mapURL)
 }
 
 func (us *Storage) Delete(url string) error {
@@ -39,10 +39,10 @@ func (us *Storage) Delete(url string) error {
 	return nil
 }
 
-func (us *Storage) Write(url, shortURL, fileStoragePath string) error {
+func (us *Storage) Write(url, shortURL string) error {
 	data := osfile.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
 
-	consumer, err := osfile.NewConsumer(fileStoragePath)
+	consumer, err := osfile.NewConsumer(us.cfg.FileStoragePath)
 	if err != nil {
 		return err
 	}
@@ -52,6 +52,18 @@ func (us *Storage) Write(url, shortURL, fileStoragePath string) error {
 
 	if err = consumer.WriteEvent(&data); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (us *Storage) AddBatch(listBatches []models.Batch) error {
+	for _, batch := range listBatches {
+		us.Add(batch.OriginalURL, batch.ShortURL)
+		err := us.Write(batch.OriginalURL, batch.ShortURL)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

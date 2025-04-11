@@ -20,7 +20,7 @@ func initDatabase(cfg *config.Config) (URLStorage, error) {
 }
 
 func initMemory(cfg *config.Config) (URLStorage, error) {
-	st := memory.NewURLStorage()
+	st := memory.NewURLStorage(cfg)
 	consumer := osfile.Consumer{}
 
 	event, err := consumer.Load(cfg.FileStoragePath)
