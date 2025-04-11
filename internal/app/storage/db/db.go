@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"url-shortener/internal/app/models"
 
 	"url-shortener/internal/app/constants"
+	"url-shortener/internal/app/models"
 )
 
 func NewPostgresStorage(dsn string) (*Storage, error) {
@@ -22,7 +23,7 @@ func NewPostgresStorage(dsn string) (*Storage, error) {
 	createTableQuery := `
     CREATE TABLE IF NOT EXISTS urls (
         id SERIAL PRIMARY KEY,
-        url TEXT NOT NULL,
+        url TEXT NOT NULL UNIQUE,
         short_url TEXT NOT NULL UNIQUE
     );
     `

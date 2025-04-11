@@ -82,7 +82,14 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	shortURL := h.service.CreateShort(originalURL)
+	shortURL, err := h.service.CreateShort(originalURL)
+	if err != nil {
+		h.logger.Error("Failed create short URL", zap.Error(err))
+		res.Header().Set("Content-Type", "text/plain")
+		h.handleError(res, http.StatusConflict)
+		return
+	}
+
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
@@ -99,7 +106,14 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL := h.service.CreateShort(u.OriginalURL)
+	shortURL, err := h.service.CreateShort(u.OriginalURL)
+	if err != nil {
+		h.logger.Error("Failed create short URL", zap.Error(err))
+		res.Header().Set("Content-Type", "application/json")
+		h.handleError(res, http.StatusConflict)
+		return
+	}
+
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 
