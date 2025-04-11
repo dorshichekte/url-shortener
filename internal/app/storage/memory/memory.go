@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"strconv"
 	"url-shortener/internal/app/config"
 
@@ -42,7 +41,6 @@ func (us *Storage) Delete(url string) error {
 
 func (us *Storage) Write(url, shortURL string) error {
 	data := osfile.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
-	fmt.Println(us.cfg)
 	consumer, err := osfile.NewConsumer(us.cfg.FileStoragePath)
 	if err != nil {
 		return err
