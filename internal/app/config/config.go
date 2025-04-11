@@ -3,7 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
-	
+
 	"github.com/caarlos0/env"
 )
 
@@ -22,6 +22,7 @@ func (c *Config) initEnv() {
 func (c *Config) initFlags() {
 	flag.StringVar(&c.ServerAddress, "a", c.ServerAddress, "server address")
 	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "base host URL")
+	flag.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Connect DB string")
 	flag.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "file storage path")
 
 	flag.Parse()
