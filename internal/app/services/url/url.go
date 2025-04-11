@@ -16,7 +16,7 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 func (u *Service) CreateShort(url string) (string, error) {
 	shortURL, _ := u.store.Get(url)
 	if shortURL != "" {
-		return "", constants.ErrURLAlreadyExists
+		return shortURL, constants.ErrURLAlreadyExists
 	}
 
 	shortURL = stringUtils.CreateRandom()

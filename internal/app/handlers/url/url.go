@@ -83,6 +83,10 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	shortURL, err := h.service.CreateShort(originalURL)
+	baseURL := h.config.BaseURL
+	fullURL := baseURL + "/" + shortURL
+	defer res.Write([]byte(fullURL))
+
 	if err != nil {
 		h.logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "text/plain")
@@ -90,12 +94,8 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	baseURL := h.config.BaseURL
-	fullURL := baseURL + "/" + shortURL
-
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	res.Write([]byte(fullURL))
 }
 
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
@@ -107,6 +107,17 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	}
 
 	shortURL, err := h.service.CreateShort(u.OriginalURL)
+	baseURL := h.config.BaseURL
+	fullURL := baseURL + "/" + shortURL
+	response := models.ShortenResponse{
+		ShortURL: fullURL,
+	}
+	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
+		h.logger.Error("Failed encode json", zap.Error(resErr))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
 	if err != nil {
 		h.logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
@@ -114,20 +125,8 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	baseURL := h.config.BaseURL
-	fullURL := baseURL + "/" + shortURL
-
-	response := models.ShortenResponse{
-		ShortURL: fullURL,
-	}
-
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
-		h.logger.Error("Failed encode json", zap.Error(resErr))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
 }
 
 func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
