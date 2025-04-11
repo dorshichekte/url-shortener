@@ -1,7 +1,6 @@
 package url
 
 import (
-	"fmt"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/storage"
