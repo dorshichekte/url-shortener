@@ -72,7 +72,7 @@ func (s *Storage) AddBatch(listBatches []models.Batch) error {
 	queries := make([]string, 0, len(listBatches))
 
 	for _, batch := range listBatches {
-		query := fmt.Sprintf("INSERT INTO urls (id, original_url) VALUES ('%s', '%s');", batch.ShortURL, batch.OriginalURL)
+		query := fmt.Sprintf("INSERT INTO urls (short_url, url) VALUES ('%s', '%s');", batch.ShortURL, batch.OriginalURL)
 		queries = append(queries, query)
 	}
 
