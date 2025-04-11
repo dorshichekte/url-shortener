@@ -22,12 +22,7 @@ func main() {
 
 	cfg := config.NewConfig()
 
-	urlStorage := storage.NewURLStorage()
-
-	err = urlStorage.Load(cfg.FileStoragePath)
-	if err != nil {
-		log.Fatalf("Failed initialization storage: %v", err)
-	}
+	urlStorage := storage.Create(cfg, l)
 
 	urlService := url.NewURLService(urlStorage, cfg)
 

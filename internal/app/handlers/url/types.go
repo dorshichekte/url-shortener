@@ -11,11 +11,3 @@ type Handler struct {
 	config  *config.Config
 	logger  *zap.Logger
 }
-
-type ShortenRequest struct {
-	OriginalURL string `json:"url"`
-}
-
-type ShortenResponse struct {
-	ShortURL string `json:"result"`
-}
