@@ -3,6 +3,7 @@ package url
 import (
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/osfile"
 	"url-shortener/internal/app/storage"
 	stringUtils "url-shortener/internal/app/utils/string"
 )
@@ -22,6 +23,11 @@ func (u *Service) CreateShort(url string) string {
 
 	shortURL = stringUtils.CreateRandom()
 	u.store.Add(url, shortURL)
+
+	if u.cfg.DatabaseDSN == "" {
+		consumer, _ := osfile.NewConsumer(u.cfg.FileStoragePath)
+		_ = consumer.WriteEvent(&osfile.Event{UUID: stringUtils.CreateRandom(), OriginalURL: url, ShortURL: shortURL})
+	}
 
 	return shortURL
 }
