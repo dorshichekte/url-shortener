@@ -62,7 +62,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 		return nil, err
 	}
 
-	listResponseBatches := make([]models.BatchResponse, len(listBatches), len(listBatches))
+	listResponseBatches := make([]models.BatchResponse, 0, len(listBatches))
 	for _, batch := range tmpListBatches {
 		listResponseBatches = append(listResponseBatches, models.BatchResponse{
 			Id:       batch.Id,

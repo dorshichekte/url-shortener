@@ -1,7 +1,7 @@
 package models
 
 type Batch struct {
-	Id          string
+	ID          string
 	OriginalURL string
 	ShortURL    string
 }
