@@ -56,7 +56,11 @@ func TestRoute(t *testing.T) {
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
+	mockURL2 := "https://practicum.yandex.ru"
+	mockURL3 := "https://habr.com"
 	mockTestData, _ := urlService.CreateShort(mockURL)
+	mockTestData2, _ := urlService.CreateShort(mockURL2)
+	baseURL := cfg.BaseURL
 
 	type values struct {
 		url    string
@@ -79,7 +83,7 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   "https://practicum.yandex.ru",
+				body:   mockURL3,
 			},
 			want: want{
 				status: http.StatusCreated,
@@ -123,10 +127,11 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   mockURL,
+				body:   mockURL2,
 			},
 			want: want{
 				status: http.StatusConflict,
+				body:   baseURL + "/" + mockTestData2,
 			},
 		},
 		{

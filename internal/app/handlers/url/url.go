@@ -112,11 +112,13 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
-	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
-		h.logger.Error("Failed encode json", zap.Error(resErr))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
+	defer func() {
+		if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
+			h.logger.Error("Failed encode json", zap.Error(resErr))
+			h.handleError(res, http.StatusInternalServerError)
+			return
+		}
+	}()
 
 	if err != nil {
 		h.logger.Error("Failed create short URL", zap.Error(err))
