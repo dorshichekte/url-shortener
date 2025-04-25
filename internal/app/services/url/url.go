@@ -2,7 +2,6 @@ package url
 
 import (
 	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
 	"url-shortener/internal/app/storage"
@@ -14,13 +13,11 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 }
 
 func (u *Service) CreateShort(url string) (string, error) {
-	shortURL, _ := u.store.Get(url)
-	if shortURL != "" {
-		return shortURL, constants.ErrURLAlreadyExists
+	shortURL := stringUtils.CreateRandom()
+	err := u.store.Add(url, shortURL, "")
+	if err != nil {
+		return url, err
 	}
-
-	shortURL = stringUtils.CreateRandom()
-	u.store.Add(url, shortURL, "")
 
 	if u.cfg.DatabaseDSN == "" {
 		consumer, _ := osfile.NewConsumer(u.cfg.FileStoragePath)

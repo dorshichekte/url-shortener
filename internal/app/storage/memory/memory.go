@@ -24,9 +24,10 @@ func (us *Storage) Get(url string) (string, error) {
 	return value, nil
 }
 
-func (us *Storage) Add(url, shortURL, userID string) {
+func (us *Storage) Add(url, shortURL, userID string) error {
 	us.mapURL[url] = shortURL
 	us.mapURL[shortURL] = url
+	return nil
 }
 
 func (us *Storage) Delete(url string) error {
