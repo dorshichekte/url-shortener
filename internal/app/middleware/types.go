@@ -15,3 +15,5 @@ type gzipWriter struct {
 	io.Writer
 	http.ResponseWriter
 }
+
+type contextKey string

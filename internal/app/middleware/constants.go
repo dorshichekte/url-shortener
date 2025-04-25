@@ -1,3 +1,10 @@
 package middleware
 
-const authCookieName = "Authorization"
+const (
+	authCookieName = "Authorization"
+	userIDKey      = contextKey("userID")
+)
+
+func UserIDKey() contextKey {
+	return userIDKey
+}

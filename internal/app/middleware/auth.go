@@ -39,7 +39,7 @@ func Auth(next http.Handler) http.Handler {
 			}
 		}
 
-		ctx := context.WithValue(req.Context(), "userID", claims.UserID)
+		ctx := context.WithValue(req.Context(), userIDKey, claims.UserID)
 		next.ServeHTTP(res, req.WithContext(ctx))
 	})
 }

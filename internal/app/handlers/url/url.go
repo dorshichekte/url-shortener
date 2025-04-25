@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"url-shortener/internal/app/middleware"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -59,17 +60,10 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 }
 
 func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value("userID").(string)
-	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
-		h.handleError(res, http.StatusUnauthorized)
-		return
-	}
-	
 	id := chi.URLParam(req, "id")
 	originalURL, err := h.service.GetOriginal(id)
 	if err != nil {
-		h.logger.Error("Failed get original Url", zap.Error(err))
+		h.logger.Error("Failed get original URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -79,7 +73,7 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
@@ -88,7 +82,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 
 	originalURL, err := h.parseRequest(req)
 	if err != nil {
-		h.logger.Error("Failed parse request Url", zap.Error(err))
+		h.logger.Error("Failed parse request URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -102,7 +96,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	defer res.Write([]byte(fullURL))
 
 	if err != nil {
-		h.logger.Error("Failed create short Url", zap.Error(err))
+		h.logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "text/plain")
 		h.handleError(res, http.StatusConflict)
 		return
@@ -113,7 +107,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
@@ -142,7 +136,7 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	if err != nil {
-		h.logger.Error("Failed create short Url", zap.Error(err))
+		h.logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
 		return
@@ -175,7 +169,7 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
@@ -209,7 +203,7 @@ func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
 
 	for _, v := range rq {
 		if _, err = url.ParseRequestURI(v.OriginalURL); err != nil {
-			h.logger.Error("Failed parse request Url", zap.Error(err))
+			h.logger.Error("Failed parse request URL", zap.Error(err))
 			h.handleError(res, http.StatusBadRequest)
 			return
 		}
@@ -247,7 +241,7 @@ func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) ListUrls(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value("userID").(string)
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
