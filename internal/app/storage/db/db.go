@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"url-shortener/internal/app/config"
 
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/models"
 )
 
-func NewPostgresStorage(dsn string) (*Storage, error) {
-	db, err := sql.Open("pgx", dsn)
+func NewPostgresStorage(cfg config.Config) (*Storage, error) {
+	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func NewPostgresStorage(dsn string) (*Storage, error) {
 		return nil, err
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{db: db, cfg: cfg}, nil
 }
 
 func (s *Storage) Get(shortURL string) (string, error) {
@@ -118,7 +119,7 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
 			return nil, err
 		}
-		url.ShortURL = fmt.Sprintf("%s/%s", "ss", url.ShortURL)
+		url.ShortURL = fmt.Sprintf("%s/%s", s.cfg.BaseURL, url.ShortURL)
 		listURLs = append(listURLs, url)
 	}
 

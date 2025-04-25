@@ -10,7 +10,7 @@ import (
 )
 
 func initDatabase(cfg *config.Config) (URLStorage, error) {
-	ps, err := db.NewPostgresStorage(cfg.DatabaseDSN)
+	ps, err := db.NewPostgresStorage(*cfg)
 	if err != nil {
 		return nil, err
 	}
