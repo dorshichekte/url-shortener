@@ -1,8 +1,8 @@
 package memory
 
 import (
+	"fmt"
 	"strconv"
-	"sync"
 	"url-shortener/internal/app/config"
 
 	"url-shortener/internal/app/constants"
@@ -14,7 +14,6 @@ func NewURLStorage(cfg *config.Config) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
 		cfg:    *cfg,
-		mu:     sync.Mutex{},
 	}
 }
 
@@ -28,6 +27,7 @@ func (us *Storage) Get(url string) (string, error) {
 
 func (us *Storage) Add(url, shortURL, userID string) {
 	us.mapURL[url] = shortURL
+	us.mapURL[shortURL] = url
 }
 
 func (us *Storage) Delete(url string) error {
