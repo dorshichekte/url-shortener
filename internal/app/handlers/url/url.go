@@ -59,7 +59,7 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 	return string(body), nil
 }
 
-func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) GetURL(res http.ResponseWriter, req *http.Request) {
 	id := chi.URLParam(req, "id")
 	originalURL, err := h.service.GetOriginal(id)
 	if err != nil {
@@ -72,7 +72,7 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) AddURL(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
@@ -106,7 +106,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusCreated)
 }
 
-func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) AddUrlJSON(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
@@ -163,7 +163,7 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) AddURLsBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
@@ -235,7 +235,7 @@ func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (h *Handler) ListUrls(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) GetURLsByID(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
@@ -270,4 +270,31 @@ func (h *Handler) ListUrls(res http.ResponseWriter, req *http.Request) {
 		h.logger.Error("Failed write response", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+func (h *Handler) DeleteURLsByID(res http.ResponseWriter, req *http.Request) {
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
+
+	body, err := io.ReadAll(req.Body)
+	if err != nil || len(body) == 0 {
+		h.logger.Error("Failed read request body", zap.Error(err))
+		h.handleError(res, http.StatusBadRequest)
+		return
+	}
+
+	var listURLs []string
+	err = json.Unmarshal(body, &listURLs)
+	if err != nil {
+		h.logger.Error("Failed unmarshal request body", zap.Error(err))
+		h.handleError(res, http.StatusBadRequest)
+		return
+	}
+
+	go h.service.AddBatch()
+	res.WriteHeader(http.StatusAccepted)
 }

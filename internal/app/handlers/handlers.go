@@ -29,11 +29,12 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth)
-		r.Post("/", h.urlHandler.Add)
-		r.Get("/{id}", h.urlHandler.Get)
-		r.Get("/api/user/urls", h.urlHandler.ListUrls)
-		r.Post("/api/shorten/batch", h.urlHandler.Batch)
-		r.Post("/api/shorten", h.urlHandler.Shorten)
+		r.Post("/", h.urlHandler.AddURL)
+		r.Get("/{id}", h.urlHandler.GetURL)
+		r.Get("/api/user/urls", h.urlHandler.GetURLsByID)
+		r.Post("/api/shorten/batch", h.urlHandler.AddURLsBatch)
+		r.Post("/api/shorten", h.urlHandler.AddUrlJSON)
+		r.Delete("/api/users/urls", h.urlHandler.DeleteURLsByID)
 	})
 
 	return r

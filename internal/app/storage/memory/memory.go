@@ -78,3 +78,7 @@ func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 func (us *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
+
+func (us *Storage) BatchUpdate(shortURLs []string, userID string) error {
+	return constants.ErrUnsupportedMethod
+}

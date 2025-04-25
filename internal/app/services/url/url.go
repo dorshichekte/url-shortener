@@ -70,3 +70,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 func (u *Service) GetUserURLSByID(userID string) ([]models.URL, error) {
 	return u.store.GetUsersURLsByID(userID)
 }
+
+func (u *Service) DeleteURLsByID(shortURLs []string, userID string) error {
+	return u.store.BatchUpdate(shortURLs, userID)
+}

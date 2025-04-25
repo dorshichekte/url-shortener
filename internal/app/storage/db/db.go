@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"url-shortener/internal/app/config"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/models"
 )
@@ -25,7 +26,8 @@ func NewPostgresStorage(cfg config.Config) (*Storage, error) {
         id SERIAL PRIMARY KEY,
         url TEXT NOT NULL UNIQUE,
         short_url TEXT NOT NULL UNIQUE,
-        user_id VARCHAR(255) NOT NULL
+        user_id VARCHAR(255) NOT NULL,
+        is_deleted BOOLEAN DEFAULT false,
     );
     `
 	if _, err = db.Exec(createTableQuery); err != nil {
@@ -129,4 +131,15 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 	}
 
 	return listURLs, nil
+}
+
+func (s *Storage) BatchUpdate(shortURLs []string, userID int) error {
+	query := `
+        UPDATE urls
+        SET is_deleted = true
+        WHERE short_url = ANY($1::text[]) AND user_id = $2
+    `
+	_, err := s.db.Exec(query, shortURLs, userID)
+
+	return err
 }
