@@ -295,6 +295,6 @@ func (h *Handler) DeleteURLsByID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	go h.service.AddBatch()
+	go h.service.AddBatch(listURLs, userID)
 	res.WriteHeader(http.StatusAccepted)
 }
