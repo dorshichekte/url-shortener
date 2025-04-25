@@ -122,6 +122,13 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	}
 
 	shortURL, err := h.service.CreateShort(u.OriginalURL)
+	if err != nil {
+		h.logger.Error("Failed create short URL", zap.Error(err))
+		res.Header().Set("Content-Type", "application/json")
+		h.handleError(res, http.StatusConflict)
+		return
+	}
+
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := models.ShortenResponse{
@@ -134,13 +141,6 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}()
-
-	if err != nil {
-		h.logger.Error("Failed create short URL", zap.Error(err))
-		res.Header().Set("Content-Type", "application/json")
-		h.handleError(res, http.StatusConflict)
-		return
-	}
 
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
