@@ -28,7 +28,7 @@ func initMemory(cfg *config.Config) (URLStorage, error) {
 	}
 
 	for _, event := range *listEvents {
-		st.Add(event.OriginalURL, event.ShortURL)
+		st.Add(event.OriginalURL, event.ShortURL, "")
 	}
 
 	return st, nil

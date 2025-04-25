@@ -2,6 +2,7 @@ package memory
 
 import (
 	"strconv"
+	"sync"
 	"url-shortener/internal/app/config"
 
 	"url-shortener/internal/app/constants"
@@ -13,6 +14,7 @@ func NewURLStorage(cfg *config.Config) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
 		cfg:    *cfg,
+		mu:     sync.Mutex{},
 	}
 }
 
@@ -24,9 +26,8 @@ func (us *Storage) Get(url string) (string, error) {
 	return value, nil
 }
 
-func (us *Storage) Add(url, shortURL string) {
+func (us *Storage) Add(url, shortURL, userID string) {
 	us.mapURL[url] = shortURL
-	us.mapURL[shortURL] = url
 }
 
 func (us *Storage) Delete(url string) error {
@@ -56,9 +57,9 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
-func (us *Storage) AddBatch(listBatches []models.Batch) error {
+func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	for _, batch := range listBatches {
-		us.Add(batch.OriginalURL, batch.ShortURL)
+		us.Add(batch.OriginalURL, batch.ShortURL, userID)
 		err := us.Write(batch.OriginalURL, batch.ShortURL)
 		if err != nil {
 			return err
@@ -66,4 +67,8 @@ func (us *Storage) AddBatch(listBatches []models.Batch) error {
 	}
 
 	return nil
+}
+
+func (us *Storage) GetUsersURLsByID(userID string) ([]models.Url, error) {
+	return nil, constants.ErrUnsupportedMethod
 }

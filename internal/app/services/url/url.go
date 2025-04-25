@@ -20,7 +20,7 @@ func (u *Service) CreateShort(url string) (string, error) {
 	}
 
 	shortURL = stringUtils.CreateRandom()
-	u.store.Add(url, shortURL)
+	u.store.Add(url, shortURL, "")
 
 	if u.cfg.DatabaseDSN == "" {
 		consumer, _ := osfile.NewConsumer(u.cfg.FileStoragePath)
@@ -54,7 +54,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 		})
 	}
 
-	err = u.store.AddBatch(tmpListBatches)
+	err = u.store.AddBatch(tmpListBatches, "")
 	if err != nil {
 		return nil, err
 	}
@@ -68,4 +68,8 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 	}
 
 	return listResponseBatches, nil
+}
+
+func (u *Service) GetUserURLSByID(userID string) ([]models.Url, error) {
+	return u.store.GetUsersURLsByID(userID)
 }

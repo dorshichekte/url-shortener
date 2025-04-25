@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"url-shortener/internal/app/constants"
@@ -24,7 +23,8 @@ func NewPostgresStorage(dsn string) (*Storage, error) {
     CREATE TABLE IF NOT EXISTS urls (
         id SERIAL PRIMARY KEY,
         url TEXT NOT NULL UNIQUE,
-        short_url TEXT NOT NULL UNIQUE
+        short_url TEXT NOT NULL UNIQUE,
+        user_id VARCHAR(255) NOT NULL UNIQUE
     );
     `
 	if _, err = db.Exec(createTableQuery); err != nil {
@@ -50,9 +50,9 @@ func (s *Storage) Get(shortURL string) (string, error) {
 	return url, nil
 }
 
-func (s *Storage) Add(url string, shortURL string) {
-	query := "INSERT INTO urls (url, short_url) VALUES ($1, $2)"
-	s.db.Exec(query, shortURL, url)
+func (s *Storage) Add(url, shortURL, userID string) {
+	query := "INSERT INTO urls (url, short_url, user_id) VALUES ($1, $2, $3)"
+	s.db.Exec(query, url, shortURL, userID)
 }
 
 func (s *Storage) Delete(shortURL string) error {
@@ -69,26 +69,57 @@ func (s *Storage) Delete(shortURL string) error {
 	return nil
 }
 
-func (s *Storage) AddBatch(listBatches []models.Batch) error {
-	queries := make([]string, 0, len(listBatches))
-
-	for _, batch := range listBatches {
-		query := fmt.Sprintf("INSERT INTO urls (short_url, url) VALUES ('%s', '%s');", batch.ShortURL, batch.OriginalURL)
-		queries = append(queries, query)
-	}
-
+func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
-	for _, query := range queries {
-		_, err = tx.Exec(query)
+	stmt, err := tx.Prepare("INSERT INTO urls (short_url, url, user_id) VALUES ($1, $2, $3)")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	for _, batch := range listBatches {
+		_, err = stmt.Exec(batch.ShortURL, batch.OriginalURL, userID)
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
-
+	
 	return tx.Commit()
+}
+
+func (s *Storage) GetUsersURLsByID(userID string) ([]models.Url, error) {
+	var listURLs []models.Url
+
+	rows, err := s.db.Query(`SELECT original_url, short_url FROM urls WHERE user_id=$1`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	for rows.Next() {
+		var url models.Url
+		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
+			return nil, err
+		}
+		url.ShortURL = fmt.Sprintf("%s/%s", "ss", url.ShortURL)
+		listURLs = append(listURLs, url)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return listURLs, nil
 }
