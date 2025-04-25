@@ -53,6 +53,8 @@ func (s *Storage) Add(url, shortURL, userID string) (string, error) {
 	query := "INSERT INTO urls (url, short_url, user_id) VALUES ($1, $2, $3)"
 	_, err := s.db.Exec(query, url, shortURL, userID)
 	if err != nil {
+		var shortURL string
+		s.db.QueryRow("SELECT short_url FROM urls WHERE url = $1", url).Scan(&shortURL)
 		return shortURL, err
 	}
 
