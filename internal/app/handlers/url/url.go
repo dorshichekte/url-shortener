@@ -122,28 +122,30 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 	}
 
 	shortURL, err := h.service.CreateShort(u.OriginalURL)
-	if err != nil {
-		h.logger.Error("Failed create short URL", zap.Error(err))
-		res.Header().Set("Content-Type", "application/json")
-		h.handleError(res, http.StatusConflict)
-		return
-	}
-
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
-	defer func() {
-		if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
-			h.logger.Error("Failed encode json", zap.Error(resErr))
-			h.handleError(res, http.StatusInternalServerError)
-			return
-		}
-	}()
+	//defer func() {
+	//	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
+	//		h.logger.Error("Failed encode json", zap.Error(resErr))
+	//		h.handleError(res, http.StatusInternalServerError)
+	//		return
+	//	}
+	//}()
+
+	if err != nil {
+		h.logger.Error("Failed create short URL", zap.Error(err))
+		res.Header().Set("Content-Type", "application/json")
+		h.handleError(res, http.StatusConflict)
+		json.NewEncoder(res).Encode(response)
+		return
+	}
 
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
+	json.NewEncoder(res).Encode(response)
 }
 
 func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
