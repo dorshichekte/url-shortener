@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"strconv"
 	"url-shortener/internal/app/config"
 
