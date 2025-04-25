@@ -133,7 +133,7 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 	return listURLs, nil
 }
 
-func (s *Storage) BatchUpdate(shortURLs []string, userID int) error {
+func (s *Storage) BatchUpdate(shortURLs []string, userID string) error {
 	query := `
         UPDATE urls
         SET is_deleted = true
