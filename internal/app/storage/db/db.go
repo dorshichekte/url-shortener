@@ -92,12 +92,12 @@ func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 			return err
 		}
 	}
-	
+
 	return tx.Commit()
 }
 
-func (s *Storage) GetUsersURLsByID(userID string) ([]models.Url, error) {
-	var listURLs []models.Url
+func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
+	var listURLs []models.URL
 
 	rows, err := s.db.Query(`SELECT original_url, short_url FROM urls WHERE user_id=$1`, userID)
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.Url, error) {
 	}()
 
 	for rows.Next() {
-		var url models.Url
+		var url models.URL
 		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
 			return nil, err
 		}

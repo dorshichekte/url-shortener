@@ -9,5 +9,5 @@ type URLStorage interface {
 	Add(url, shortURL, userID string)
 	Delete(url string) error
 	AddBatch(listBatches []models.Batch, userID string) error
-	GetUsersURLsByID(userID string) ([]models.Url, error)
+	GetUsersURLsByID(userID string) ([]models.URL, error)
 }

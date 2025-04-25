@@ -70,6 +70,6 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 	return listResponseBatches, nil
 }
 
-func (u *Service) GetUserURLSByID(userID string) ([]models.Url, error) {
+func (u *Service) GetUserURLSByID(userID string) ([]models.URL, error) {
 	return u.store.GetUsersURLsByID(userID)
 }
