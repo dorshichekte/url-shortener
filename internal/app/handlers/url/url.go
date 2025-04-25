@@ -107,12 +107,12 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
-	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
-	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
-		h.handleError(res, http.StatusUnauthorized)
-		return
-	}
+	//userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	//if !ok || userID == "" {
+	//	h.logger.Error("Failed get userID from context")
+	//	h.handleError(res, http.StatusUnauthorized)
+	//	return
+	//}
 
 	u, err := h.jsonDecode(req)
 	if err != nil {
