@@ -90,7 +90,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	shortURL, err := h.service.CreateShort(originalURL)
+	shortURL, err := h.service.CreateShort(originalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	defer res.Write([]byte(fullURL))
@@ -107,12 +107,12 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
-	//userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
-	//if !ok || userID == "" {
-	//	h.logger.Error("Failed get userID from context")
-	//	h.handleError(res, http.StatusUnauthorized)
-	//	return
-	//}
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
 
 	u, err := h.jsonDecode(req)
 	if err != nil {
@@ -121,19 +121,12 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL, err := h.service.CreateShort(u.OriginalURL)
+	shortURL, err := h.service.CreateShort(u.OriginalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
-	//defer func() {
-	//	if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
-	//		h.logger.Error("Failed encode json", zap.Error(resErr))
-	//		h.handleError(res, http.StatusInternalServerError)
-	//		return
-	//	}
-	//}()
 
 	if err != nil {
 		h.logger.Error("Failed create short URL", zap.Error(err))

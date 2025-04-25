@@ -12,9 +12,9 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 	return &Service{store: store, cfg: *cfg}
 }
 
-func (u *Service) CreateShort(url string) (string, error) {
+func (u *Service) CreateShort(url, userID string) (string, error) {
 	shortURL := stringUtils.CreateRandom()
-	url, err := u.store.Add(url, shortURL, "")
+	url, err := u.store.Add(url, shortURL, userID)
 	if err != nil {
 		return url, err
 	}
