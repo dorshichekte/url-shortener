@@ -34,20 +34,21 @@ func NewPostgresStorage(dsn string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (s *Storage) Get(shortURL string) (string, error) {
+func (s *Storage) Get(url string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var url string
-	err := s.db.QueryRow("SELECT url FROM urls WHERE short_url = $1", shortURL).Scan(&url)
+	var shortURL string
+	err := s.db.QueryRow("SELECT url FROM urls WHERE url = $1", url).Scan(&shortURL)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", constants.ErrURLNotFound
 		}
+		fmt.Println(url, err)
+
 		return "", err
 	}
-
-	return url, nil
+	return shortURL, nil
 }
 
 func (s *Storage) Add(url, shortURL, userID string) {
