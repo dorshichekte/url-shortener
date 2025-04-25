@@ -49,14 +49,14 @@ func (s *Storage) Get(shortURL string) (string, error) {
 	return url, nil
 }
 
-func (s *Storage) Add(url, shortURL, userID string) error {
+func (s *Storage) Add(url, shortURL, userID string) (string, error) {
 	query := "INSERT INTO urls (url, short_url, user_id) VALUES ($1, $2, $3)"
 	_, err := s.db.Exec(query, url, shortURL, userID)
 	if err != nil {
-		return err
+		return shortURL, err
 	}
 
-	return nil
+	return "", nil
 }
 
 func (s *Storage) Delete(shortURL string) error {

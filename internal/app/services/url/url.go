@@ -14,7 +14,7 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 
 func (u *Service) CreateShort(url string) (string, error) {
 	shortURL := stringUtils.CreateRandom()
-	err := u.store.Add(url, shortURL, "")
+	url, err := u.store.Add(url, shortURL, "")
 	if err != nil {
 		return url, err
 	}
