@@ -14,6 +14,6 @@ type Shorter struct {
 }
 
 type URLData struct {
-	Url     string
+	URL     string
 	Deleted bool
 }

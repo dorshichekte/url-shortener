@@ -111,7 +111,7 @@ func (h *Handler) AddURL(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusCreated)
 }
 
-func (h *Handler) AddUrlJSON(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) AddURLJSON(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
 		h.logger.Error("Failed get userID from context")
