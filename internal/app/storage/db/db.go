@@ -61,7 +61,7 @@ func (s *Storage) Get(shortURL string) (models.URLData, error) {
 	defer s.mu.RUnlock()
 
 	var URLData models.URLData
-	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.Url, &URLData.Deleted)
+	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.URL, &URLData.Deleted)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return URLData, constants.ErrURLNotFound

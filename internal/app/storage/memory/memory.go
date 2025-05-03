@@ -23,7 +23,7 @@ func (us *Storage) Get(url string) (models.URLData, error) {
 		return URLData, constants.ErrURLNotFound
 	}
 
-	URLData.Url = value
+	URLData.URL = value
 	return URLData, nil
 }
 
