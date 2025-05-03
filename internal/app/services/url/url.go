@@ -27,13 +27,13 @@ func (u *Service) CreateShort(url, userID string) (string, error) {
 	return shortURL, nil
 }
 
-func (u *Service) GetOriginal(shortURL string) (string, error) {
-	originalURL, err := u.store.Get(shortURL)
+func (u *Service) GetOriginal(shortURL string) (models.URLData, error) {
+	URLData, err := u.store.Get(shortURL)
 	if err != nil {
-		return "", err
+		return URLData, err
 	}
 
-	return originalURL, nil
+	return URLData, nil
 }
 
 func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchResponse, error) {

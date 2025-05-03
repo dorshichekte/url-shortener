@@ -16,12 +16,15 @@ func NewURLStorage(cfg *config.Config) *Storage {
 	}
 }
 
-func (us *Storage) Get(url string) (string, error) {
+func (us *Storage) Get(url string) (models.URLData, error) {
+	var URLData models.URLData
 	value, found := us.mapURL[url]
 	if !found {
-		return "", constants.ErrURLNotFound
+		return URLData, constants.ErrURLNotFound
 	}
-	return value, nil
+
+	URLData.Url = value
+	return URLData, nil
 }
 
 func (us *Storage) Add(url, shortURL, userID string) (string, error) {

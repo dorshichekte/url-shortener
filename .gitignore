@@ -30,3 +30,6 @@ shortenertest
 
 # Docker
 docker-compose.yml
+
+#env
+.env

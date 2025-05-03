@@ -12,3 +12,8 @@ type Shorter struct {
 	UserID      string
 	Deleted     bool
 }
+
+type URLData struct {
+	Url     string
+	Deleted bool
+}

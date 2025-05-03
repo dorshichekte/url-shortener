@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-	"url-shortener/internal/app/middleware"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -16,6 +15,7 @@ import (
 
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
+	"url-shortener/internal/app/middleware"
 	"url-shortener/internal/app/models"
 	urlService "url-shortener/internal/app/services/url"
 )
@@ -68,7 +68,12 @@ func (h *Handler) GetURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	res.Header().Set("Location", originalURL)
+	if originalURL.Deleted {
+		res.WriteHeader(http.StatusGone)
+		return
+	}
+
+	res.Header().Set("Location", originalURL.Url)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
@@ -295,6 +300,6 @@ func (h *Handler) DeleteURLsByID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	go h.service.AddBatch(listURLs, userID)
+	go h.service.DeleteURLsByID(listURLs, userID)
 	res.WriteHeader(http.StatusAccepted)
 }

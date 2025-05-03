@@ -4,7 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"url-shortener/internal/app/config"
@@ -17,39 +22,53 @@ func NewPostgresStorage(cfg config.Config) (*Storage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 
-	createTableQuery := `
-    CREATE TABLE IF NOT EXISTS urls (
-        id SERIAL PRIMARY KEY,
-        url TEXT NOT NULL UNIQUE,
-        short_url TEXT NOT NULL UNIQUE,
-        user_id VARCHAR(255) NOT NULL,
-        is_deleted BOOLEAN DEFAULT false,
-    );
-    `
-	if _, err = db.Exec(createTableQuery); err != nil {
+	err = applyMigrations(cfg)
+	if err != nil {
 		return nil, err
 	}
 
 	return &Storage{db: db, cfg: cfg}, nil
 }
 
-func (s *Storage) Get(shortURL string) (string, error) {
+func applyMigrations(cfg config.Config) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working directory: %v", err)
+	}
+
+	migrationDirPath := "file://" + filepath.Join(wd, "migrations")
+
+	m, err := migrate.New(migrationDirPath, cfg.DatabaseDSN)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migration: %v", err)
+	}
+
+	err = m.Up()
+	if err != nil && err.Error() != "no change" {
+		return fmt.Errorf("failed to apply migrations: %v", err)
+	}
+
+	return nil
+}
+
+func (s *Storage) Get(shortURL string) (models.URLData, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var url string
-	err := s.db.QueryRow("SELECT url FROM urls WHERE short_url = $1", shortURL).Scan(&url)
+	var URLData models.URLData
+	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.Url, &URLData.Deleted)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", constants.ErrURLNotFound
+			return URLData, constants.ErrURLNotFound
 		}
-		return "", err
+		return URLData, err
 	}
-	return url, nil
+	return URLData, nil
 }
 
 func (s *Storage) Add(url, shortURL, userID string) (string, error) {
