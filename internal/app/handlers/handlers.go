@@ -33,7 +33,7 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 		r.Get("/{id}", h.urlHandler.GetURL)
 		r.Get("/api/user/urls", h.urlHandler.GetURLsByID)
 		r.Post("/api/shorten/batch", h.urlHandler.AddURLsBatch)
-		r.Post("/api/shorten", h.urlHandler.AddUrlJSON)
+		r.Post("/api/shorten", h.urlHandler.AddURLJSON)
 		r.Delete("/api/users/urls", h.urlHandler.DeleteURLsByID)
 	})
 
