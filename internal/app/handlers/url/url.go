@@ -73,7 +73,7 @@ func (h *Handler) GetURL(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	res.Header().Set("Location", originalURL.Url)
+	res.Header().Set("Location", originalURL.URL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
