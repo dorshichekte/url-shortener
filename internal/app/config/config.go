@@ -2,11 +2,11 @@ package config
 
 import (
 	"flag"
-	"fmt"
-	"go.uber.org/zap"
-	"url-shortener/internal/app/constants"
 
 	"github.com/caarlos0/env"
+	"go.uber.org/zap"
+
+	"url-shortener/internal/app/constants"
 )
 
 func NewConfig(logger *zap.Logger) *Config {
