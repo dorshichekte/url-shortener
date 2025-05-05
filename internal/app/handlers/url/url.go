@@ -2,29 +2,26 @@ package url
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
-	"time"
+	"url-shortener/internal/app/common"
+	"url-shortener/internal/app/services"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
-	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/middleware"
 	"url-shortener/internal/app/models"
-	urlService "url-shortener/internal/app/services/url"
 )
 
-func NewHandler(service *urlService.Service, cfg *config.Config, logger *zap.Logger) *Handler {
+func New(services services.Services, dependency common.BaseDependency) *Handler {
 	return &Handler{
-		service: service,
-		config:  cfg,
-		logger:  logger,
+		Services:       services,
+		BaseDependency: dependency,
 	}
 }
 
@@ -37,7 +34,6 @@ func (h *Handler) jsonDecode(req *http.Request) (models.ShortenRequest, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return request, err
 	}
-
 	return request, nil
 }
 
@@ -59,11 +55,11 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 	return string(body), nil
 }
 
-func (h *Handler) GetURL(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) GetByID(res http.ResponseWriter, req *http.Request) {
 	id := chi.URLParam(req, "id")
-	originalURL, err := h.service.GetOriginal(id)
+	originalURL, err := h.Services.URL.GetOriginal(id)
 	if err != nil {
-		h.logger.Error("Failed get original URL", zap.Error(err))
+		h.Logger.Error("Failed get original URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -77,17 +73,17 @@ func (h *Handler) GetURL(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (h *Handler) AddURL(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) Create(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
+		h.Logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	originalURL, err := h.parseRequest(req)
 	if err != nil {
-		h.logger.Error("Failed parse request URL", zap.Error(err))
+		h.Logger.Error("Failed parse request URL", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -95,13 +91,13 @@ func (h *Handler) AddURL(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	shortURL, err := h.service.CreateShort(originalURL, userID)
-	baseURL := h.config.BaseURL
+	shortURL, err := h.Services.URL.Shorten(originalURL, userID)
+	baseURL := h.Cfg.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	defer res.Write([]byte(fullURL))
 
 	if err != nil {
-		h.logger.Error("Failed create short URL", zap.Error(err))
+		h.Logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "text/plain")
 		h.handleError(res, http.StatusConflict)
 		return
@@ -111,30 +107,30 @@ func (h *Handler) AddURL(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusCreated)
 }
 
-func (h *Handler) AddURLJSON(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) CreateFromJSON(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
+		h.Logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	u, err := h.jsonDecode(req)
 	if err != nil {
-		h.logger.Error("Failed decode json", zap.Error(err))
+		h.Logger.Error("Failed decode json", zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
 
-	shortURL, err := h.service.CreateShort(u.OriginalURL, userID)
-	baseURL := h.config.BaseURL
+	shortURL, err := h.Services.URL.Shorten(u.OriginalURL, userID)
+	baseURL := h.Cfg.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
 
 	if err != nil {
-		h.logger.Error("Failed create short URL", zap.Error(err))
+		h.Logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
 		json.NewEncoder(res).Encode(response)
@@ -146,32 +142,10 @@ func (h *Handler) AddURLJSON(res http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(res).Encode(response)
 }
 
-func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
-	ps := h.config.DatabaseDSN
-
-	db, err := sql.Open("pgx", ps)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer func() {
-		_ = db.Close()
-	}()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	if err = db.PingContext(ctx); err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	res.WriteHeader(http.StatusOK)
-}
-
-func (h *Handler) AddURLsBatch(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) CreateBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
+		h.Logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
@@ -181,7 +155,7 @@ func (h *Handler) AddURLsBatch(res http.ResponseWriter, req *http.Request) {
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
-		h.logger.Error("Failed read request body", zap.Error(err))
+		h.Logger.Error("Failed read request body", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -190,41 +164,41 @@ func (h *Handler) AddURLsBatch(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	if err := json.Unmarshal(body, &rq); err != nil {
-		h.logger.Error("Failed parse request body", zap.Error(err))
+		h.Logger.Error("Failed parse request body", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
 	if len(body) == 0 {
-		h.logger.Error("Empty request body")
+		h.Logger.Error("Empty request body")
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
 	for _, v := range rq {
 		if _, err = url.ParseRequestURI(v.OriginalURL); err != nil {
-			h.logger.Error("Failed parse request URL", zap.Error(err))
+			h.Logger.Error("Failed parse request URL", zap.Error(err))
 			h.handleError(res, http.StatusBadRequest)
 			return
 		}
 
 		if v.ID == "" {
-			h.logger.Error("Empty request ID")
+			h.Logger.Error("Empty request ID")
 			h.handleError(res, http.StatusBadRequest)
 			return
 		}
 	}
 
-	rs, err = h.service.AddBatch(rq)
+	rs, err = h.Services.URL.BatchShorten(rq)
 	if err != nil {
-		h.logger.Error("Failed add batches", zap.Error(err))
+		h.Logger.Error("Failed add batches", zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
 
 	j, err := json.Marshal(rs)
 	if err != nil {
-		h.logger.Error("Failed marshal json", zap.Error(err))
+		h.Logger.Error("Failed marshal json", zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
@@ -234,23 +208,23 @@ func (h *Handler) AddURLsBatch(res http.ResponseWriter, req *http.Request) {
 
 	_, err = res.Write(j)
 	if err != nil {
-		h.logger.Error("Failed write response", zap.Error(err))
+		h.Logger.Error("Failed write response", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
-func (h *Handler) GetURLsByID(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) GetAllByUser(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
+		h.Logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
-	listURLS, err := h.service.GetUserURLSByID(userID)
+	listURLS, err := h.Services.URL.GetByUserID(userID)
 	if err != nil {
-		h.logger.Error(err.Error(), zap.Error(err))
+		h.Logger.Error(err.Error(), zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
@@ -263,7 +237,7 @@ func (h *Handler) GetURLsByID(res http.ResponseWriter, req *http.Request) {
 
 	j, err := json.Marshal(listURLS)
 	if err != nil {
-		h.logger.Error("Failed marshal json", zap.Error(err))
+		h.Logger.Error("Failed marshal json", zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
@@ -272,22 +246,22 @@ func (h *Handler) GetURLsByID(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 	_, err = res.Write(j)
 	if err != nil {
-		h.logger.Error("Failed write response", zap.Error(err))
+		h.Logger.Error("Failed write response", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
-func (h *Handler) DeleteURLsByID(res http.ResponseWriter, req *http.Request) {
+func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.logger.Error("Failed get userID from context")
+		h.Logger.Error("Failed get userID from context")
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil || len(body) == 0 {
-		h.logger.Error("Failed read request body", zap.Error(err))
+		h.Logger.Error("Failed read request body", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -295,11 +269,16 @@ func (h *Handler) DeleteURLsByID(res http.ResponseWriter, req *http.Request) {
 	var listURLs []string
 	err = json.Unmarshal(body, &listURLs)
 	if err != nil {
-		h.logger.Error("Failed unmarshal request body", zap.Error(err))
+		h.Logger.Error("Failed unmarshal request body", zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
-	go h.service.DeleteURLsByID(listURLs, userID)
+	event := models.DeleteEvent{
+		ListURL: listURLs,
+		UserID:  userID,
+	}
+
+	go h.Services.URL.BatchDelete(context.Background(), event)
 	res.WriteHeader(http.StatusAccepted)
 }

@@ -2,8 +2,10 @@ package memory
 
 import (
 	"strconv"
-	"url-shortener/internal/app/config"
+	"sync"
 
+	"url-shortener/internal/app/common"
+	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
@@ -12,7 +14,10 @@ import (
 func NewURLStorage(cfg *config.Config) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
-		cfg:    *cfg,
+		BaseStorageDependency: common.BaseStorageDependency{
+			Cfg: *cfg,
+			Mu:  sync.RWMutex{},
+		},
 	}
 }
 
@@ -51,7 +56,7 @@ func (us *Storage) Delete(url string) error {
 
 func (us *Storage) Write(url, shortURL string) error {
 	data := osfile.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
-	consumer, err := osfile.NewConsumer(us.cfg.FileStoragePath)
+	consumer, err := osfile.NewConsumer(us.Cfg.FileStoragePath)
 	if err != nil {
 		return err
 	}
@@ -82,6 +87,6 @@ func (us *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
-func (us *Storage) BatchUpdate(shortURLs []string, userID string) error {
+func (us *Storage) BatchUpdate(event models.DeleteEvent) error {
 	return constants.ErrUnsupportedMethod
 }

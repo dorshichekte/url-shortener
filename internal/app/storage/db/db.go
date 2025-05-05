@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
+	"url-shortener/internal/app/common"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -32,7 +34,10 @@ func NewPostgresStorage(cfg config.Config) (*Storage, error) {
 		return nil, err
 	}
 
-	return &Storage{db: db, cfg: cfg}, nil
+	return &Storage{db: db, BaseStorageDependency: common.BaseStorageDependency{
+		Cfg: cfg,
+		Mu:  sync.RWMutex{},
+	}}, nil
 }
 
 func applyMigrations(cfg config.Config) error {
@@ -57,8 +62,8 @@ func applyMigrations(cfg config.Config) error {
 }
 
 func (s *Storage) Get(shortURL string) (models.URLData, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.Mu.RLock()
+	defer s.Mu.RUnlock()
 
 	var URLData models.URLData
 	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.URL, &URLData.Deleted)
@@ -84,8 +89,8 @@ func (s *Storage) Add(url, shortURL, userID string) (string, error) {
 }
 
 func (s *Storage) Delete(shortURL string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.Mu.Lock()
+	defer s.Mu.Unlock()
 
 	query := "DELETE FROM urls WHERE short_url = $1 AND url = $1"
 	_, err := s.db.Exec(query, shortURL)
@@ -140,7 +145,7 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
 			return nil, err
 		}
-		url.ShortURL = fmt.Sprintf("%s/%s", s.cfg.BaseURL, url.ShortURL)
+		url.ShortURL = fmt.Sprintf("%s/%s", s.Cfg.BaseURL, url.ShortURL)
 		listURLs = append(listURLs, url)
 	}
 
@@ -152,13 +157,13 @@ func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
 	return listURLs, nil
 }
 
-func (s *Storage) BatchUpdate(shortURLs []string, userID string) error {
+func (s *Storage) BatchUpdate(event models.DeleteEvent) error {
 	query := `
         UPDATE urls
         SET is_deleted = true
         WHERE short_url = ANY($1::text[]) AND user_id = $2
     `
-	_, err := s.db.Exec(query, shortURLs, userID)
+	_, err := s.db.Exec(query, event.ListURL, event.UserID)
 
 	return err
 }

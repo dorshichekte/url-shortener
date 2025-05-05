@@ -22,3 +22,8 @@ type URL struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
+
+type DeleteEvent struct {
+	ListURL []string
+	UserID  string
+}

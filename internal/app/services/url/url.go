@@ -1,26 +1,31 @@
 package url
 
 import (
-	"url-shortener/internal/app/config"
+	"context"
+
+	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
 	"url-shortener/internal/app/storage"
 	stringUtils "url-shortener/internal/app/utils/string"
 )
 
-func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
-	return &Service{store: store, cfg: *cfg}
+func NewService(store storage.URLStorage, baseDependency common.BaseDependency) Methods {
+	return &Service{
+		Store:          store,
+		BaseDependency: baseDependency,
+	}
 }
 
-func (u *Service) CreateShort(url, userID string) (string, error) {
+func (u *Service) Shorten(url, userID string) (string, error) {
 	shortURL := stringUtils.CreateRandom()
-	url, err := u.store.Add(url, shortURL, userID)
+	url, err := u.Store.Add(url, shortURL, userID)
 	if err != nil {
 		return url, err
 	}
 
-	if u.cfg.DatabaseDSN == "" {
-		consumer, _ := osfile.NewConsumer(u.cfg.FileStoragePath)
+	if u.Cfg.DatabaseDSN == "" {
+		consumer, _ := osfile.NewConsumer(u.Cfg.FileStoragePath)
 		_ = consumer.WriteEvent(&osfile.Event{UUID: stringUtils.CreateRandom(), OriginalURL: url, ShortURL: shortURL})
 	}
 
@@ -28,7 +33,7 @@ func (u *Service) CreateShort(url, userID string) (string, error) {
 }
 
 func (u *Service) GetOriginal(shortURL string) (models.URLData, error) {
-	URLData, err := u.store.Get(shortURL)
+	URLData, err := u.Store.Get(shortURL)
 	if err != nil {
 		return URLData, err
 	}
@@ -36,7 +41,7 @@ func (u *Service) GetOriginal(shortURL string) (models.URLData, error) {
 	return URLData, nil
 }
 
-func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchResponse, error) {
+func (u *Service) BatchShorten(listBatches []models.BatchRequest) ([]models.BatchResponse, error) {
 	var err error
 
 	tmpListBatches := make([]models.Batch, 0, len(listBatches))
@@ -51,7 +56,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 		})
 	}
 
-	err = u.store.AddBatch(tmpListBatches, "")
+	err = u.Store.AddBatch(tmpListBatches, "")
 	if err != nil {
 		return nil, err
 	}
@@ -60,17 +65,17 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 	for _, batch := range tmpListBatches {
 		listResponseBatches = append(listResponseBatches, models.BatchResponse{
 			ID:       batch.ID,
-			ShortURL: u.cfg.BaseURL + "/" + batch.ShortURL,
+			ShortURL: u.Cfg.BaseURL + "/" + batch.ShortURL,
 		})
 	}
 
 	return listResponseBatches, nil
 }
 
-func (u *Service) GetUserURLSByID(userID string) ([]models.URL, error) {
-	return u.store.GetUsersURLsByID(userID)
+func (u *Service) GetByUserID(userID string) ([]models.URL, error) {
+	return u.Store.GetUsersURLsByID(userID)
 }
 
-func (u *Service) DeleteURLsByID(shortURLs []string, userID string) error {
-	return u.store.BatchUpdate(shortURLs, userID)
+func (u *Service) BatchDelete(ctx context.Context, event models.DeleteEvent) error {
+	return u.Store.BatchUpdate(event)
 }

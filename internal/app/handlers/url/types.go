@@ -1,13 +1,21 @@
 package url
 
 import (
-	"go.uber.org/zap"
-	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/services/url"
+	"net/http"
+	"url-shortener/internal/app/common"
+	"url-shortener/internal/app/services"
 )
 
+type Method interface {
+	Create(res http.ResponseWriter, req *http.Request)
+	CreateBatch(res http.ResponseWriter, req *http.Request)
+	CreateFromJSON(res http.ResponseWriter, req *http.Request)
+	GetByID(res http.ResponseWriter, req *http.Request)
+	GetAllByUser(res http.ResponseWriter, req *http.Request)
+	DeleteBatch(res http.ResponseWriter, req *http.Request)
+}
+
 type Handler struct {
-	service *url.Service
-	config  *config.Config
-	logger  *zap.Logger
+	Services services.Services
+	common.BaseDependency
 }

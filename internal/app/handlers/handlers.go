@@ -2,19 +2,25 @@ package handlers
 
 import (
 	"net/http"
+	"url-shortener/internal/app/common"
+	"url-shortener/internal/app/services"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/handlers/db"
 	"url-shortener/internal/app/handlers/url"
 	"url-shortener/internal/app/middleware"
-	u "url-shortener/internal/app/services/url"
 )
 
-func NewHandler(urlService *u.Service, cfg *config.Config, logger *zap.Logger) *Handler {
+func NewHandlers(services services.Services, dependency common.BaseDependency) *Handler {
+	handlers := &Handlers{
+		URL:      url.New(services, dependency),
+		Database: db.New(services, dependency),
+	}
+
 	return &Handler{
-		urlHandler: url.NewHandler(urlService, cfg, logger),
+		Handlers: handlers,
 	}
 }
 
@@ -25,16 +31,16 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 	r.Use(middleware.Gzip)
 	r.Use(middleware.Decompress)
 
-	r.Get("/ping", h.urlHandler.Ping)
+	r.Get("/ping", h.Handlers.Database.Ping)
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth)
-		r.Post("/", h.urlHandler.AddURL)
-		r.Get("/{id}", h.urlHandler.GetURL)
-		r.Get("/api/user/urls", h.urlHandler.GetURLsByID)
-		r.Post("/api/shorten/batch", h.urlHandler.AddURLsBatch)
-		r.Post("/api/shorten", h.urlHandler.AddURLJSON)
-		r.Delete("/api/users/urls", h.urlHandler.DeleteURLsByID)
+		r.Post("/", h.Handlers.URL.Create)
+		r.Get("/{id}", h.Handlers.URL.GetByID)
+		r.Get("/api/user/urls", h.Handlers.URL.GetAllByUser)
+		r.Post("/api/shorten/batch", h.Handlers.URL.CreateBatch)
+		r.Post("/api/shorten", h.Handlers.URL.CreateFromJSON)
+		r.Delete("/api/users/urls", h.Handlers.URL.GetAllByUser)
 	})
 
 	return r

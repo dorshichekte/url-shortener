@@ -34,7 +34,7 @@ func initMemory(cfg *config.Config) (URLStorage, error) {
 	return st, nil
 }
 
-func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
+func NewStorage(cfg *config.Config, logger *zap.Logger) URLStorage {
 	var store URLStorage
 	var errInitDB error
 	var errInitFileStorage error
