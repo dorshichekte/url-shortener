@@ -40,9 +40,9 @@ func NewStorage(cfg *config.AppConfig, logger *zap.Logger) URLStorage {
 	var errInitFileStorage error
 	store, errInitFileStorage = initMemory(cfg)
 
-	//if cfg.DatabaseDSN != "" {
-	//	store, errInitDB = initDatabase(cfg)
-	//}
+	if cfg.DatabaseDSN != "" {
+		store, errInitDB = initDatabase(cfg)
+	}
 
 	isFailedInitDB := errInitDB != nil || store == nil
 	if isFailedInitDB {
