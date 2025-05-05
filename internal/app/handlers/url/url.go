@@ -1,7 +1,6 @@
 package url
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
