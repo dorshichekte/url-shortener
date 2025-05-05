@@ -1,28 +1,13 @@
-package handlers
+package handler
 
 import (
 	"net/http"
-	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/services"
 
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
-	"url-shortener/internal/app/handlers/db"
-	"url-shortener/internal/app/handlers/url"
 	"url-shortener/internal/app/middleware"
 )
-
-func NewHandlers(services services.Services, dependency common.BaseDependency) *Handler {
-	handlers := &Handlers{
-		URL:      url.NewURL(services, dependency),
-		Database: db.NewDB(services, dependency),
-	}
-
-	return &Handler{
-		Handlers: handlers,
-	}
-}
 
 func (h *Handler) Register(logger *zap.Logger) http.Handler {
 	r := chi.NewRouter()

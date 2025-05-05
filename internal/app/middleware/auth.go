@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"url-shortener/internal/app/services/auth"
+	"url-shortener/internal/app/service/auth"
 )
 
 func Auth(next http.Handler) http.Handler {

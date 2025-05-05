@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 
 	"url-shortener/internal/app/constants"
-	utilsString "url-shortener/internal/app/utils/string"
+	utilsString "url-shortener/internal/app/util/string"
 )
 
 func (c *Claims) Valid() error {

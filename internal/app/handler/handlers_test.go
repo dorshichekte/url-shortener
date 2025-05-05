@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"io"
@@ -14,7 +14,7 @@ import (
 	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/logger"
-	"url-shortener/internal/app/services"
+	"url-shortener/internal/app/service"
 	"url-shortener/internal/app/storage"
 )
 
@@ -54,7 +54,7 @@ func TestRoute(t *testing.T) {
 		Cfg:    *cfg.App,
 		Logger: l,
 	}
-	service := services.NewServices(store, dependency)
+	service := service.NewServices(store, dependency)
 	defer service.Worker.Close()
 
 	handler := NewHandlers(service, dependency)

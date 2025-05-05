@@ -1,8 +1,9 @@
 package common
 
 import (
-	"go.uber.org/zap"
 	"sync"
+
+	"go.uber.org/zap"
 
 	"url-shortener/internal/app/config"
 )

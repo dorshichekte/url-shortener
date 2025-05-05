@@ -5,10 +5,10 @@ import (
 
 	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/handlers"
+	"url-shortener/internal/app/handler"
 	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/server"
-	"url-shortener/internal/app/services"
+	"url-shortener/internal/app/service"
 	"url-shortener/internal/app/storage"
 )
 
@@ -27,9 +27,9 @@ func main() {
 		Cfg:    *cfg.App,
 		Logger: l,
 	}
-	service := services.NewServices(store, dependency)
+	service := service.NewServices(store, dependency)
 	defer service.Worker.Close()
 
-	handler := handlers.NewHandlers(service, dependency)
+	handler := handler.NewHandlers(service, dependency)
 	server.Start(cfg.App, handler, l)
 }

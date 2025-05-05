@@ -1,4 +1,4 @@
-package models
+package model
 
 type ShortenRequest struct {
 	OriginalURL string `json:"url"`
@@ -25,5 +25,5 @@ type URL struct {
 
 type DeleteEvent struct {
 	ListURL []string
-	UserID  string
+	UserID  string `json:"user_id"`
 }

@@ -3,7 +3,7 @@ package url
 import (
 	"net/http"
 	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/services"
+	"url-shortener/internal/app/service"
 )
 
 type Method interface {
@@ -16,6 +16,13 @@ type Method interface {
 }
 
 type Handler struct {
-	Services services.Services
+	Services service.Services
 	common.BaseDependency
+}
+
+func NewURL(services service.Services, dependency common.BaseDependency) *Handler {
+	return &Handler{
+		Services:       services,
+		BaseDependency: dependency,
+	}
 }

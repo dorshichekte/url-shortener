@@ -2,12 +2,12 @@ package worker
 
 import (
 	"context"
-	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/model"
 )
 
 func NewService(workerCount int, chLength int) *Service {
 	w := &Service{
-		resultCh: make(chan models.DeleteEvent, chLength),
+		resultCh: make(chan model.DeleteEvent, chLength),
 	}
 
 	for i := 0; i < workerCount; i++ {
@@ -18,7 +18,7 @@ func NewService(workerCount int, chLength int) *Service {
 	return w
 }
 
-func (w *Service) SendEvent(ctx context.Context, event models.DeleteEvent) {
+func (w *Service) SendEvent(ctx context.Context, event model.DeleteEvent) {
 	select {
 	case w.resultCh <- event:
 	case <-ctx.Done():

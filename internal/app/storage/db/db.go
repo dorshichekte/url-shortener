@@ -16,7 +16,7 @@ import (
 
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
-	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/model"
 )
 
 func NewPostgresStorage(cfg config.AppConfig) (*Storage, error) {
@@ -61,11 +61,11 @@ func applyMigrations(cfg config.AppConfig) error {
 	return nil
 }
 
-func (s *Storage) Get(shortURL string) (models.URLData, error) {
+func (s *Storage) Get(shortURL string) (model.URLData, error) {
 	s.Mu.RLock()
 	defer s.Mu.RUnlock()
 
-	var URLData models.URLData
+	var URLData model.URLData
 	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.URL, &URLData.Deleted)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -102,7 +102,7 @@ func (s *Storage) Delete(shortURL string) error {
 	return nil
 }
 
-func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
+func (s *Storage) AddBatch(listBatches []model.Batch, userID string) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -129,8 +129,8 @@ func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	return tx.Commit()
 }
 
-func (s *Storage) GetURLsByID(userID string) ([]models.URL, error) {
-	var listURLs []models.URL
+func (s *Storage) GetURLsByID(userID string) ([]model.URL, error) {
+	var listURLs []model.URL
 
 	rows, err := s.db.Query(`SELECT url, short_url FROM urls WHERE user_id=$1`, userID)
 	if err != nil {
@@ -141,7 +141,7 @@ func (s *Storage) GetURLsByID(userID string) ([]models.URL, error) {
 	}()
 
 	for rows.Next() {
-		var url models.URL
+		var url model.URL
 		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
 			return nil, err
 		}
@@ -157,7 +157,7 @@ func (s *Storage) GetURLsByID(userID string) ([]models.URL, error) {
 	return listURLs, nil
 }
 
-func (s *Storage) BatchUpdate(event models.DeleteEvent) error {
+func (s *Storage) BatchUpdate(event model.DeleteEvent) error {
 	query := `
         UPDATE urls
         SET is_deleted = true

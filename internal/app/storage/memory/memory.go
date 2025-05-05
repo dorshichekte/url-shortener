@@ -7,7 +7,7 @@ import (
 	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
-	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/model"
 	"url-shortener/internal/app/osfile"
 )
 
@@ -21,8 +21,8 @@ func NewURLStorage(cfg *config.AppConfig) *Storage {
 	}
 }
 
-func (us *Storage) Get(url string) (models.URLData, error) {
-	var URLData models.URLData
+func (us *Storage) Get(url string) (model.URLData, error) {
+	var URLData model.URLData
 	value, found := us.mapURL[url]
 	if !found {
 		return URLData, constants.ErrURLNotFound
@@ -71,7 +71,7 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
-func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
+func (us *Storage) AddBatch(listBatches []model.Batch, userID string) error {
 	for _, batch := range listBatches {
 		us.Add(batch.OriginalURL, batch.ShortURL, userID)
 		err := us.Write(batch.OriginalURL, batch.ShortURL)
@@ -83,10 +83,10 @@ func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	return nil
 }
 
-func (us *Storage) GetURLsByID(userID string) ([]models.URL, error) {
+func (us *Storage) GetURLsByID(userID string) ([]model.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
-func (us *Storage) BatchUpdate(event models.DeleteEvent) error {
+func (us *Storage) BatchUpdate(event model.DeleteEvent) error {
 	return constants.ErrUnsupportedMethod
 }

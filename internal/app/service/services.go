@@ -1,9 +1,9 @@
-package services
+package service
 
 import (
 	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/services/url"
-	"url-shortener/internal/app/services/worker"
+	"url-shortener/internal/app/service/url"
+	"url-shortener/internal/app/service/worker"
 	"url-shortener/internal/app/storage"
 )
 
