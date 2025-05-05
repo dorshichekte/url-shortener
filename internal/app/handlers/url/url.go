@@ -64,10 +64,11 @@ func (h *Handler) GetByID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if originalURL.Deleted {
-		res.WriteHeader(http.StatusGone)
-		return
-	}
+	//Тест ошибки
+	//if originalURL.Deleted {
+	//	res.WriteHeader(http.StatusGone)
+	//	return
+	//}
 
 	res.Header().Set("Location", originalURL.URL)
 	res.WriteHeader(http.StatusTemporaryRedirect)
