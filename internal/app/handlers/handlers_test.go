@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"go.uber.org/zap"
 	"io"
 	"log"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/services/url"
 	"url-shortener/internal/app/storage"
 )
@@ -42,8 +41,6 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path, body string) (
 
 func TestRoute(t *testing.T) {
 	cfg := config.NewConfig()
-	s := storage.NewURLStorage()
-	urlService := url.NewURLService(s, cfg)
 	l, err := logger.New()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
@@ -51,17 +48,19 @@ func TestRoute(t *testing.T) {
 	defer func() {
 		_ = l.Sync()
 	}()
+	s := storage.Create(cfg, l)
+	urlService := url.NewURLService(s, cfg)
 
 	handler := NewHandler(urlService, cfg, l)
 	ts := httptest.NewServer(handler.Register(l))
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
+	mockURL2 := "https://practicum.yandex.ru"
+	mockURL3 := "https://habr.com"
+	mockTestData, _ := urlService.CreateShort(mockURL)
+	mockTestData2, _ := urlService.CreateShort(mockURL2)
 	baseURL := cfg.BaseURL
-	mockTestData, err := urlService.CreateShort(mockURL, cfg.FileStoragePath)
-	if err != nil {
-		l.Error("Failed initialization logger: %v", zap.Error(err))
-	}
 
 	type values struct {
 		url    string
@@ -84,7 +83,7 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   mockURL,
+				body:   mockURL3,
 			},
 			want: want{
 				status: http.StatusCreated,
@@ -128,11 +127,11 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/",
 				method: "POST",
-				body:   mockURL,
+				body:   mockURL2,
 			},
 			want: want{
-				status: http.StatusCreated,
-				body:   baseURL + "/" + mockTestData,
+				status: http.StatusConflict,
+				body:   baseURL + "/" + mockTestData2,
 			},
 		},
 		{
@@ -196,7 +195,7 @@ func TestRoute(t *testing.T) {
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",
-				body:   `{"url": "https://ya.ru"}`,
+				body:   `{"url": "https://github.com"}`,
 			},
 			want: want{
 				status: http.StatusCreated,

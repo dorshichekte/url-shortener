@@ -1,31 +1,12 @@
 package storage
 
 import (
-	"encoding/json"
-	"os"
+	"url-shortener/internal/app/models"
 )
 
-type URLType string
-
-type MapURL map[string]string
-
-type URLStorage struct {
-	mapURL      MapURL
-	mapShortURL MapURL
-}
-
-type Consumer struct {
-	file    *os.File
-	encoder *json.Encoder
-}
-
-type Event struct {
-	UUID        string `json:"uuid"`
-	ShortURL    string `json:"short_url"`
-	OriginalURL string `json:"original_url"`
-}
-
-type Producer struct {
-	file    *os.File
-	decoder *json.Decoder
+type URLStorage interface {
+	Get(url string) (string, error)
+	Add(url, shortURL string)
+	Delete(url string) error
+	AddBatch(listBatches []models.Batch) error
 }
