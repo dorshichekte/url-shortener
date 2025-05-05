@@ -48,9 +48,9 @@ func TestRoute(t *testing.T) {
 		_ = l.Sync()
 	}()
 	cfg := config.NewConfig(l)
-	store := storage.NewStorage(&cfg.App, l)
+	store := storage.NewStorage(cfg.App, l)
 	dependency := common.BaseDependency{
-		Cfg:    cfg.App,
+		Cfg:    *cfg.App,
 		Logger: l,
 	}
 	service := services.NewServices(store, dependency)
