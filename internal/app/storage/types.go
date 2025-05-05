@@ -16,6 +16,6 @@ type URLStorage interface {
 }
 
 type BaseStorageDependency struct {
-	cfg config.Config
+	cfg config.AppConfig
 	mu  sync.RWMutex
 }

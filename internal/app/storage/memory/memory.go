@@ -11,7 +11,7 @@ import (
 	"url-shortener/internal/app/osfile"
 )
 
-func NewURLStorage(cfg *config.Config) *Storage {
+func NewURLStorage(cfg *config.AppConfig) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
 		BaseStorageDependency: common.BaseStorageDependency{

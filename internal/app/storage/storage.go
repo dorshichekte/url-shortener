@@ -9,7 +9,7 @@ import (
 	"url-shortener/internal/app/storage/memory"
 )
 
-func initDatabase(cfg *config.Config) (URLStorage, error) {
+func initDatabase(cfg *config.AppConfig) (URLStorage, error) {
 	ps, err := db.NewPostgresStorage(*cfg)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func initDatabase(cfg *config.Config) (URLStorage, error) {
 	return ps, nil
 }
 
-func initMemory(cfg *config.Config) (URLStorage, error) {
+func initMemory(cfg *config.AppConfig) (URLStorage, error) {
 	st := memory.NewURLStorage(cfg)
 	consumer := osfile.Consumer{}
 
@@ -34,7 +34,7 @@ func initMemory(cfg *config.Config) (URLStorage, error) {
 	return st, nil
 }
 
-func NewStorage(cfg *config.Config, logger *zap.Logger) URLStorage {
+func NewStorage(cfg *config.AppConfig, logger *zap.Logger) URLStorage {
 	var store URLStorage
 	var errInitDB error
 	var errInitFileStorage error

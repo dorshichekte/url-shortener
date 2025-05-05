@@ -8,11 +8,11 @@ import (
 )
 
 type BaseDependency struct {
-	Cfg    config.Config
+	Cfg    config.AppConfig
 	Logger *zap.Logger
 }
 
 type BaseStorageDependency struct {
-	Cfg config.Config
+	Cfg config.AppConfig
 	Mu  sync.RWMutex
 }

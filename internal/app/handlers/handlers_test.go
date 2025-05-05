@@ -40,20 +40,22 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path, body string) (
 }
 
 func TestRoute(t *testing.T) {
-	l, err := logger.New()
+	l, err := logger.NewLogger()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
 	defer func() {
 		_ = l.Sync()
 	}()
-	cfg := config.NewConfig()
-	store := storage.NewStorage(cfg, l)
+	cfg := config.NewConfig(l)
+	store := storage.NewStorage(&cfg.App, l)
 	dependency := common.BaseDependency{
-		Cfg:    *cfg,
+		Cfg:    cfg.App,
 		Logger: l,
 	}
 	service := services.NewServices(store, dependency)
+	defer service.Worker.Close()
+
 	handler := NewHandlers(service, dependency)
 	ts := httptest.NewServer(handler.Register(l))
 	defer ts.Close()
@@ -64,7 +66,7 @@ func TestRoute(t *testing.T) {
 	mockID := "dXmzeR"
 	mockTestData, _ := service.URL.Shorten(mockURL, mockID)
 	mockTestData2, _ := service.URL.Shorten(mockURL2, mockID)
-	baseURL := cfg.BaseURL
+	baseURL := cfg.App.BaseURL
 
 	type values struct {
 		url    string

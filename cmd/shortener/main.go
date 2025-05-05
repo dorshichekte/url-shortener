@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	l, err := logger.New()
+	l, err := logger.NewLogger()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
@@ -21,13 +21,15 @@ func main() {
 		_ = l.Sync()
 	}()
 
-	cfg := config.NewConfig()
-	store := storage.NewStorage(cfg, l)
+	cfg := config.NewConfig(l)
+	store := storage.NewStorage(&cfg.App, l)
 	dependency := common.BaseDependency{
-		Cfg:    *cfg,
+		Cfg:    cfg.App,
 		Logger: l,
 	}
 	service := services.NewServices(store, dependency)
+	defer service.Worker.Close()
+	
 	handler := handlers.NewHandlers(service, dependency)
-	server.Start(cfg, handler, l)
+	server.Start(&cfg.App, handler, l)
 }

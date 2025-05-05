@@ -2,48 +2,51 @@ package config
 
 import (
 	"flag"
-	"fmt"
+	"go.uber.org/zap"
+	"url-shortener/internal/app/constants"
 
 	"github.com/caarlos0/env"
 )
 
-func NewConfig() *Config {
-	cfg := &Config{}
+func NewConfig(logger *zap.Logger) *Config {
+	cfg := &Config{
+		Logger: logger,
+	}
 	cfg.init()
 	return cfg
 }
 
 func (c *Config) initEnv() {
 	if err := env.Parse(c); err != nil {
-		fmt.Println(err)
+		c.Logger.Error(constants.ErrParsingConfig.Error(), zap.Error(err))
 	}
 }
 
 func (c *Config) initFlags() {
-	flag.StringVar(&c.ServerAddress, "a", c.ServerAddress, "server address")
-	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "base host URL")
-	flag.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Connect DB string")
-	flag.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "file storage path")
+	flag.StringVar(&c.App.ServerAddress, "a", c.App.ServerAddress, "server address")
+	flag.StringVar(&c.App.BaseURL, "b", c.App.BaseURL, "base host URL")
+	flag.StringVar(&c.App.DatabaseDSN, "d", c.App.DatabaseDSN, "Connect DB string")
+	flag.StringVar(&c.App.FileStoragePath, "f", c.App.FileStoragePath, "file storage path")
 
 	flag.Parse()
 }
 
-func (c *Config) initDefault() {
-	if c.ServerAddress == "" {
-		c.ServerAddress = DefaultAddress
+func (c *Config) initDefaultValue() {
+	if c.App.ServerAddress == "" {
+		c.App.ServerAddress = DefaultAddress
 	}
 
-	if c.BaseURL == "" {
-		c.BaseURL = DefaultAddressWithProtocol
+	if c.App.BaseURL == "" {
+		c.App.BaseURL = DefaultAddressWithProtocol
 	}
 
-	if c.FileStoragePath == "" {
-		c.FileStoragePath = DefaultStoragePath
+	if c.App.FileStoragePath == "" {
+		c.App.FileStoragePath = DefaultStoragePath
 	}
 }
 
 func (c *Config) init() {
 	c.initEnv()
 	c.initFlags()
-	c.initDefault()
+	c.initDefaultValue()
 }

@@ -15,8 +15,8 @@ import (
 
 func NewHandlers(services services.Services, dependency common.BaseDependency) *Handler {
 	handlers := &Handlers{
-		URL:      url.New(services, dependency),
-		Database: db.New(services, dependency),
+		URL:      url.NewURL(services, dependency),
+		Database: db.NewDB(services, dependency),
 	}
 
 	return &Handler{
@@ -40,7 +40,7 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 		r.Get("/api/user/urls", h.Handlers.URL.GetAllByUser)
 		r.Post("/api/shorten/batch", h.Handlers.URL.CreateBatch)
 		r.Post("/api/shorten", h.Handlers.URL.CreateFromJSON)
-		r.Delete("/api/users/urls", h.Handlers.URL.GetAllByUser)
+		r.Delete("/api/users/urls", h.Handlers.URL.DeleteBatch)
 	})
 
 	return r

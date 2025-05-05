@@ -9,4 +9,8 @@ const (
 	unexpectedSigningMethod = "unexpected signing method"
 	unsupportedMethod       = "this method is not supported"
 	emptyUserID             = "empty user id"
+	failedParsingConfig     = "failed parsing config"
+	failedConnectionDB      = "failed connection DB"
+	pingTimeout             = "ping timeout"
+	serverDown              = "HTTP server stopped with error"
 )

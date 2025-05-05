@@ -6,19 +6,19 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/services"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 
+	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/middleware"
 	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/services"
 )
 
-func New(services services.Services, dependency common.BaseDependency) *Handler {
+func NewURL(services services.Services, dependency common.BaseDependency) *Handler {
 	return &Handler{
 		Services:       services,
 		BaseDependency: dependency,

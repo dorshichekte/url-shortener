@@ -6,21 +6,17 @@ import (
 	"net/http"
 	"time"
 
-	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/services"
+	"go.uber.org/zap"
+
+	"url-shortener/internal/app/constants"
 )
 
-func New(services services.Services, dependency common.BaseDependency) *Handler {
-	return &Handler{
-		Services:       services,
-		BaseDependency: dependency,
-	}
-}
 func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 	ps := h.Cfg.DatabaseDSN
 
 	db, err := sql.Open("pgx", ps)
 	if err != nil {
+		h.Logger.Error(constants.ErrFailedConnectionDB.Error(), zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -31,6 +27,7 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err = db.PingContext(ctx); err != nil {
+		h.Logger.Error(constants.ErrPingTimeout.Error(), zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

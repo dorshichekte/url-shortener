@@ -11,4 +11,8 @@ var (
 	ErrUnexpectedSigningMethod = errors.New(unexpectedSigningMethod)
 	ErrUnsupportedMethod       = errors.New(unsupportedMethod)
 	ErrEmptyUserID             = errors.New(emptyUserID)
+	ErrParsingConfig           = errors.New(failedParsingConfig)
+	ErrFailedConnectionDB      = errors.New(failedConnectionDB)
+	ErrPingTimeout             = errors.New(pingTimeout)
+	ErrServerDown              = errors.New(serverDown)
 )

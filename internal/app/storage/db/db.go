@@ -19,7 +19,7 @@ import (
 	"url-shortener/internal/app/models"
 )
 
-func NewPostgresStorage(cfg config.Config) (*Storage, error) {
+func NewPostgresStorage(cfg config.AppConfig) (*Storage, error) {
 	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func NewPostgresStorage(cfg config.Config) (*Storage, error) {
 	}}, nil
 }
 
-func applyMigrations(cfg config.Config) error {
+func applyMigrations(cfg config.AppConfig) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get current working directory: %v", err)
