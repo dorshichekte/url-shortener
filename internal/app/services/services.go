@@ -10,6 +10,6 @@ import (
 func NewServices(storage storage.URLStorage, dependency common.BaseDependency) Services {
 	return Services{
 		URL:    url.NewService(storage, dependency),
-		Worker: worker.NewService(10, 100),
+		Worker: worker.NewService(20, 200),
 	}
 }

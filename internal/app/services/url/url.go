@@ -1,8 +1,6 @@
 package url
 
 import (
-	"context"
-
 	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
@@ -73,9 +71,9 @@ func (u *Service) BatchShorten(listBatches []models.BatchRequest) ([]models.Batc
 }
 
 func (u *Service) GetByUserID(userID string) ([]models.URL, error) {
-	return u.Store.GetUsersURLsByID(userID)
+	return u.Store.GetURLsByID(userID)
 }
 
-func (u *Service) BatchDelete(ctx context.Context, event models.DeleteEvent) error {
+func (u *Service) BatchDelete(event models.DeleteEvent) error {
 	return u.Store.BatchUpdate(event)
 }

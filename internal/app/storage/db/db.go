@@ -129,10 +129,10 @@ func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	return tx.Commit()
 }
 
-func (s *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
+func (s *Storage) GetURLsByID(userID string) ([]models.URL, error) {
 	var listURLs []models.URL
 
-	rows, err := s.db.Query(`SELECT url, short_url FROM urls WHERE user_id=$1`, userID)
+	rows, err := s.db.Query(`SELECT url, short_url, is_deleted FROM urls WHERE user_id=$1`, userID)
 	if err != nil {
 		return nil, err
 	}

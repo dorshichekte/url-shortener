@@ -1,7 +1,6 @@
 package url
 
 import (
-	"context"
 	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/storage"
@@ -12,7 +11,7 @@ type Methods interface {
 	GetOriginal(shortURL string) (models.URLData, error)
 	BatchShorten(batch []models.BatchRequest) ([]models.BatchResponse, error)
 	GetByUserID(userID string) ([]models.URL, error)
-	BatchDelete(ctx context.Context, event models.DeleteEvent) error
+	BatchDelete(event models.DeleteEvent) error
 }
 
 type Service struct {

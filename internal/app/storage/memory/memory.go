@@ -83,7 +83,7 @@ func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	return nil
 }
 
-func (us *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
+func (us *Storage) GetURLsByID(userID string) ([]models.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
