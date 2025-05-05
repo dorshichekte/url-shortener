@@ -132,7 +132,7 @@ func (s *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 func (s *Storage) GetURLsByID(userID string) ([]models.URL, error) {
 	var listURLs []models.URL
 
-	rows, err := s.db.Query(`SELECT url, short_url, is_deleted FROM urls WHERE user_id=$1`, userID)
+	rows, err := s.db.Query(`SELECT url, short_url FROM urls WHERE user_id=$1`, userID)
 	if err != nil {
 		return nil, err
 	}
