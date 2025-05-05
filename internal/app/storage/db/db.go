@@ -4,60 +4,93 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+	"url-shortener/internal/app/common"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
+	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/constants"
-	"url-shortener/internal/app/models"
+	"url-shortener/internal/app/model"
 )
 
-func NewPostgresStorage(dsn string) (*Storage, error) {
-	db, err := sql.Open("pgx", dsn)
+func NewPostgresStorage(cfg config.AppConfig) (*Storage, error) {
+	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 
-	createTableQuery := `
-    CREATE TABLE IF NOT EXISTS urls (
-        id SERIAL PRIMARY KEY,
-        url TEXT NOT NULL UNIQUE,
-        short_url TEXT NOT NULL UNIQUE
-    );
-    `
-	if _, err = db.Exec(createTableQuery); err != nil {
+	err = applyMigrations(cfg)
+	if err != nil {
 		return nil, err
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{db: db, BaseStorageDependency: common.BaseStorageDependency{
+		Cfg: cfg,
+		Mu:  sync.RWMutex{},
+	}}, nil
 }
 
-func (s *Storage) Get(shortURL string) (string, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	var url string
-	err := s.db.QueryRow("SELECT url FROM urls WHERE short_url = $1", shortURL).Scan(&url)
+func applyMigrations(cfg config.AppConfig) error {
+	wd, err := os.Getwd()
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", constants.ErrURLNotFound
-		}
-		return "", err
+		return fmt.Errorf("failed to get current working directory: %v", err)
 	}
 
-	return url, nil
+	migrationDirPath := "file://" + filepath.Join(wd, "migrations")
+
+	m, err := migrate.New(migrationDirPath, cfg.DatabaseDSN)
+	if err != nil {
+		return fmt.Errorf("failed to initialize migration: %v", err)
+	}
+
+	err = m.Up()
+	if err != nil && err.Error() != "no change" {
+		return fmt.Errorf("failed to apply migrations: %v", err)
+	}
+
+	return nil
 }
 
-func (s *Storage) Add(url string, shortURL string) {
-	query := "INSERT INTO urls (url, short_url) VALUES ($1, $2)"
-	s.db.Exec(query, shortURL, url)
+func (s *Storage) Get(shortURL string) (model.URLData, error) {
+	s.Mu.RLock()
+	defer s.Mu.RUnlock()
+
+	var URLData model.URLData
+	err := s.db.QueryRow("SELECT url, is_deleted FROM urls WHERE short_url = $1", shortURL).Scan(&URLData.URL, &URLData.Deleted)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return URLData, constants.ErrURLNotFound
+		}
+		return URLData, err
+	}
+	return URLData, nil
+}
+
+func (s *Storage) Add(url, shortURL, userID string) (string, error) {
+	query := "INSERT INTO urls (url, short_url, user_id) VALUES ($1, $2, $3)"
+	_, err := s.db.Exec(query, url, shortURL, userID)
+	if err != nil {
+		var shortURL string
+		s.db.QueryRow("SELECT short_url FROM urls WHERE url = $1", url).Scan(&shortURL)
+		return shortURL, err
+	}
+
+	return "", nil
 }
 
 func (s *Storage) Delete(shortURL string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.Mu.Lock()
+	defer s.Mu.Unlock()
 
 	query := "DELETE FROM urls WHERE short_url = $1 AND url = $1"
 	_, err := s.db.Exec(query, shortURL)
@@ -69,26 +102,68 @@ func (s *Storage) Delete(shortURL string) error {
 	return nil
 }
 
-func (s *Storage) AddBatch(listBatches []models.Batch) error {
-	queries := make([]string, 0, len(listBatches))
-
-	for _, batch := range listBatches {
-		query := fmt.Sprintf("INSERT INTO urls (short_url, url) VALUES ('%s', '%s');", batch.ShortURL, batch.OriginalURL)
-		queries = append(queries, query)
-	}
-
+func (s *Storage) AddBatch(listBatches []model.Batch, userID string) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
-	for _, query := range queries {
-		_, err = tx.Exec(query)
+	stmt, err := tx.Prepare("INSERT INTO urls (short_url, url, user_id) VALUES ($1, $2, $3)")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = stmt.Close()
+	}()
+
+	for _, batch := range listBatches {
+		_, err = stmt.Exec(batch.ShortURL, batch.OriginalURL, userID)
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 	}
 
 	return tx.Commit()
+}
+
+func (s *Storage) GetURLsByID(userID string) ([]model.URL, error) {
+	var listURLs []model.URL
+
+	rows, err := s.db.Query(`SELECT url, short_url FROM urls WHERE user_id=$1`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	for rows.Next() {
+		var url model.URL
+		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
+			return nil, err
+		}
+		url.ShortURL = fmt.Sprintf("%s/%s", s.Cfg.BaseURL, url.ShortURL)
+		listURLs = append(listURLs, url)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return listURLs, nil
+}
+
+func (s *Storage) BatchUpdate(event model.DeleteEvent) error {
+	query := `
+        UPDATE urls
+        SET is_deleted = true
+        WHERE short_url = ANY($1::text[]) AND user_id = $2
+    `
+	_, err := s.db.Exec(query, event.ListURL, event.UserID)
+
+	return err
 }

@@ -2,10 +2,11 @@ package db
 
 import (
 	"database/sql"
-	"sync"
+
+	"url-shortener/internal/app/common"
 )
 
 type Storage struct {
 	db *sql.DB
-	mu sync.RWMutex
+	common.BaseStorageDependency
 }

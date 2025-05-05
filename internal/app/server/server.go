@@ -2,14 +2,18 @@ package server
 
 import (
 	"go.uber.org/zap"
-	"log"
 	"net/http"
+	"url-shortener/internal/app/constants"
 
 	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/handlers"
+	"url-shortener/internal/app/handler"
 )
 
-func Start(cfg *config.Config, handler *handlers.Handler, logger *zap.Logger) {
+func Start(cfg *config.AppConfig, handler *handler.Handler, logger *zap.Logger) {
 	mux := handler.Register(logger)
-	log.Fatal(http.ListenAndServe(cfg.ServerAddress, mux))
+
+	err := http.ListenAndServe(cfg.ServerAddress, mux)
+	if err != nil {
+		logger.Fatal(constants.ErrServerDown.Error(), zap.Error(err))
+	}
 }

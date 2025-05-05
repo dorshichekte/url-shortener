@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"io"
@@ -11,9 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/logger"
-	"url-shortener/internal/app/services/url"
+	"url-shortener/internal/app/service"
 	"url-shortener/internal/app/storage"
 )
 
@@ -40,27 +41,33 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path, body string) (
 }
 
 func TestRoute(t *testing.T) {
-	cfg := config.NewConfig()
-	l, err := logger.New()
+	l, err := logger.NewLogger()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
 	defer func() {
 		_ = l.Sync()
 	}()
-	s := storage.Create(cfg, l)
-	urlService := url.NewURLService(s, cfg)
+	cfg := config.NewConfig(l)
+	store := storage.NewStorage(cfg.App, l)
+	dependency := common.BaseDependency{
+		Cfg:    *cfg.App,
+		Logger: l,
+	}
+	service := service.NewServices(store, dependency)
+	defer service.Worker.Close()
 
-	handler := NewHandler(urlService, cfg, l)
+	handler := NewHandlers(service, dependency)
 	ts := httptest.NewServer(handler.Register(l))
 	defer ts.Close()
 
 	mockURL := "https://ya.ru"
 	mockURL2 := "https://practicum.yandex.ru"
 	mockURL3 := "https://habr.com"
-	mockTestData, _ := urlService.CreateShort(mockURL)
-	mockTestData2, _ := urlService.CreateShort(mockURL2)
-	baseURL := cfg.BaseURL
+	mockID := "dXmzeR"
+	mockTestData, _ := service.URL.Shorten(mockURL, mockID)
+	mockTestData2, _ := service.URL.Shorten(mockURL2, mockID)
+	baseURL := cfg.App.BaseURL
 
 	type values struct {
 		url    string
@@ -169,7 +176,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #9 не тот метод Shorten",
+			name: "Test #9 не тот метод CreateFromJSON",
 			values: values{
 				url:    "/api/shorten",
 				method: "GET",
@@ -180,7 +187,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #10 не корректный JSON Shorten",
+			name: "Test #10 не корректный JSON CreateFromJSON",
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",
@@ -191,7 +198,7 @@ func TestRoute(t *testing.T) {
 			},
 		},
 		{
-			name: "Test #11 валидный url Shorten",
+			name: "Test #11 валидный url CreateFromJSON",
 			values: values{
 				url:    "/api/shorten",
 				method: "POST",

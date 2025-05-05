@@ -1,4 +1,4 @@
-package models
+package model
 
 type ShortenRequest struct {
 	OriginalURL string `json:"url"`
@@ -16,4 +16,14 @@ type BatchRequest struct {
 type BatchResponse struct {
 	ID       string `json:"correlation_id"`
 	ShortURL string `json:"short_url"`
+}
+
+type URL struct {
+	ShortURL    string `json:"short_url"`
+	OriginalURL string `json:"original_url"`
+}
+
+type DeleteEvent struct {
+	ListURL []string
+	UserID  string `json:"user_id"`
 }

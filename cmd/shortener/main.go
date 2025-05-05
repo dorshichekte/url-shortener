@@ -3,16 +3,17 @@ package main
 import (
 	"log"
 
+	"url-shortener/internal/app/common"
 	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/handlers"
+	"url-shortener/internal/app/handler"
 	"url-shortener/internal/app/logger"
 	"url-shortener/internal/app/server"
-	"url-shortener/internal/app/services/url"
+	"url-shortener/internal/app/service"
 	"url-shortener/internal/app/storage"
 )
 
 func main() {
-	l, err := logger.New()
+	l, err := logger.NewLogger()
 	if err != nil {
 		log.Fatalf("Failed initialization logger: %v", err)
 	}
@@ -20,13 +21,15 @@ func main() {
 		_ = l.Sync()
 	}()
 
-	cfg := config.NewConfig()
+	cfg := config.NewConfig(l)
+	store := storage.NewStorage(cfg.App, l)
+	dependency := common.BaseDependency{
+		Cfg:    *cfg.App,
+		Logger: l,
+	}
+	service := service.NewServices(store, dependency)
+	defer service.Worker.Close()
 
-	urlStorage := storage.Create(cfg, l)
-
-	urlService := url.NewURLService(urlStorage, cfg)
-
-	handler := handlers.NewHandler(urlService, cfg, l)
-
-	server.Start(cfg, handler, l)
+	handler := handler.NewHandlers(service, dependency)
+	server.Start(cfg.App, handler, l)
 }
