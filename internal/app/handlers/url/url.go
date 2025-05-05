@@ -279,6 +279,6 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 		UserID:  userID,
 	}
 
-	go h.Services.URL.BatchDelete(context.Background(), event)
+	go h.Services.URL.BatchDelete(event)
 	res.WriteHeader(http.StatusAccepted)
 }
