@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"go.uber.org/zap"
 	"url-shortener/internal/app/constants"
 
@@ -11,6 +12,7 @@ import (
 func NewConfig(logger *zap.Logger) *Config {
 	cfg := &Config{
 		Logger: logger,
+		App:    &AppConfig{},
 	}
 	cfg.init()
 	return cfg

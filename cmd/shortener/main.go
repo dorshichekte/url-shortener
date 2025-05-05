@@ -22,14 +22,14 @@ func main() {
 	}()
 
 	cfg := config.NewConfig(l)
-	store := storage.NewStorage(&cfg.App, l)
+	store := storage.NewStorage(cfg.App, l)
 	dependency := common.BaseDependency{
-		Cfg:    cfg.App,
+		Cfg:    *cfg.App,
 		Logger: l,
 	}
 	service := services.NewServices(store, dependency)
 	defer service.Worker.Close()
-	
+
 	handler := handlers.NewHandlers(service, dependency)
-	server.Start(&cfg.App, handler, l)
+	server.Start(cfg.App, handler, l)
 }

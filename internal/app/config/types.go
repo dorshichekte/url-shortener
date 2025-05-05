@@ -10,6 +10,6 @@ type AppConfig struct {
 }
 
 type Config struct {
-	App    AppConfig
+	App    *AppConfig
 	Logger *zap.Logger
 }
