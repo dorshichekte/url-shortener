@@ -2,7 +2,6 @@ package url
 
 import (
 	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/constants"
 	"url-shortener/internal/app/models"
 	"url-shortener/internal/app/osfile"
 	"url-shortener/internal/app/storage"
@@ -13,14 +12,12 @@ func NewURLService(store storage.URLStorage, cfg *config.Config) *Service {
 	return &Service{store: store, cfg: *cfg}
 }
 
-func (u *Service) CreateShort(url string) (string, error) {
-	shortURL, _ := u.store.Get(url)
-	if shortURL != "" {
-		return shortURL, constants.ErrURLAlreadyExists
+func (u *Service) CreateShort(url, userID string) (string, error) {
+	shortURL := stringUtils.CreateRandom()
+	url, err := u.store.Add(url, shortURL, userID)
+	if err != nil {
+		return url, err
 	}
-
-	shortURL = stringUtils.CreateRandom()
-	u.store.Add(url, shortURL)
 
 	if u.cfg.DatabaseDSN == "" {
 		consumer, _ := osfile.NewConsumer(u.cfg.FileStoragePath)
@@ -54,7 +51,7 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 		})
 	}
 
-	err = u.store.AddBatch(tmpListBatches)
+	err = u.store.AddBatch(tmpListBatches, "")
 	if err != nil {
 		return nil, err
 	}
@@ -68,4 +65,8 @@ func (u *Service) AddBatch(listBatches []models.BatchRequest) ([]models.BatchRes
 	}
 
 	return listResponseBatches, nil
+}
+
+func (u *Service) GetUserURLSByID(userID string) ([]models.URL, error) {
+	return u.store.GetUsersURLsByID(userID)
 }

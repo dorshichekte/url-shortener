@@ -10,7 +10,7 @@ import (
 )
 
 func initDatabase(cfg *config.Config) (URLStorage, error) {
-	ps, err := db.NewPostgresStorage(cfg.DatabaseDSN)
+	ps, err := db.NewPostgresStorage(*cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func initMemory(cfg *config.Config) (URLStorage, error) {
 	}
 
 	for _, event := range *listEvents {
-		st.Add(event.OriginalURL, event.ShortURL)
+		st.Add(event.OriginalURL, event.ShortURL, "")
 	}
 
 	return st, nil
@@ -38,6 +38,7 @@ func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
 	var store URLStorage
 	var errInitDB error
 	var errInitFileStorage error
+	store, errInitFileStorage = initMemory(cfg)
 
 	if cfg.DatabaseDSN != "" {
 		store, errInitDB = initDatabase(cfg)
@@ -46,7 +47,6 @@ func Create(cfg *config.Config, logger *zap.Logger) URLStorage {
 	isFailedInitDB := errInitDB != nil || store == nil
 	if isFailedInitDB {
 		logger.Error("failed to connect to DB", zap.Error(errInitDB))
-		store, errInitFileStorage = initMemory(cfg)
 
 		if errInitFileStorage != nil {
 			logger.Error("failed open file for memory storage", zap.Error(errInitFileStorage))

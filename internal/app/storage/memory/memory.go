@@ -24,9 +24,16 @@ func (us *Storage) Get(url string) (string, error) {
 	return value, nil
 }
 
-func (us *Storage) Add(url, shortURL string) {
+func (us *Storage) Add(url, shortURL, userID string) (string, error) {
+	value, found := us.mapURL[url]
+	if found {
+		return value, constants.ErrURLAlreadyExists
+	}
+
 	us.mapURL[url] = shortURL
 	us.mapURL[shortURL] = url
+
+	return "", nil
 }
 
 func (us *Storage) Delete(url string) error {
@@ -56,9 +63,9 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
-func (us *Storage) AddBatch(listBatches []models.Batch) error {
+func (us *Storage) AddBatch(listBatches []models.Batch, userID string) error {
 	for _, batch := range listBatches {
-		us.Add(batch.OriginalURL, batch.ShortURL)
+		us.Add(batch.OriginalURL, batch.ShortURL, userID)
 		err := us.Write(batch.OriginalURL, batch.ShortURL)
 		if err != nil {
 			return err
@@ -66,4 +73,8 @@ func (us *Storage) AddBatch(listBatches []models.Batch) error {
 	}
 
 	return nil
+}
+
+func (us *Storage) GetUsersURLsByID(userID string) ([]models.URL, error) {
+	return nil, constants.ErrUnsupportedMethod
 }

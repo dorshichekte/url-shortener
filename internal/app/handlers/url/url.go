@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"url-shortener/internal/app/middleware"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -72,6 +73,13 @@ func (h *Handler) Get(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
+
 	originalURL, err := h.parseRequest(req)
 	if err != nil {
 		h.logger.Error("Failed parse request URL", zap.Error(err))
@@ -82,7 +90,7 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	shortURL, err := h.service.CreateShort(originalURL)
+	shortURL, err := h.service.CreateShort(originalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	defer res.Write([]byte(fullURL))
@@ -99,6 +107,13 @@ func (h *Handler) Add(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
+
 	u, err := h.jsonDecode(req)
 	if err != nil {
 		h.logger.Error("Failed decode json", zap.Error(err))
@@ -106,29 +121,24 @@ func (h *Handler) Shorten(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	shortURL, err := h.service.CreateShort(u.OriginalURL)
+	shortURL, err := h.service.CreateShort(u.OriginalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := models.ShortenResponse{
 		ShortURL: fullURL,
 	}
-	defer func() {
-		if resErr := json.NewEncoder(res).Encode(response); resErr != nil {
-			h.logger.Error("Failed encode json", zap.Error(resErr))
-			h.handleError(res, http.StatusInternalServerError)
-			return
-		}
-	}()
 
 	if err != nil {
 		h.logger.Error("Failed create short URL", zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
+		json.NewEncoder(res).Encode(response)
 		return
 	}
 
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
+	json.NewEncoder(res).Encode(response)
 }
 
 func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
@@ -154,6 +164,13 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
+
 	var rq []models.BatchRequest
 	var rs []models.BatchResponse
 
@@ -215,5 +232,42 @@ func (h *Handler) Batch(res http.ResponseWriter, req *http.Request) {
 		h.logger.Error("Failed write response", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+}
+
+func (h *Handler) ListUrls(res http.ResponseWriter, req *http.Request) {
+	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
+	if !ok || userID == "" {
+		h.logger.Error("Failed get userID from context")
+		h.handleError(res, http.StatusUnauthorized)
+		return
+	}
+
+	listURLS, err := h.service.GetUserURLSByID(userID)
+	if err != nil {
+		h.logger.Error(err.Error(), zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
+	isListURLSEmpty := len(listURLS) == 0
+	if isListURLSEmpty {
+		res.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	j, err := json.Marshal(listURLS)
+	if err != nil {
+		h.logger.Error("Failed marshal json", zap.Error(err))
+		h.handleError(res, http.StatusInternalServerError)
+		return
+	}
+
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(http.StatusOK)
+	_, err = res.Write(j)
+	if err != nil {
+		h.logger.Error("Failed write response", zap.Error(err))
+		res.WriteHeader(http.StatusInternalServerError)
 	}
 }

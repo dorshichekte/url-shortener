@@ -25,11 +25,16 @@ func (h *Handler) Register(logger *zap.Logger) http.Handler {
 	r.Use(middleware.Gzip)
 	r.Use(middleware.Decompress)
 
-	r.Get("/{id}", h.urlHandler.Get)
-	r.Post("/", h.urlHandler.Add)
-	r.Post("/api/shorten", h.urlHandler.Shorten)
 	r.Get("/ping", h.urlHandler.Ping)
-	r.Post("/api/shorten/batch", h.urlHandler.Batch)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Auth)
+		r.Post("/", h.urlHandler.Add)
+		r.Get("/{id}", h.urlHandler.Get)
+		r.Get("/api/user/urls", h.urlHandler.ListUrls)
+		r.Post("/api/shorten/batch", h.urlHandler.Batch)
+		r.Post("/api/shorten", h.urlHandler.Shorten)
+	})
 
 	return r
 }

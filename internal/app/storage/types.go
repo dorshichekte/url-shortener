@@ -5,8 +5,9 @@ import (
 )
 
 type URLStorage interface {
-	Get(url string) (string, error)
-	Add(url, shortURL string)
+	Get(shortURL string) (string, error)
+	Add(url, shortURL, userID string) (string, error)
 	Delete(url string) error
-	AddBatch(listBatches []models.Batch) error
+	AddBatch(listBatches []models.Batch, userID string) error
+	GetUsersURLsByID(userID string) ([]models.URL, error)
 }

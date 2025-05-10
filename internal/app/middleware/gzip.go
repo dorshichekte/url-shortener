@@ -28,7 +28,9 @@ func Gzip(next http.Handler) http.Handler {
 					io.WriteString(w, err.Error())
 					return
 				}
-				defer gz.Close()
+				defer func() {
+					_ = gz.Close()
+				}()
 
 				gzWriter := &gzipWriter{Writer: gz, ResponseWriter: w}
 				w = gzWriter
@@ -50,7 +52,9 @@ func Decompress(next http.Handler) http.Handler {
 				http.Error(w, "Failed to decompress request body", http.StatusBadRequest)
 				return
 			}
-			defer zr.Close()
+			defer func() {
+				_ = zr.Close()
+			}()
 
 			r.Body = http.MaxBytesReader(w, zr, 10<<20)
 		}
