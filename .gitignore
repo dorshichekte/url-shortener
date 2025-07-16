@@ -31,5 +31,8 @@ shortenertest
 # Docker
 docker-compose.yml
 
-#env
+# Env
 .env
+
+# Util
+fix.md

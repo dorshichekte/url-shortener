@@ -1,35 +1,41 @@
 package main
 
 import (
+	"context"
 	"log"
 
-	"url-shortener/internal/app/common"
-	"url-shortener/internal/app/config"
-	"url-shortener/internal/app/handler"
-	"url-shortener/internal/app/logger"
-	"url-shortener/internal/app/server"
-	"url-shortener/internal/app/service"
-	"url-shortener/internal/app/storage"
+	a "url-shortener/internal/app"
+	c "url-shortener/internal/app/config"
+	g "url-shortener/internal/pkg/graceful"
+	l "url-shortener/internal/pkg/logger"
 )
 
 func main() {
-	l, err := logger.NewLogger()
+	logger, err := l.New()
 	if err != nil {
-		log.Fatalf("Failed initialization logger: %v", err)
+		log.Fatal(err)
+		return
 	}
 	defer func() {
-		_ = l.Sync()
+		_ = logger.Sync()
 	}()
 
-	cfg := config.NewConfig(l)
-	store := storage.NewStorage(cfg.App, l)
-	dependency := common.BaseDependency{
-		Cfg:    *cfg.App,
-		Logger: l,
+	config, err := c.New()
+	if err != nil {
+		logger.Fatal(err.Error())
+		return
 	}
-	service := service.NewServices(store, dependency)
-	defer service.Worker.Close()
 
-	handler := handler.NewHandlers(service, dependency)
-	server.Start(cfg.App, handler, l)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	app := a.New(ctx, logger, config)
+
+	graceful := g.New(g.NewProcess(app.HTTPAdapter))
+
+	err = graceful.Start(ctx)
+	if err != nil {
+		logger.Fatal(err.Error())
+		panic(err)
+	}
 }

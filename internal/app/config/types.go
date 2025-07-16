@@ -1,15 +1,11 @@
 package config
 
-import "go.uber.org/zap"
-
-type AppConfig struct {
-	ServerAddress   string `env:"SERVER_ADDRESS"`
-	BaseURL         string `env:"BASE_URL"`
-	FileStoragePath string `env:"FILE_STORAGE_PATH"`
-	DatabaseDSN     string `env:"DATABASE_DSN"`
-}
+import (
+	adapter "url-shortener/internal/app/config/adapter"
+	"url-shortener/internal/app/config/env"
+)
 
 type Config struct {
-	App    *AppConfig
-	Logger *zap.Logger
+	Env         *config.Env
+	HTTPAdapter *adapter.HTTPAdapter
 }
