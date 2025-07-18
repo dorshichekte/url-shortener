@@ -57,6 +57,3 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 
 	return string(body), nil
 }
-func (h *Handler) writeResponse(res http.ResponseWriter, body dto.ShortenRequest) error {
-
-}
