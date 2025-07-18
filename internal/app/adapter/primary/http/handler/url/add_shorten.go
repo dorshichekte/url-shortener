@@ -37,7 +37,7 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	if err != nil {
-		h.logger.Error(errMessageFailedCreateShortUrl, zap.Error(err))
+		h.logger.Error(errMessageFailedCreateShortURL, zap.Error(err))
 		res.Header().Set("Content-Type", "text/plain")
 		h.handleError(res, http.StatusConflict)
 

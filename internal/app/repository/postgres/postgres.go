@@ -31,7 +31,7 @@ func NewConnection(l *zap.Logger, cfg *config.Env) *Postgres {
 		l.Fatal(err.Error())
 	}
 
-	return &Postgres{Db: db}
+	return &Postgres{DB: db}
 }
 
 func applyMigrations(databaseDSN string) error {
@@ -57,6 +57,6 @@ func applyMigrations(databaseDSN string) error {
 
 func New(db *sql.DB, config *config.Env) Repositories {
 	return Repositories{
-		Url: url_repository_postgres.New(db, config),
+		URL: url_repository_postgres.New(db, config),
 	}
 }

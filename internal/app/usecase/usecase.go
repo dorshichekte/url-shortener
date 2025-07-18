@@ -8,6 +8,6 @@ import (
 
 func New(config *config.Env, repositories postgres.Repositories) *UseCases {
 	return &UseCases{
-		URL: url.New(config, repositories.Url),
+		URL: url.New(config, repositories.URL),
 	}
 }

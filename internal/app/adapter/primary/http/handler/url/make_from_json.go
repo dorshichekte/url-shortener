@@ -26,14 +26,14 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 
 	u, err := h.jsonDecode(req)
 	if err != nil {
-		h.logger.Error(errorshandler.ErrMessageFailedDecodeJson, zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedDecodeJSON, zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
 
 	shortURL, err := h.useCase.AddShorten(ctx, u.OriginalURL, userID)
 	if err != nil {
-		h.logger.Error(errMessageFailedCreateShortUrl, zap.Error(err))
+		h.logger.Error(errMessageFailedCreateShortURL, zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
 		return

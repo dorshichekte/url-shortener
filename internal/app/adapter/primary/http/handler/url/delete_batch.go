@@ -35,7 +35,7 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	var listURLs []string
 	err = json.Unmarshal(body, &listURLs)
 	if err != nil {
-		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJson, zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJSON, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}

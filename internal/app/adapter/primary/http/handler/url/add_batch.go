@@ -40,7 +40,7 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 	var batchesRequest []dto.BatchRequest
 
 	if err := json.Unmarshal(body, &batchesRequest); err != nil {
-		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJson, zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJSON, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}

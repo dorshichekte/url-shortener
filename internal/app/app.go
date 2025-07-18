@@ -17,7 +17,7 @@ func New(ctx context.Context, logger *zap.Logger, config *config.Config) *App {
 	validator := v.New()
 	auth := a.New(config.Env.AccessSecretKey)
 
-	postgresConnection := pg.NewConnection(logger, config.Env).Db
+	postgresConnection := pg.NewConnection(logger, config.Env).DB
 
 	repositories := pg.New(postgresConnection, config.Env)
 

@@ -7,9 +7,9 @@ import (
 )
 
 type Postgres struct {
-	Db *sql.DB
+	DB *sql.DB
 }
 
 type Repositories struct {
-	Url url_repository.IURLRepository
+	URL url_repository.IURLRepository
 }

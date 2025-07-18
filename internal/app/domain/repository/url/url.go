@@ -8,7 +8,7 @@ import (
 )
 
 type IURLRepository interface {
-	AddShorten(context context.Context, originalURL, shortUrl, userID string) (string, error)
+	AddShorten(context context.Context, originalURL, shortURL, userID string) (string, error)
 	GetOriginalByID(context context.Context, shortURL string) (model.URLData, error)
 	GetAllByUserID(context context.Context, userID string) ([]model.URL, error)
 	AddBatch(context context.Context, batches []entity.Batch, userID string) error
