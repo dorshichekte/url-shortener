@@ -54,38 +54,10 @@ func (c *Env) initDefaultValue() {
 	}
 }
 
-func (c *Env) valid() error {
-	var emptyVariables []string
-
-	if c.ServerAddress == "" {
-		emptyVariables = append(emptyVariables, "SERVER_ADDRESS")
-	}
-
-	if c.DatabaseDSN == "" {
-		emptyVariables = append(emptyVariables, "DATABASE_DSN")
-	}
-
-	if c.FileStoragePath == "" {
-		emptyVariables = append(emptyVariables, "FILE_STORAGE_PATH")
-	}
-
-	if c.BaseURL == "" {
-		emptyVariables = append(emptyVariables, "BASE_URL")
-	}
-
-	if len(emptyVariables) != 0 {
-		return customerror.NewWithData(errEnvEmptyVariables, emptyVariables)
-	}
-
-	return nil
-}
-
 func (c *Env) init() (err error) {
 	c.initEnv()
 	c.initFlags()
 	c.initDefaultValue()
-
-	err = c.valid()
 
 	return err
 }
