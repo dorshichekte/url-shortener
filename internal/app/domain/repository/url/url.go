@@ -12,5 +12,5 @@ type IURLRepository interface {
 	GetOriginalByID(context context.Context, shortURL string) (model.URLData, error)
 	GetAllByUserID(context context.Context, userID string) ([]model.URL, error)
 	AddBatch(context context.Context, batches []entity.Batch, userID string) error
-	DeleteBatch(event entity.DeleteBatch) error
+	DeleteBatch(context context.Context, event entity.DeleteBatch) error
 }

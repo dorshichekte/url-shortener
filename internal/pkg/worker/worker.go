@@ -7,14 +7,14 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
-func New(config *config.Worker) *Worker {
+func New(context context.Context, config *config.Worker) *Worker {
 	w := &Worker{
 		resultCh: make(chan entity.DeleteBatch, config.ChanelLength),
 	}
 
 	w.wg.Add(config.WorkerCounter)
 	for i := 0; i < config.WorkerCounter; i++ {
-		go w.RunJob()
+		go w.RunJob(context)
 	}
 
 	return w
@@ -28,10 +28,10 @@ func (w *Worker) SendEvent(ctx context.Context, event entity.DeleteBatch) {
 	}
 }
 
-func (w *Worker) RunJob() {
+func (w *Worker) RunJob(context context.Context) {
 	defer w.wg.Done()
 	for event := range w.resultCh {
-		_ = w.Store.Url.DeleteBatch(event)
+		_ = w.Store.Url.DeleteBatch(context, event)
 	}
 }
 
