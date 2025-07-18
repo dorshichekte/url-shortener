@@ -4,24 +4,22 @@ import (
 	"strconv"
 	"sync"
 
-	model2 "url-shortener/internal/app/repository/model"
-	"url-shortener/internal/config"
+	"url-shortener/internal/app/config/env"
+	"url-shortener/internal/app/repository/model"
 	"url-shortener/internal/pkg/constants"
-	osfile2 "url-shortener/internal/pkg/osfile"
+	"url-shortener/internal/pkg/osfile"
 )
 
-func NewURLStorage(cfg *config.AppConfig) *Storage {
+func NewURLStorage(cfg *config.Env) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
-		BaseStorageDependency: common.BaseStorageDependency{
-			Cfg: *cfg,
-			Mu:  sync.RWMutex{},
-		},
+		mu:     sync.RWMutex{},
+		config: cfg,
 	}
 }
 
-func (us *Storage) Get(url string) (model2.URLData, error) {
-	var URLData model2.URLData
+func (us *Storage) Get(url string) (model.URLData, error) {
+	var URLData model.URLData
 	value, found := us.mapURL[url]
 	if !found {
 		return URLData, constants.ErrURLNotFound
@@ -54,8 +52,8 @@ func (us *Storage) Delete(url string) error {
 }
 
 func (us *Storage) Write(url, shortURL string) error {
-	data := osfile2.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
-	consumer, err := osfile2.NewConsumer(us.Cfg.FileStoragePath)
+	data := osfile.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
+	consumer, err := osfile.NewConsumer(us.config.FileStoragePath)
 	if err != nil {
 		return err
 	}
@@ -70,7 +68,7 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
-func (us *Storage) AddBatch(listBatches []model2.Batch, userID string) error {
+func (us *Storage) AddBatch(listBatches []model.Batch, userID string) error {
 	for _, batch := range listBatches {
 		us.Add(batch.OriginalURL, batch.ShortURL, userID)
 		err := us.Write(batch.OriginalURL, batch.ShortURL)
@@ -82,10 +80,10 @@ func (us *Storage) AddBatch(listBatches []model2.Batch, userID string) error {
 	return nil
 }
 
-func (us *Storage) GetURLsByID(userID string) ([]model2.URL, error) {
+func (us *Storage) GetURLsByID(userID string) ([]model.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
-func (us *Storage) BatchUpdate(event model2.DeleteEvent) error {
+func (us *Storage) BatchUpdate(event model.DeleteEvent) error {
 	return constants.ErrUnsupportedMethod
 }

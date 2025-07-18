@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"encoding/json"
@@ -10,18 +10,19 @@ import (
 	"go.uber.org/zap"
 
 	dto "url-shortener/internal/app/adapter/primary/http/dto/url"
+	errorhandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 	config "url-shortener/internal/app/config/env"
 	urlusecase "url-shortener/internal/app/usecase/url"
-	"url-shortener/internal/pkg/constants"
+	customerror "url-shortener/internal/pkg/error"
 	"url-shortener/internal/pkg/validator"
 )
 
 func New(logger *zap.Logger, config *config.Env, useCase urlusecase.IUrlUseCase, validator *validator.Validator) *Handler {
 	return &Handler{
-		UseCase:   useCase,
-		Logger:    logger,
-		Validator: validator,
-		Config:    config,
+		useCase:   useCase,
+		logger:    logger,
+		validator: validator,
+		config:    config,
 	}
 }
 
@@ -46,7 +47,7 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 
 	isBodyEmpty := len(body) == 0
 	if isBodyEmpty {
-		return "", constants.ErrEmptyRequestBody
+		return "", customerror.New(errorhandler.ErrMessageEmptyRequestBody)
 	}
 
 	_, err = url.ParseRequestURI(string(body))
@@ -55,4 +56,7 @@ func (h *Handler) parseRequest(req *http.Request) (string, error) {
 	}
 
 	return string(body), nil
+}
+func (h *Handler) writeResponse(res http.ResponseWriter, body dto.ShortenRequest) error {
+
 }

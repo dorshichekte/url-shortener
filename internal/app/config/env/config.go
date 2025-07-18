@@ -8,14 +8,14 @@ import (
 )
 
 func New() (*Env, error) {
-	cfg := &Env{}
+	config := &Env{}
 
-	err := cfg.init()
+	err := config.init()
 	if err != nil {
 		return nil, err
 	}
 
-	return cfg, nil
+	return config, nil
 }
 
 func (c *Env) initEnv() {

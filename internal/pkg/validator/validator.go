@@ -33,7 +33,7 @@ func (v *Validator) ParseValidationErrors(err error) ([]ValidationError, error) 
 		return listErrors, nil
 	}
 
-	return nil, customerror.New(errFailedParseValidationErrors)
+	return nil, customerror.New(errMessageFailedParseValidationErrors)
 }
 
 func (v *Validator) CreateError(e validator.FieldError) ValidationError {

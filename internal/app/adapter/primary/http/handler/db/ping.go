@@ -14,7 +14,7 @@ func (h *Handler) Ping(res http.ResponseWriter, req *http.Request) {
 	defer cancel()
 
 	if err := h.dbConnection.PingContext(ctx); err != nil {
-		h.logger.Error(constants.ErrPingTimeout.Error(), zap.Error(err))
+		h.logger.Error("Failed ping db connection", zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	entity "url-shortener/internal/app/domain/entity/url"
 	"url-shortener/internal/pkg/constants"
@@ -19,14 +20,14 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.Logger.Error("Failed get userID from context")
+		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil || len(body) == 0 {
-		h.Logger.Error("Failed read request body", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedParseRequestBody, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -34,7 +35,7 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	var listURLs []string
 	err = json.Unmarshal(body, &listURLs)
 	if err != nil {
-		h.Logger.Error("Failed unmarshal request body", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJson, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -44,6 +45,6 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 		UserID:  userID,
 	}
 
-	go h.UseCase.DeleteBatch(ctx, event)
+	go h.useCase.DeleteBatch(ctx, event)
 	res.WriteHeader(http.StatusAccepted)
 }

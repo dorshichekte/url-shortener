@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	dto "url-shortener/internal/app/adapter/primary/http/dto/url"
+	errorshandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	"url-shortener/internal/pkg/constants"
 )
@@ -18,34 +19,37 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.Logger.Error("Failed get userID from context")
+		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	u, err := h.jsonDecode(req)
 	if err != nil {
-		h.Logger.Error("Failed decode json", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedDecodeJson, zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
 
-	shortURL, err := h.UseCase.AddShorten(ctx, u.OriginalURL, userID)
-	baseURL := h.Config.BaseURL
+	shortURL, err := h.useCase.AddShorten(ctx, u.OriginalURL, userID)
+	if err != nil {
+		h.logger.Error(errMessageFailedCreateShortUrl, zap.Error(err))
+		res.Header().Set("Content-Type", "application/json")
+		h.handleError(res, http.StatusConflict)
+		return
+	}
+
+	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
 	response := dto.ShortenResponse{
 		ShortURL: fullURL,
 	}
 
-	if err != nil {
-		h.Logger.Error("Failed create short URL", zap.Error(err))
-		res.Header().Set("Content-Type", "application/json")
-		h.handleError(res, http.StatusConflict)
-		json.NewEncoder(res).Encode(response)
-		return
-	}
-
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-	json.NewEncoder(res).Encode(response)
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
+		res.WriteHeader(http.StatusInternalServerError)
+	}
 }

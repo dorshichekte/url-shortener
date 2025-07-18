@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	errorhandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 )
 
 func (w gzipWriter) Write(b []byte) (int, error) {
@@ -49,7 +51,7 @@ func Decompress(next http.Handler) http.Handler {
 		if isGzipEncoding {
 			zr, err := gzip.NewReader(r.Body)
 			if err != nil {
-				http.Error(w, "Failed to decompress request body", http.StatusBadRequest)
+				http.Error(w, errorhandler.ErrMessageFailedDecompressBody, http.StatusBadRequest)
 				return
 			}
 			defer func() {

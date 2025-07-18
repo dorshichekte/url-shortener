@@ -9,11 +9,11 @@ import (
 )
 
 func New(serverAddress string) *HTTPAdapter {
-	var cfg HTTPAdapter
+	var config HTTPAdapter
 
-	cfg.init(serverAddress)
+	config.init(serverAddress)
 
-	return &cfg
+	return &config
 }
 
 func (c *HTTPAdapter) init(serverAddress string) {

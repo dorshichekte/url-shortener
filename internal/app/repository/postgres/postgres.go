@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -14,25 +13,22 @@ import (
 
 	config "url-shortener/internal/app/config/env"
 	url_repository_postgres "url-shortener/internal/app/repository/postgres/url"
+	customerror "url-shortener/internal/pkg/error"
 )
 
-// ToDo переделать ошибки
 func NewConnection(l *zap.Logger, cfg *config.Env) *Postgres {
 	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
 		l.Fatal(err.Error())
-		panic(err)
 	}
 
 	if err = db.Ping(); err != nil {
 		l.Fatal(err.Error())
-		panic(err)
 	}
 
 	err = applyMigrations(cfg.DatabaseDSN)
 	if err != nil {
 		l.Fatal(err.Error())
-		panic(err)
 	}
 
 	return &Postgres{Db: db}
@@ -41,19 +37,19 @@ func NewConnection(l *zap.Logger, cfg *config.Env) *Postgres {
 func applyMigrations(databaseDSN string) error {
 	wd, err := os.Getwd()
 	if err != nil {
-		return fmt.Errorf("failed to get current working directory: %v", err)
+		return customerror.NewWithData(errMessageFailedGetCurrentDirectory, err)
 	}
 
 	migrationDirPath := "file://" + filepath.Join(wd, "migrations")
 
 	m, err := migrate.New(migrationDirPath, databaseDSN)
 	if err != nil {
-		return fmt.Errorf("failed to initialize migration: %v", err)
+		return customerror.NewWithData(errMessageFailedInitializeMigrations, err)
 	}
 
 	err = m.Up()
 	if err != nil && err.Error() != "no change" {
-		return fmt.Errorf("failed to apply migrations: %v", err)
+		return customerror.NewWithData(errMessageFailedApplyMigrations, err)
 	}
 
 	return nil

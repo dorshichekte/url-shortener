@@ -1,5 +1,5 @@
 package validator
 
 const (
-	errFailedParseValidationErrors = "Failed parse validation errors"
+	errMessageFailedParseValidationErrors = "Failed parse validation error"
 )

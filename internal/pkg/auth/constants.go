@@ -7,9 +7,6 @@ const (
 )
 
 const (
-	expiredToken            = "Token has expired"
-	invalidToken            = "Token is invalid"
-	initializationToken     = "Failed initialize token"
-	emptyUserID             = "Empty user id"
-	unexpectedSigningMethod = "Unexpected signing method"
+	errMessageExpiredToken            = "Token has expired"
+	errMessageUnexpectedSigningMethod = "Unexpected signing method"
 )

@@ -14,7 +14,6 @@ func main() {
 	logger, err := l.New()
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 	defer func() {
 		_ = logger.Sync()
@@ -23,7 +22,6 @@ func main() {
 	config, err := c.New()
 	if err != nil {
 		logger.Fatal(err.Error())
-		return
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -36,6 +34,5 @@ func main() {
 	err = graceful.Start(ctx)
 	if err != nil {
 		logger.Fatal(err.Error())
-		panic(err)
 	}
 }

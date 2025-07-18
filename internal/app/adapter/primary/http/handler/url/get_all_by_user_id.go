@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	"url-shortener/internal/pkg/constants"
 )
@@ -17,14 +18,14 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.Logger.Error("Failed get userID from context")
+		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
-	listURLS, err := h.UseCase.GetAllByUserID(ctx, userID)
+	listURLS, err := h.useCase.GetAllByUserID(ctx, userID)
 	if err != nil {
-		h.Logger.Error(err.Error(), zap.Error(err))
+		h.logger.Error(err.Error(), zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
@@ -35,18 +36,11 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	j, err := json.Marshal(listURLS)
-	if err != nil {
-		h.Logger.Error("Failed marshal json", zap.Error(err))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
-
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
-	_, err = res.Write(j)
+	err = json.NewEncoder(res).Encode(listURLS)
 	if err != nil {
-		h.Logger.Error("Failed write response", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 	}
 }

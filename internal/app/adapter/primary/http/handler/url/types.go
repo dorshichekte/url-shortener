@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"go.uber.org/zap"
@@ -9,8 +9,8 @@ import (
 )
 
 type Handler struct {
-	UseCase   urlusecase.IUrlUseCase
-	Logger    *zap.Logger
-	Validator *validator.Validator
-	Config    *config.Env
+	useCase   urlusecase.IUrlUseCase
+	logger    *zap.Logger
+	validator *validator.Validator
+	config    *config.Env
 }

@@ -3,7 +3,7 @@ package urlusecase
 import (
 	"context"
 
-	osfile2 "url-shortener/internal/pkg/osfile"
+	"url-shortener/internal/pkg/osfile"
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
@@ -15,8 +15,8 @@ func (u *URLUseCase) AddShorten(ctx context.Context, originalURL, userID string)
 	}
 
 	if u.Config.DatabaseDSN == "" {
-		consumer, _ := osfile2.NewConsumer(u.Config.FileStoragePath)
-		_ = consumer.WriteEvent(&osfile2.Event{UUID: stringUtils.CreateRandom(), OriginalURL: url, ShortURL: shortURL})
+		consumer, _ := osfile.NewConsumer(u.Config.FileStoragePath)
+		_ = consumer.WriteEvent(&osfile.Event{UUID: stringUtils.CreateRandom(), OriginalURL: url, ShortURL: shortURL})
 	}
 
 	return shortURL, nil

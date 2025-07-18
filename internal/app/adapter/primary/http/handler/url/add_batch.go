@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	dto "url-shortener/internal/app/adapter/primary/http/dto/url"
+	"url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	entity "url-shortener/internal/app/domain/entity/url"
 	"url-shortener/internal/pkg/constants"
@@ -21,14 +22,14 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
 	if !ok || userID == "" {
-		h.Logger.Error("Failed get userID from context")
+		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
-		h.Logger.Error("Failed read request body", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedReadRequestBody, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -39,26 +40,26 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 	var batchesRequest []dto.BatchRequest
 
 	if err := json.Unmarshal(body, &batchesRequest); err != nil {
-		h.Logger.Error("Failed parse request body", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJson, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
 	if len(body) == 0 {
-		h.Logger.Error("Empty request body")
+		h.logger.Error(errorshandler.ErrMessageEmptyRequestBody)
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
 	for _, batchRequest := range batchesRequest {
 		if _, err = url.ParseRequestURI(batchRequest.OriginalURL); err != nil {
-			h.Logger.Error("Failed parse request URLRequest", zap.Error(err))
+			h.logger.Error(errorshandler.ErrMessageFailedParseRequestURI, zap.Error(err))
 			h.handleError(res, http.StatusBadRequest)
 			return
 		}
 
 		if batchRequest.ID == "" {
-			h.Logger.Error("Empty request ID")
+			h.logger.Error(errMessageEmptyBatchRequestID)
 			h.handleError(res, http.StatusBadRequest)
 			return
 		}
@@ -71,9 +72,9 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 		batchesEntity = append(batchesEntity, batch)
 	}
 
-	batches, err := h.UseCase.AddBatch(ctx, batchesEntity, userID)
+	batches, err := h.useCase.AddBatch(ctx, batchesEntity, userID)
 	if err != nil {
-		h.Logger.Error("Failed add batches", zap.Error(err))
+		h.logger.Error(errMessageFailedAddBatches, zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
@@ -83,19 +84,11 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 		batchResponse = append(batchResponse, dto.BatchResponse{ID: batch.ID, ShortURL: batch.ShortURL})
 	}
 
-	marshaledBatches, err := json.Marshal(batchResponse)
-	if err != nil {
-		h.Logger.Error("Failed marshal json", zap.Error(err))
-		h.handleError(res, http.StatusInternalServerError)
-		return
-	}
-
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusCreated)
-
-	_, err = res.Write(marshaledBatches)
+	err = json.NewEncoder(res).Encode(batchResponse)
 	if err != nil {
-		h.Logger.Error("Failed write response", zap.Error(err))
+		h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}

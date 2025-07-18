@@ -9,7 +9,6 @@ func (s *urlRepositoryPostgres) Delete(ctx context.Context, shortURL string) err
     `
 
 	_, err := s.db.ExecContext(ctx, query, shortURL)
-
 	if err != nil {
 		return err
 	}

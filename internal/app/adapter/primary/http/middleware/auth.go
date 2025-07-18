@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"math/rand"
 	"net/http"
 
 	"url-shortener/internal/pkg/auth"
@@ -13,9 +14,11 @@ func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			cookie, cookieErr := req.Cookie(authCookieName)
 			if cookieErr != nil {
-				token, err := auth.Generate(1)
+				id := rand.Intn(100)
+
+				token, err := auth.Generate(id)
 				if err != nil {
-					//ToDo добавить логирование
+					util.WriteErrorResponse(res, http.StatusUnauthorized, util.WrapperError[string]{CustomError: err.Error()})
 					return
 				}
 				ctx := context.WithValue(req.Context(), userIDKey, token.AccessToken)

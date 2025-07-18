@@ -7,6 +7,5 @@ import (
 )
 
 func (u *URLUseCase) DeleteBatch(ctx context.Context, event entity.DeleteBatch) error {
-
 	return u.URLRepository.DeleteBatch(ctx, event)
 }

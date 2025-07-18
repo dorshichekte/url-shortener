@@ -5,11 +5,6 @@ type URL struct {
 	OriginalURL string
 }
 
-type BatchRequest struct {
-	ID          string
-	OriginalURL string
-}
-
 type URLData struct {
 	URL       string
 	IsDeleted bool

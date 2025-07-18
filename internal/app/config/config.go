@@ -9,16 +9,15 @@ import (
 
 func New() (*Config, error) {
 	_ = godotenv.Load()
-
-	envCfg, err := env.New()
+	envConfig, err := env.New()
 	if err != nil {
 		return &Config{}, err
 	}
 
-	httpAdapterCfg := adapter.New(envCfg.ServerAddress)
+	httpAdapterConfig := adapter.New(envConfig.ServerAddress)
 
 	return &Config{
-		Env:         envCfg,
-		HTTPAdapter: httpAdapterCfg,
+		Env:         envConfig,
+		HTTPAdapter: httpAdapterConfig,
 	}, nil
 }

@@ -1,4 +1,4 @@
-package urlhanlder
+package urlhandler
 
 import (
 	"context"
@@ -15,9 +15,9 @@ func (h *Handler) GetOriginalByID(res http.ResponseWriter, req *http.Request) {
 	defer cancel()
 
 	id := chi.URLParam(req, "id")
-	originalURL, err := h.UseCase.GetOriginalByID(ctx, id)
+	originalURL, err := h.useCase.GetOriginalByID(ctx, id)
 	if err != nil {
-		h.Logger.Error("Failed get original URL", zap.Error(err))
+		h.logger.Error(errMessageFailedGetOriginalID, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
