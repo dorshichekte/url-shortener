@@ -51,8 +51,8 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Set("Content-Type", "text/plain")
 	res.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(res).Encode(fullURL)
-	if err != nil {
+	_, jsonWriteErr := res.Write([]byte(fullURL))
+	if jsonWriteErr != nil {
 		h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
 		res.WriteHeader(http.StatusInternalServerError)
 		return
