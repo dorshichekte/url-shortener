@@ -7,6 +7,7 @@ import (
 
 	hp "url-shortener/internal/app/adapter/primary/http"
 	"url-shortener/internal/app/config"
+	"url-shortener/internal/app/repository"
 	pg "url-shortener/internal/app/repository/postgres"
 	"url-shortener/internal/app/usecase"
 	a "url-shortener/internal/pkg/auth"
@@ -19,7 +20,7 @@ func New(ctx context.Context, logger *zap.Logger, config *config.Config) *App {
 
 	postgresConnection := pg.NewConnection(logger, config.Env).DB
 
-	repositories := pg.New(postgresConnection, config.Env)
+	repositories := repository.New(postgresConnection, config.Env)
 
 	useCases := usecase.New(config.Env, repositories)
 

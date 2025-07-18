@@ -1,16 +1,18 @@
 package memory
 
 import (
+	"context"
 	"strconv"
 	"sync"
 
 	"url-shortener/internal/app/config/env"
+	entity "url-shortener/internal/app/domain/entity/url"
 	"url-shortener/internal/app/repository/model"
 	"url-shortener/internal/pkg/constants"
 	"url-shortener/internal/pkg/osfile"
 )
 
-func NewURLStorage(cfg *config.Env) *Storage {
+func New(cfg *config.Env) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
 		mu:     sync.RWMutex{},
@@ -18,7 +20,7 @@ func NewURLStorage(cfg *config.Env) *Storage {
 	}
 }
 
-func (us *Storage) Get(url string) (model.URLData, error) {
+func (us *Storage) GetOriginalByID(context context.Context, url string) (model.URLData, error) {
 	var URLData model.URLData
 	value, found := us.mapURL[url]
 	if !found {
@@ -29,7 +31,7 @@ func (us *Storage) Get(url string) (model.URLData, error) {
 	return URLData, nil
 }
 
-func (us *Storage) Add(url, shortURL, userID string) (string, error) {
+func (us *Storage) AddShorten(context context.Context, url, shortURL, userID string) (string, error) {
 	value, found := us.mapURL[url]
 	if found {
 		return value, constants.ErrURLAlreadyExists
@@ -39,16 +41,6 @@ func (us *Storage) Add(url, shortURL, userID string) (string, error) {
 	us.mapURL[shortURL] = url
 
 	return "", nil
-}
-
-func (us *Storage) Delete(url string) error {
-	_, found := us.mapURL[url]
-	if !found {
-		return constants.ErrURLNotFound
-	}
-
-	delete(us.mapURL, url)
-	return nil
 }
 
 func (us *Storage) Write(url, shortURL string) error {
@@ -68,10 +60,13 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
-func (us *Storage) AddBatch(listBatches []model.Batch, userID string) error {
-	for _, batch := range listBatches {
-		us.Add(batch.OriginalURL, batch.ShortURL, userID)
-		err := us.Write(batch.OriginalURL, batch.ShortURL)
+func (us *Storage) AddBatch(context context.Context, batches []entity.Batch, userID string) error {
+	for _, batch := range batches {
+		_, err := us.AddShorten(context, batch.OriginalURL, batch.ShortURL, userID)
+		if err != nil {
+			return err
+		}
+		err = us.Write(batch.OriginalURL, batch.ShortURL)
 		if err != nil {
 			return err
 		}
@@ -80,10 +75,10 @@ func (us *Storage) AddBatch(listBatches []model.Batch, userID string) error {
 	return nil
 }
 
-func (us *Storage) GetURLsByID(userID string) ([]model.URL, error) {
+func (us *Storage) GetAllByUserID(context context.Context, userID string) ([]model.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
-func (us *Storage) BatchUpdate(event model.DeleteEvent) error {
+func (us *Storage) DeleteBatch(context context.Context, event entity.DeleteBatch) error {
 	return constants.ErrUnsupportedMethod
 }
