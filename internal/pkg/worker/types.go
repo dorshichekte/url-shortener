@@ -3,12 +3,12 @@ package worker
 import (
 	"sync"
 
-	"url-shortener/internal/app/repository/model"
+	entity "url-shortener/internal/app/domain/entity/url"
 	"url-shortener/internal/app/repository/postgres"
 )
 
 type Worker struct {
 	Store    postgres.Repositories
 	wg       sync.WaitGroup
-	resultCh chan model.DeleteEvent
+	resultCh chan entity.DeleteBatch
 }

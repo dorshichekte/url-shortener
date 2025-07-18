@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"url-shortener/internal/app/config/worker"
-	"url-shortener/internal/app/repository/model"
+	entity "url-shortener/internal/app/domain/entity/url"
 )
 
 func New(config *config.Worker) *Worker {
 	w := &Worker{
-		resultCh: make(chan model.DeleteEvent, config.ChanelLength),
+		resultCh: make(chan entity.DeleteBatch, config.ChanelLength),
 	}
 
 	w.wg.Add(config.WorkerCounter)
@@ -20,7 +20,7 @@ func New(config *config.Worker) *Worker {
 	return w
 }
 
-func (w *Worker) SendEvent(ctx context.Context, event model.DeleteEvent) {
+func (w *Worker) SendEvent(ctx context.Context, event entity.DeleteBatch) {
 	select {
 	case w.resultCh <- event:
 	case <-ctx.Done():
@@ -31,7 +31,7 @@ func (w *Worker) SendEvent(ctx context.Context, event model.DeleteEvent) {
 func (w *Worker) RunJob() {
 	defer w.wg.Done()
 	for event := range w.resultCh {
-		w.Store.Url.DeleteBatch(event)
+		_ = w.Store.Url.DeleteBatch(event)
 	}
 }
 
