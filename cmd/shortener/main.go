@@ -32,7 +32,8 @@ func main() {
 
 	graceful := g.New(g.NewProcess(app.HTTPAdapter))
 
-	worker := w.New(config.)
+	worker := w.New(config.Worker)
+	defer worker.StopJob()
 
 	err = graceful.Start(ctx)
 	if err != nil {
