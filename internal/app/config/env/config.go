@@ -3,8 +3,6 @@ package config
 import (
 	"flag"
 	"os"
-
-	customerror "url-shortener/internal/pkg/error"
 )
 
 func New() (*Env, error) {
