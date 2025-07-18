@@ -5,6 +5,7 @@ import (
 
 	adapter "url-shortener/internal/app/config/adapter"
 	env "url-shortener/internal/app/config/env"
+	worker "url-shortener/internal/app/config/worker"
 )
 
 func New() (*Config, error) {
@@ -16,8 +17,11 @@ func New() (*Config, error) {
 
 	httpAdapterConfig := adapter.New(envConfig.ServerAddress)
 
+	workerConfig := worker.New()
+
 	return &Config{
 		Env:         envConfig,
 		HTTPAdapter: httpAdapterConfig,
+		Worker:      workerConfig,
 	}, nil
 }

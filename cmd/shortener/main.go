@@ -8,6 +8,7 @@ import (
 	c "url-shortener/internal/app/config"
 	g "url-shortener/internal/pkg/graceful"
 	l "url-shortener/internal/pkg/logger"
+	w "url-shortener/internal/pkg/worker"
 )
 
 func main() {
@@ -30,6 +31,8 @@ func main() {
 	app := a.New(ctx, logger, config)
 
 	graceful := g.New(g.NewProcess(app.HTTPAdapter))
+
+	worker := w.New(config.)
 
 	err = graceful.Start(ctx)
 	if err != nil {

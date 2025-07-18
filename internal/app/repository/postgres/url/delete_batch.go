@@ -7,7 +7,6 @@ import (
 )
 
 func (s *urlRepositoryPostgres) DeleteBatch(ctx context.Context, event entity.DeleteBatch) error {
-
 	query := `
         UPDATE urls
         SET is_deleted = true

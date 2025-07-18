@@ -3,17 +3,18 @@ package worker
 import (
 	"context"
 
+	"url-shortener/internal/app/config/worker"
 	"url-shortener/internal/app/repository/model"
 )
 
-func New(workerCount int, chLength int) *Worker {
+func New(config *config.Worker) *Worker {
 	w := &Worker{
-		resultCh: make(chan model.DeleteEvent, chLength),
+		resultCh: make(chan model.DeleteEvent, config.ChanelLength),
 	}
 
-	for i := 0; i < workerCount; i++ {
-		w.wg.Add(1)
-		go w.Delete()
+	w.wg.Add(config.WorkerCounter)
+	for i := 0; i < config.WorkerCounter; i++ {
+		go w.RunJob()
 	}
 
 	return w
@@ -27,14 +28,14 @@ func (w *Worker) SendEvent(ctx context.Context, event model.DeleteEvent) {
 	}
 }
 
-func (w *Worker) Delete() {
+func (w *Worker) RunJob() {
 	defer w.wg.Done()
 	for event := range w.resultCh {
-		w.Store.BatchUpdate(event)
+		w.Store.Url.DeleteBatch(event)
 	}
 }
 
-func (w *Worker) Close() {
+func (w *Worker) StopJob() {
 	close(w.resultCh)
 	w.wg.Wait()
 }

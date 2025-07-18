@@ -24,6 +24,6 @@ type URL struct {
 }
 
 type DeleteEvent struct {
-	ListURL []string `json:"list_url"`
-	UserID  string   `json:"user_id"`
+	ListURL []string `db:"list_url"`
+	UserID  string   `db:"user_id"`
 }
