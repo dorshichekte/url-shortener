@@ -10,7 +10,7 @@ import (
 )
 
 func New(db *sql.DB, config *c.Env) url_repository.IURLRepository {
-	if config.DatabaseDSN == "" {
+	if config.DatabaseDSN == "" || db == nil {
 		return memory.New(config)
 	}
 

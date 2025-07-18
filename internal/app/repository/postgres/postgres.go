@@ -16,14 +16,15 @@ import (
 	customerror "url-shortener/internal/pkg/error"
 )
 
-func NewConnection(l *zap.Logger, cfg *config.Env) *Postgres {
+func NewConnection(l *zap.Logger, cfg *config.Env) *sql.DB {
 	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
-		l.Fatal(err.Error())
+		l.Error(err.Error())
 	}
 
 	if err = db.Ping(); err != nil {
-		l.Fatal(err.Error())
+		l.Error(err.Error())
+		return nil
 	}
 
 	err = applyMigrations(cfg.DatabaseDSN)
@@ -31,7 +32,7 @@ func NewConnection(l *zap.Logger, cfg *config.Env) *Postgres {
 		l.Fatal(err.Error())
 	}
 
-	return &Postgres{DB: db}
+	return db
 }
 
 func applyMigrations(databaseDSN string) error {
