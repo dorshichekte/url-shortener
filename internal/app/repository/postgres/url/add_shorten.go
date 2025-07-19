@@ -11,16 +11,7 @@ func (s *urlRepositoryPostgres) AddShorten(ctx context.Context, originalURL, sho
     `
 	_, err := s.db.ExecContext(ctx, query, originalURL, shortURL, userID)
 	if err != nil {
-		var shortURL string
-		query := `SELECT short_url 
-				  FROM urls 
-				  WHERE url = $1;
-	    `
-		err := s.db.QueryRowContext(ctx, query, originalURL).Scan(&shortURL)
-		if err != nil {
-			return "", err
-		}
-		return shortURL, err
+		return "", err
 	}
 
 	return "", nil

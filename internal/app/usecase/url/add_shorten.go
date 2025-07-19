@@ -2,7 +2,6 @@ package urlusecase
 
 import (
 	"context"
-	"fmt"
 
 	customerror "url-shortener/internal/pkg/error"
 	"url-shortener/internal/pkg/osfile"
@@ -11,10 +10,14 @@ import (
 
 // ToDo поправить логику
 func (u *URLUseCase) AddShorten(ctx context.Context, originalURL, userID string) (string, error) {
+	sU, _ := u.URLRepository.GetByOriginalURL(ctx, originalURL)
+	if sU != "" {
+		return sU, customerror.New(errMessageShortURLAlreadyExists)
+	}
+
 	shortURL := stringUtils.CreateRandom()
-	url, err := u.URLRepository.AddShorten(ctx, originalURL, shortURL, userID)
-	if err != nil || url != "" {
-		fmt.Println(url)
+	url, addErr := u.URLRepository.AddShorten(ctx, originalURL, shortURL, userID)
+	if addErr != nil {
 		return url, customerror.New(errMessageShortURLAlreadyExists)
 	}
 

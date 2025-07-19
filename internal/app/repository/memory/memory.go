@@ -31,6 +31,10 @@ func (us *Storage) GetOriginalByID(context context.Context, url string) (model.U
 	return URLData, nil
 }
 
+func (us *Storage) GetByOriginalURL(context context.Context, originalURL string) (string, error) {
+	return "", nil
+}
+
 func (us *Storage) AddShorten(context context.Context, url, shortURL, userID string) (string, error) {
 	value, found := us.mapURL[url]
 	if found {
