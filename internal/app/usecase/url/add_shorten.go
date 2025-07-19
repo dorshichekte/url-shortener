@@ -7,10 +7,11 @@ import (
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
+// ToDo поправить логику
 func (u *URLUseCase) AddShorten(ctx context.Context, originalURL, userID string) (string, error) {
 	shortURL := stringUtils.CreateRandom()
 	url, err := u.URLRepository.AddShorten(ctx, originalURL, shortURL, userID)
-	if err != nil {
+	if err != nil || url != "" {
 		return url, err
 	}
 

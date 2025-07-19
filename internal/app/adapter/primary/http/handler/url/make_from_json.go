@@ -3,6 +3,7 @@ package urlhandler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -30,6 +31,8 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println(u)
 
 	shortURL, err := h.useCase.AddShorten(ctx, u.OriginalURL, userID)
 	if err != nil {

@@ -1,6 +1,8 @@
 package urlrepositorypostgres
 
-import "context"
+import (
+	"context"
+)
 
 func (s *urlRepositoryPostgres) AddShorten(ctx context.Context, originalURL, shortURL, userID string) (string, error) {
 	query := `INSERT INTO urls (url, short_url, user_id) 
