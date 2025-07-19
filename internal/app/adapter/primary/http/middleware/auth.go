@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"url-shortener/internal/pkg/auth"
@@ -28,12 +29,13 @@ func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 					Path:  "/",
 				})
 
-				ctx := context.WithValue(req.Context(), UserIDKey, token.AccessToken)
+				ctx := context.WithValue(req.Context(), UserIDKey, id)
 				next.ServeHTTP(res, req.WithContext(ctx))
 				return
 			}
 
 			userData, parseAccessTokenErr := auth.ParseAccessToken(cookie.Value)
+			fmt.Println(userData, cookie)
 			if parseAccessTokenErr != nil {
 				util.WriteErrorResponse(res, http.StatusUnauthorized, util.WrapperError[string]{CustomError: parseAccessTokenErr.Error()})
 				return
