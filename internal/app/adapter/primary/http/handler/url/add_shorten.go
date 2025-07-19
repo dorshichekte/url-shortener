@@ -32,6 +32,7 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
+	//ToDO переделать логику
 	shortURL, err := h.useCase.AddShorten(ctx, originalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
@@ -44,7 +45,6 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 		if jsonWriteErr != nil {
 			h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
 			res.WriteHeader(http.StatusInternalServerError)
-			return
 		}
 		return
 	}

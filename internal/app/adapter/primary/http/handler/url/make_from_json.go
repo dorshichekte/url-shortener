@@ -35,17 +35,16 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 	fmt.Println(u)
 
 	shortURL, err := h.useCase.AddShorten(ctx, u.OriginalURL, userID)
+	baseURL := h.config.BaseURL
+	fullURL := baseURL + "/" + shortURL
+	response := dto.ShortenResponse{
+		ShortURL: fullURL,
+	}
 	if err != nil {
 		h.logger.Error(errMessageFailedCreateShortURL, zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
 		return
-	}
-
-	baseURL := h.config.BaseURL
-	fullURL := baseURL + "/" + shortURL
-	response := dto.ShortenResponse{
-		ShortURL: fullURL,
 	}
 
 	res.Header().Set("Content-Type", "application/json")
