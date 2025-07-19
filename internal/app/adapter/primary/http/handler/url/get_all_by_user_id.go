@@ -3,7 +3,6 @@ package urlhandler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -25,15 +24,12 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println(userID)
 	listURLS, err := h.useCase.GetAllByUserID(ctx, userID)
 	if err != nil {
 		h.logger.Error(err.Error(), zap.Error(err))
 		h.handleError(res, http.StatusInternalServerError)
 		return
 	}
-
-	h.logger.Info("debug test", zap.Any("listURLS", listURLS), zap.Any("user", userID))
 
 	isListURLSEmpty := len(listURLS) == 0
 	if isListURLSEmpty {

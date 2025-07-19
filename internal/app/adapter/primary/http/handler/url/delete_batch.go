@@ -15,7 +15,7 @@ import (
 )
 
 func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
+	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest*6)
 	defer cancel()
 
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
