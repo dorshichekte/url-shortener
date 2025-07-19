@@ -41,6 +41,11 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 		h.logger.Error(errMessageFailedCreateShortURL, zap.Error(err))
 		res.Header().Set("Content-Type", "application/json")
 		h.handleError(res, http.StatusConflict)
+		err = json.NewEncoder(res).Encode(response)
+		if err != nil {
+			h.logger.Error(errorshandler.ErrMessageFailedWriteResponse, zap.Error(err))
+			res.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
