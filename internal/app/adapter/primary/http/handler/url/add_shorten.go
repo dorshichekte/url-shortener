@@ -36,6 +36,8 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 	shortURL, err := h.useCase.AddShorten(ctx, originalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL
+	h.logger.Info("debug test", zap.Any("url", fullURL), zap.Any("user", userID))
+
 	if err != nil {
 		h.logger.Error(errMessageFailedCreateShortURL, zap.Error(err))
 		res.Header().Set("Content-Type", "text/plain")
