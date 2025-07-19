@@ -31,8 +31,11 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	h.logger.Info("debug test", zap.Any("listURLS", listURLS), zap.Any("user", userID))
+
 	isListURLSEmpty := len(listURLS) == 0
 	if isListURLSEmpty {
+		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusNoContent)
 		return
 	}
