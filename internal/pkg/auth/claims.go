@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func newClaims(userID int) *Claims {
+func newClaims(userID string) *Claims {
 	lifeTime := time.Now().Add(accessTokenLifeTime)
 
 	claims := Claims{

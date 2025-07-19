@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"context"
-	"math/rand"
 	"net/http"
 
 	"url-shortener/internal/pkg/auth"
 	"url-shortener/internal/pkg/util/error_response"
+	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
 func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
@@ -14,14 +14,21 @@ func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			cookie, cookieErr := req.Cookie(authCookieName)
 			if cookieErr != nil {
-				id := rand.Intn(100)
+				id := stringUtils.CreateRandom()
 
 				token, err := auth.Generate(id)
 				if err != nil {
 					util.WriteErrorResponse(res, http.StatusUnauthorized, util.WrapperError[string]{CustomError: err.Error()})
 					return
 				}
-				ctx := context.WithValue(req.Context(), userIDKey, token.AccessToken)
+
+				http.SetCookie(res, &http.Cookie{
+					Name:  authCookieName,
+					Value: token.AccessToken,
+					Path:  "/",
+				})
+
+				ctx := context.WithValue(req.Context(), UserIDKey, token.AccessToken)
 				next.ServeHTTP(res, req.WithContext(ctx))
 				return
 			}
@@ -32,7 +39,7 @@ func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(req.Context(), userIDKey, userData.ID)
+			ctx := context.WithValue(req.Context(), UserIDKey, userData.ID)
 			next.ServeHTTP(res, req.WithContext(ctx))
 		})
 	}

@@ -8,7 +8,7 @@ func New(accessSecret string) Auth {
 	return &auth{accessSecret: accessSecret}
 }
 
-func (auth *auth) Generate(userID int) (TokenPair, error) {
+func (auth *auth) Generate(userID string) (TokenPair, error) {
 	claims := newClaims(userID)
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(auth.accessSecret))
 	if err != nil {

@@ -18,8 +18,8 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()
 
-	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
-	if !ok || userID == "" {
+	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
+	if userID == "" && !ok {
 		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return

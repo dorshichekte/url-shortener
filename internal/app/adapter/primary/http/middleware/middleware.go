@@ -2,9 +2,9 @@ package middleware
 
 import "net/http"
 
-func UserIDKey() ContextKey {
-	return userIDKey
-}
+//func UserIDKey() ContextKey {
+//	return UserIDKey
+//}
 
 func Add(middlewares ...Middleware) Middleware {
 	return func(h http.Handler) http.Handler {

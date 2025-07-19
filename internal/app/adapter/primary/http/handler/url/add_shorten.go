@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"url-shortener/internal/app/adapter/primary/http/handler/errors"
+	errorshandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	"url-shortener/internal/pkg/constants"
 )
@@ -15,8 +15,8 @@ func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()
 
-	userID, ok := req.Context().Value(middleware.UserIDKey()).(string)
-	if !ok || userID == "" {
+	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
+	if userID == "" && !ok {
 		h.logger.Error(errMessageFailedGetUserIDFromContext)
 		h.handleError(res, http.StatusUnauthorized)
 		return

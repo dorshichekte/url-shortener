@@ -5,7 +5,7 @@ import (
 )
 
 type UserData struct {
-	ID int
+	ID string
 }
 
 type Claims struct {
@@ -22,6 +22,6 @@ type auth struct {
 }
 
 type Auth interface {
-	Generate(userID int) (TokenPair, error)
+	Generate(userID string) (TokenPair, error)
 	ParseAccessToken(accessToken string) (UserData, error)
 }
