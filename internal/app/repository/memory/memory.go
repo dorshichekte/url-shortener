@@ -83,6 +83,6 @@ func (us *Storage) GetAllByUserID(context context.Context, userID string) ([]mod
 	return nil, constants.ErrUnsupportedMethod
 }
 
-func (us *Storage) DeleteBatch(context context.Context, event entity.DeleteBatch) error {
+func (us *Storage) DeleteBatch(event entity.DeleteBatch) error {
 	return constants.ErrUnsupportedMethod
 }

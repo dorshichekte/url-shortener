@@ -1,7 +1,6 @@
 package urlhandler
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -11,13 +10,9 @@ import (
 	"url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	entity "url-shortener/internal/app/domain/entity/url"
-	"url-shortener/internal/pkg/constants"
 )
 
 func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest*6)
-	defer cancel()
-
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {
 		h.logger.Error(errMessageFailedGetUserIDFromContext)
@@ -45,6 +40,6 @@ func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 		UserID:  userID,
 	}
 
-	go h.useCase.DeleteBatch(ctx, event)
+	go h.useCase.DeleteBatch(event)
 	res.WriteHeader(http.StatusAccepted)
 }

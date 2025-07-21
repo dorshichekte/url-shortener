@@ -13,7 +13,7 @@ type IUrlUseCase interface {
 	GetOriginalByID(context context.Context, shortURL string) (entity.URLData, error)
 	GetAllByUserID(context context.Context, userID string) ([]entity.URL, error)
 	AddBatch(context context.Context, batches []entity.Batch, userID string) ([]entity.Batch, error)
-	DeleteBatch(context context.Context, event entity.DeleteBatch) error
+	DeleteBatch(event entity.DeleteBatch) error
 }
 
 type URLUseCase struct {

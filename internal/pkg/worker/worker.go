@@ -31,7 +31,7 @@ func (w *Worker) SendEvent(ctx context.Context, event entity.DeleteBatch) {
 func (w *Worker) RunJob(context context.Context) {
 	defer w.wg.Done()
 	for event := range w.resultCh {
-		_ = w.Store.URL.DeleteBatch(context, event)
+		_ = w.Store.URL.DeleteBatch(event)
 	}
 }
 
