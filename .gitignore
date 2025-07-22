@@ -27,3 +27,12 @@ url-db.json
 
 # Test
 shortenertest
+
+# Docker
+docker-compose.yml
+
+# Env
+.env
+
+# Util
+fix.md

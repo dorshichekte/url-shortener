@@ -1,49 +1,27 @@
 package config
 
 import (
-	"flag"
-	"fmt"
+	"github.com/joho/godotenv"
 
-	"github.com/caarlos0/env"
+	adapter "url-shortener/internal/app/config/adapter"
+	env "url-shortener/internal/app/config/env"
+	worker "url-shortener/internal/app/config/worker"
 )
 
-func NewConfig() *Config {
-	cfg := &Config{}
-	cfg.init()
-	return cfg
-}
-
-func (c *Config) initEnv() {
-	if err := env.Parse(c); err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (c *Config) initFlags() {
-	flag.StringVar(&c.ServerAddress, "a", c.ServerAddress, "server address")
-	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "base host URL")
-	flag.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Connect DB string")
-	flag.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "file storage path")
-
-	flag.Parse()
-}
-
-func (c *Config) initDefault() {
-	if c.ServerAddress == "" {
-		c.ServerAddress = DefaultAddress
+func New() (*Config, error) {
+	_ = godotenv.Load()
+	envConfig, err := env.New()
+	if err != nil {
+		return &Config{}, err
 	}
 
-	if c.BaseURL == "" {
-		c.BaseURL = DefaultAddressWithProtocol
-	}
+	httpAdapterConfig := adapter.New(envConfig.ServerAddress)
 
-	if c.FileStoragePath == "" {
-		c.FileStoragePath = DefaultStoragePath
-	}
-}
+	workerConfig := worker.New()
 
-func (c *Config) init() {
-	c.initEnv()
-	c.initFlags()
-	c.initDefault()
+	return &Config{
+		Env:         envConfig,
+		HTTPAdapter: httpAdapterConfig,
+		Worker:      workerConfig,
+	}, nil
 }

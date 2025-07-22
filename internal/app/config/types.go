@@ -1,8 +1,13 @@
 package config
 
+import (
+	adapter "url-shortener/internal/app/config/adapter"
+	"url-shortener/internal/app/config/env"
+	worker "url-shortener/internal/app/config/worker"
+)
+
 type Config struct {
-	ServerAddress   string `env:"SERVER_ADDRESS"`
-	BaseURL         string `env:"BASE_URL"`
-	FileStoragePath string `env:"FILE_STORAGE_PATH"`
-	DatabaseDSN     string `env:"DATABASE_DSN"`
+	Env         *config.Env
+	HTTPAdapter *adapter.HTTPAdapter
+	Worker      *worker.Worker
 }
