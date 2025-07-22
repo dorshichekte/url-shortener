@@ -1,13 +1,14 @@
 package string
 
 import (
+	"crypto/rand"
 	"encoding/hex"
-	"math/rand"
 )
 
-var hashBuffer = make([]byte, 4)
-
 func CreateRandom() string {
-	rand.Read(hashBuffer)
-	return hex.EncodeToString(hashBuffer)
+	buf := make([]byte, 4)
+	if _, err := rand.Read(buf); err != nil {
+		panic("failed to generate secure random string: " + err.Error())
+	}
+	return hex.EncodeToString(buf)
 }
