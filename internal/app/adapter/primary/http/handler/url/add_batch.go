@@ -37,16 +37,16 @@ func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 		_ = req.Body.Close()
 	}()
 
-	var batchesRequest []dto.BatchRequest
-
-	if err := json.Unmarshal(body, &batchesRequest); err != nil {
-		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJSON, zap.Error(err))
+	if len(body) == 0 {
+		h.logger.Error(errorshandler.ErrMessageEmptyRequestBody)
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}
 
-	if len(body) == 0 {
-		h.logger.Error(errorshandler.ErrMessageEmptyRequestBody)
+	var batchesRequest []dto.BatchRequest
+
+	if err := json.Unmarshal(body, &batchesRequest); err != nil {
+		h.logger.Error(errorshandler.ErrMessageFailedUnmarshalJSON, zap.Error(err))
 		h.handleError(res, http.StatusBadRequest)
 		return
 	}

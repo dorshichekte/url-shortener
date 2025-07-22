@@ -24,6 +24,7 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//ToDO переписать
 	u, err := h.jsonDecode(req)
 	if err != nil {
 		h.logger.Error(errorshandler.ErrMessageFailedDecodeJSON, zap.Error(err))
@@ -31,6 +32,7 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//ToDo поправить логику
 	shortURL, err := h.useCase.AddShorten(ctx, u.OriginalURL, userID)
 	baseURL := h.config.BaseURL
 	fullURL := baseURL + "/" + shortURL

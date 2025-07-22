@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	m "github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
 	"url-shortener/internal/app/adapter/primary/http/middleware"
@@ -28,6 +29,7 @@ func (r *Router) appendRoutesToRouter(subRouter *chi.Mux, routes []Route) {
 	globalMiddlewares := chi.Middlewares{middleware.Log(r.logger), middleware.Gzip, middleware.Decompress}
 
 	subRouter.Use(globalMiddlewares...)
+	subRouter.Mount("/profiler", m.Profiler())
 
 	for _, route := range routes {
 		subRouter.Method(route.Method, route.Path, route.Handler)

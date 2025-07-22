@@ -1,18 +1,13 @@
 package string
 
 import (
+	"encoding/hex"
 	"math/rand"
-	"time"
 )
 
+var hashBuffer = make([]byte, 4)
+
 func CreateRandom() string {
-	scr := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(scr)
-
-	var result []byte
-	for i := 0; i < defaultRandomStringLength; i++ {
-		result = append(result, charset[r.Intn(len(charset))])
-	}
-
-	return string(result)
+	rand.Read(hashBuffer)
+	return hex.EncodeToString(hashBuffer)
 }
