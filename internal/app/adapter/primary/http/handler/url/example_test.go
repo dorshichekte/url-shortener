@@ -1,5 +1,5 @@
 package urlhandler_test
 
-func ExampleHandler_AddBatch() {
+func ExampleHandler() {
 
 }
