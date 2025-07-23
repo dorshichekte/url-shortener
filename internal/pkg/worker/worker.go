@@ -8,6 +8,7 @@ import (
 )
 
 // ToDo переписать полностью
+// New создает новый экземпляр Worker с указанным количеством горутин.
 func New(context context.Context, config *config.Worker) *Worker {
 	w := &Worker{
 		resultCh: make(chan entity.DeleteBatch, config.ChanelLength),
@@ -21,6 +22,7 @@ func New(context context.Context, config *config.Worker) *Worker {
 	return w
 }
 
+// SendEvent отправляет задание на удаление в очередь воркера.
 func (w *Worker) SendEvent(ctx context.Context, event entity.DeleteBatch) {
 	select {
 	case w.resultCh <- event:
@@ -29,6 +31,7 @@ func (w *Worker) SendEvent(ctx context.Context, event entity.DeleteBatch) {
 	}
 }
 
+// RunJob основная рабочая функция воркера.
 func (w *Worker) RunJob(context context.Context) {
 	defer w.wg.Done()
 	for event := range w.resultCh {
@@ -36,6 +39,7 @@ func (w *Worker) RunJob(context context.Context) {
 	}
 }
 
+// StopJob корректно останавливает работу воркера.
 func (w *Worker) StopJob() {
 	close(w.resultCh)
 	w.wg.Wait()

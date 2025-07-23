@@ -8,6 +8,7 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// New создает экземпляр HTTPAdapter конфига.
 func New(serverAddress string) *HTTPAdapter {
 	var config HTTPAdapter
 

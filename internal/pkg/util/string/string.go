@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 )
 
+// CreateRandom создает случайную строку.
 func CreateRandom() string {
 	buf := make([]byte, 4)
 	if _, err := rand.Read(buf); err != nil {

@@ -6,6 +6,7 @@ import (
 	worker "url-shortener/internal/app/config/worker"
 )
 
+// Config конфигурация конфига приложения.
 type Config struct {
 	Env         *config.Env
 	HTTPAdapter *adapter.HTTPAdapter

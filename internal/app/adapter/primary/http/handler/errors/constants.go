@@ -1,6 +1,7 @@
 // Пакет errorshandler включает константы содержашие повторяющиеся текста ошибок.
 package errorshandler
 
+// Константы с текстом ошибок для обработчиков.
 const (
 	ErrMessageFailedParseRequestBody = "Failed to parse request body"
 	ErrMessageFailedReadRequestBody  = "Failed to read request body"

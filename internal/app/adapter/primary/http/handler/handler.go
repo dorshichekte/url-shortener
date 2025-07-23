@@ -13,6 +13,7 @@ import (
 	"url-shortener/internal/pkg/validator"
 )
 
+// New создаёт новый экземпляр Handlers с заданными зависимостями.
 func New(logger *zap.Logger, config *config.Env, useCases *usecase.UseCases, validator *validator.Validator, dbConnection *sql.DB) *Handlers {
 	return &Handlers{
 		Database: db_handler.New(logger, dbConnection),
