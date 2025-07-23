@@ -11,15 +11,17 @@ import (
 )
 
 // GetOriginalByID godoc
+// @Summary      Перенаправление на оригинальный URL
+// @Description  Выполняет редирект на оригинальный URL по его сокращенному идентификатору.
 //
-//	@Summary		Redirects to the original URL
-//	@Description	GetOriginalByID redirects to the original URL by using short url
-//	@Accept			plain
-//	@Produce		plain
-//	@Tags			URL
-//	@Success		307
-//	@Failure		404,410
-//	@Router			/{hash}   [get]
+//	Если URL был удален, возвращает статус 410 (Gone).
+//
+// @Tags         Перенаправления
+// @Param        hash path string true "Сокращенный идентификатор URL"
+// @Success      307 "Перенаправление на оригинальный URL"
+// @Failure      404 {string} string "URL не найден"
+// @Failure      410 {string} string "URL был удален"
+// @Router       /{hash} [get]
 func (h *Handler) GetOriginalByID(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

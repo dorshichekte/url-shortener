@@ -1,4 +1,4 @@
-// Package router contains initialize router, and describes and connects routes.
+// Пакет router предоставляет инструменты для маршрутизации HTTP-запросов.
 package router
 
 import (
@@ -11,6 +11,7 @@ import (
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 )
 
+// New создаёт новый экземпляр Router с заданными зависимостями.
 func New(logger *zap.Logger) *Router {
 	router := chi.NewRouter()
 
@@ -22,6 +23,7 @@ func New(logger *zap.Logger) *Router {
 	return r
 }
 
+// Router возвращает хэндлер
 func (r *Router) Router() http.Handler {
 	return r.router
 }

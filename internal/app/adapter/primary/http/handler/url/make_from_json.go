@@ -14,17 +14,28 @@ import (
 )
 
 // MakeFromJSON godoc
+// @Summary      Создание сокращенного URL
+// @Description  Создает сокращенный URL на основе переданного оригинального URL.
 //
-//	@Summary		Create single short url
-//	@Description	MakeFromJSON is used to handle single url in request
-//	@Security		ApiKeyAuth
-//	@Accept			json
-//	@Produce		json
-//	@Tags			API
-//	@Param			data	body		dto.ShortenRequest	true	"Request body"
-//	@Success		201 {object}	dto.ShortenResponse
-//	@Failure		400,401,409,500
-//	@Router			/api/shorten   [post]
+//	Требуется аутентификация по API-ключу.
+//
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Tags         Создание URL
+// @Param        request body dto.ShortenRequest true "Запрос на создание сокращенного URL"
+//
+//	example: {"url": "https://example.com/very/long/url"}
+//
+// @Success      201 {object} dto.ShortenResponse "Сокращенный URL успешно создан"
+//
+//	example: {"result": "http://short.ly/abc123"}
+//
+// @Failure      400
+// @Failure      401
+// @Failure      409
+// @Failure      500
+// @Router       /api/shorten [post]
 func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

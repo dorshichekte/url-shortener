@@ -1,4 +1,4 @@
-// Package handler initialize all handlers.
+// Пакет handler инициализируют обработчики приложения.
 package handler
 
 import (

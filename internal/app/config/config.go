@@ -1,4 +1,4 @@
-// Package config contains app config.
+// Пакет config инициализирует конфиг приложения.
 package config
 
 import (

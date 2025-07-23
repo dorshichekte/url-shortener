@@ -1,4 +1,4 @@
-// Package urlusecase implements the URL business logic.
+// Пакет urlusecase включает бизнес логику для сущности урл.
 package urlusecase
 
 import (

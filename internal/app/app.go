@@ -1,4 +1,4 @@
-// Package app initialize app dependencies.
+// Пакет app инициализирует зависимости приложения.
 package app
 
 import (
@@ -15,6 +15,7 @@ import (
 	v "url-shortener/internal/pkg/validator"
 )
 
+// New создает и инициализирует все зависимости приложения: логгер, конфиг, базу данных,
 func New(ctx context.Context, logger *zap.Logger, config *config.Config) *App {
 	validator := v.New()
 	auth := a.New(config.Env.AccessSecretKey)

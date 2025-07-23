@@ -1,3 +1,4 @@
+// Пакет constants содержит глобальные константы приложения
 package constants
 
 import "errors"

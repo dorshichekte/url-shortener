@@ -8,6 +8,7 @@ import (
 	"url-shortener/internal/pkg/validator"
 )
 
+// Handler структура обработчика урл.
 type Handler struct {
 	useCase   urlusecase.IUrlUseCase
 	logger    *zap.Logger

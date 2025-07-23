@@ -17,17 +17,29 @@ import (
 )
 
 // AddBatch godoc
+// @Summary      Пакетное создание коротких URL
+// @Description  Создает несколько сокращенных URL в одном запросе.
 //
-//	@Summary		Create batch of urls
-//	@Description	AddBatch is used to handle multiple urls in request
-//	@Security		ApiKeyAuth
-//	@Accept			json
-//	@Produce		json
-//	@Tags			API
-//	@Param			data	body		dto.BatchRequest	true	"Request body"
-//	@Success		201 {object}	dto.BatchResponse
-//	@Failure		400,401,413,500
-//	@Router			/api/shorten/batch   [post]
+// Каждый URL должен быть валидным и содержать уникальный correlation_id.
+// Требуется аутентификация по API-ключу.
+//
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Tags         Пакетные операции
+// @Param        request body []dto.BatchRequest true "Запрос на пакетное создание URL"
+//
+//	example: [{"correlation_id": "1", "original_url": "https://example.com"}]
+//
+// @Success      201 {object} []dto.BatchResponse "Список созданных коротких URL"
+//
+// example: [{"correlation_id": "1", "short_url": "http://short.ly/abc123"}]
+//
+// @Failure      400
+// @Failure      401
+// @Failure      413
+// @Failure      500
+// @Router       /api/shorten/batch [post]
 func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

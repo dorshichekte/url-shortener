@@ -9,6 +9,7 @@ import (
 )
 
 // ToDo поправить логику
+// AddShorten создает короткий URL для оригинального URL, если он еще не существует,
 func (u *URLUseCase) AddShorten(ctx context.Context, originalURL, userID string) (string, error) {
 	sU, _ := u.URLRepository.GetByOriginalURL(ctx, originalURL)
 	if sU != "" {

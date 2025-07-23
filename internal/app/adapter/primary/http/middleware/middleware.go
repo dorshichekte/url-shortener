@@ -1,4 +1,4 @@
-// Package middleware contains middleware methods.
+// Пакет middleware включает все мидлварины приложения.
 package middleware
 
 import "net/http"

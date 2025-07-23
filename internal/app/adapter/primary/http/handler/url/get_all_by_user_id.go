@@ -14,17 +14,23 @@ import (
 )
 
 // GetAllByUserID godoc
+// @Summary      Получение всех URL пользователя
+// @Description  Возвращает список всех активных (не удаленных) URL, созданных пользователем.
 //
-//	@Summary		Retrieves all urls saved by user
-//	@Description	GetAllByUserID retrieves all active urls saved by user
-//	@Security		ApiKeyAuth
-//	@Accept			json
-//	@Produce		json
-//	@Tags			API
-//	@Success		200 {object}	dto.URLRequest
-//	@Success		204
-//	@Failure		401,500
-//	@Router			/api/user/urls   [get]
+//	Требуется аутентификация по API-ключу.
+//
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Tags         Пользовательские URL
+// @Success      200 {array} dto.URLRequest "Список URL пользователя"
+//
+//	example: [{"short_url": "http://short.ly/abc", "original_url": "https://example.com"}]
+//
+// @Success      204
+// @Failure      401
+// @Failure      500
+// @Router       /api/user/urls [get]
 func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

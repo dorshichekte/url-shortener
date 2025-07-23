@@ -7,6 +7,7 @@ import (
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
+// AddBatch создает короткие URL для списка батчей и сохраняет их в репозитории.
 func (u *URLUseCase) AddBatch(ctx context.Context, batches []entity.Batch, userID string) ([]entity.Batch, error) {
 	temporaryBatches := make([]entity.Batch, 0, len(batches))
 

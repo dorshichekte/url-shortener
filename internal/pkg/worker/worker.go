@@ -7,6 +7,7 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// ToDo переписать полностью
 func New(context context.Context, config *config.Worker) *Worker {
 	w := &Worker{
 		resultCh: make(chan entity.DeleteBatch, config.ChanelLength),

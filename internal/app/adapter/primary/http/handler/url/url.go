@@ -1,4 +1,4 @@
-// Package urlhanler contains all handlers URL.
+// Пакет urlhanler включает обработчики для работы с урлом.
 package urlhandler
 
 import (
@@ -18,6 +18,7 @@ import (
 	"url-shortener/internal/pkg/validator"
 )
 
+// New создаёт новый экземпляр Handler с заданными зависимостями.
 func New(logger *zap.Logger, config *config.Env, useCase urlusecase.IUrlUseCase, validator *validator.Validator) *Handler {
 	return &Handler{
 		useCase:   useCase,
@@ -31,6 +32,7 @@ func (h *Handler) handleError(res http.ResponseWriter, statusCode int) {
 	res.WriteHeader(statusCode)
 }
 
+// ToDo переделать этот бред
 func (h *Handler) jsonDecode(req *http.Request) (dto.ShortenRequest, error) {
 	var request dto.ShortenRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {

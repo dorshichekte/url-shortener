@@ -1,4 +1,4 @@
-// Package dbhandler contains all handlers DB.
+// Пакет dbhandler включает обработчики для работы с базой данных.
 package dbhandler
 
 import (
@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// New создаёт новый экземпляр Handler с заданными зависимостями.
 func New(logger *zap.Logger, dbConnection *sql.DB) *Handler {
 	return &Handler{
 		logger:       logger,

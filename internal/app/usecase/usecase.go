@@ -1,4 +1,4 @@
-// Package usecase initializes and provides access to all application use cases.
+// Пакет usecase инициализирует usercase приложения.
 package usecase
 
 import (
@@ -7,6 +7,7 @@ import (
 	url "url-shortener/internal/app/usecase/url"
 )
 
+// New создает и возвращает структуру UseCases с инициализированными бизнес-логиками.
 func New(config *config.Env, repositories url_repository.IURLRepository) *UseCases {
 	return &UseCases{
 		URL: url.New(config, repositories),

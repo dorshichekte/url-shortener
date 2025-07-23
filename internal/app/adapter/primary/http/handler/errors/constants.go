@@ -1,4 +1,4 @@
-// Package errorshandler contains text constants with errors handler.
+// Пакет errorshandler включает константы содержашие повторяющиеся текста ошибок.
 package errorshandler
 
 const (
