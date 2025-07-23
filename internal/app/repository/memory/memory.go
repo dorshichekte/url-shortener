@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"url-shortener/internal/app/config/env"
+	config "url-shortener/internal/app/config/env"
 	entity "url-shortener/internal/app/domain/entity/url"
 	"url-shortener/internal/app/repository/model"
 	"url-shortener/internal/pkg/constants"
