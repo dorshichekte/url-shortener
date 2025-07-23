@@ -1,3 +1,4 @@
+// Package Dto contains a structure that transforms data for sending to another layer.
 package dto
 
 type ShortenRequest struct {

@@ -1,3 +1,4 @@
+// Package httpadapter initialize server and router.
 package httpadapter
 
 import (

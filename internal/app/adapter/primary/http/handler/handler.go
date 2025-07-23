@@ -1,3 +1,4 @@
+// Package handler initialize all handlers.
 package handler
 
 import (

@@ -1,3 +1,4 @@
+// Package dbhandler contains all handlers DB.
 package dbhandler
 
 import (

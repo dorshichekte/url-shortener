@@ -1,3 +1,4 @@
+// Package urlrepositorypostgres contains methods for working with url entity.
 package urlrepositorypostgres
 
 import (

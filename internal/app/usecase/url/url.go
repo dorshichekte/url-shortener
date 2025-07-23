@@ -1,3 +1,4 @@
+// Package urlusecase implements the URL business logic.
 package urlusecase
 
 import (

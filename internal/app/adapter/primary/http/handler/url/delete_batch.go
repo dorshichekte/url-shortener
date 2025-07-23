@@ -12,6 +12,17 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// DeleteBatch godoc
+//
+//	@Summary		Deletes batch of urls from storage by user
+//	@Description	DeleteBatch is used to set active flag=false for multiple url records for user
+//	@Security		ApiKeyAuth
+//	@Accept			json
+//	@Produce		json
+//	@Tags			API
+//	@Success		202
+//	@Failure		400,401
+//	@Router			/api/user/urls   [delete]
 func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {

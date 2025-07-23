@@ -1,3 +1,4 @@
+// Package memory contains methods for work with file.
 package memory
 
 import (

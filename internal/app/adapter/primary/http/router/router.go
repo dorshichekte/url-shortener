@@ -1,3 +1,4 @@
+// Package router contains initialize router, and describes and connects routes.
 package router
 
 import (

@@ -16,6 +16,18 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// AddBatch godoc
+//
+//	@Summary		Create batch of urls
+//	@Description	AddBatch is used to handle multiple urls in request
+//	@Security		ApiKeyAuth
+//	@Accept			json
+//	@Produce		json
+//	@Tags			API
+//	@Param			data	body		dto.BatchRequest	true	"Request body"
+//	@Success		201 {object}	dto.BatchResponse
+//	@Failure		400,401,413,500
+//	@Router			/api/shorten/batch   [post]
 func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

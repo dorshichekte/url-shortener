@@ -1,3 +1,4 @@
+// Package app initialize app dependencies.
 package app
 
 import (

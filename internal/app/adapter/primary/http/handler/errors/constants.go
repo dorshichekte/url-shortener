@@ -1,3 +1,4 @@
+// Package errorshandler contains text constants with errors handler.
 package errorshandler
 
 const (

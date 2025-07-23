@@ -10,6 +10,16 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// GetOriginalByID godoc
+//
+//	@Summary		Redirects to the original URL
+//	@Description	GetOriginalByID redirects to the original URL by using short url
+//	@Accept			plain
+//	@Produce		plain
+//	@Tags			URL
+//	@Success		307
+//	@Failure		404,410
+//	@Router			/{hash}   [get]
 func (h *Handler) GetOriginalByID(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

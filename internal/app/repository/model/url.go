@@ -1,3 +1,4 @@
+// Package model describes data structure in DB.
 package model
 
 type Batch struct {

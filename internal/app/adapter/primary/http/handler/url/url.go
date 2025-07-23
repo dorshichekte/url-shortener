@@ -1,3 +1,4 @@
+// Package urlhanler contains all handlers URL.
 package urlhandler
 
 import (

@@ -13,6 +13,18 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// MakeFromJSON godoc
+//
+//	@Summary		Create single short url
+//	@Description	MakeFromJSON is used to handle single url in request
+//	@Security		ApiKeyAuth
+//	@Accept			json
+//	@Produce		json
+//	@Tags			API
+//	@Param			data	body		dto.ShortenRequest	true	"Request body"
+//	@Success		201 {object}	dto.ShortenResponse
+//	@Failure		400,401,409,500
+//	@Router			/api/shorten   [post]
 func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

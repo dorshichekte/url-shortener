@@ -1,3 +1,4 @@
+// Package usecase initializes and provides access to all application use cases.
 package usecase
 
 import (

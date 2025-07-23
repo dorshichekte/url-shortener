@@ -11,6 +11,17 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// AddShorten godoc
+//
+//	@Summary		Used to short single URL
+//	@Description	Used to short single URL provided in request body
+//	@Accept			plain
+//	@Produce		plain
+//	@Param			data	body		string	true	"Request body"
+//	@Tags			URL
+//	@Success		201
+//	@Failure		400,401,409,500
+//	@Router			/   [post]
 func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

@@ -13,6 +13,18 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// GetAllByUserID godoc
+//
+//	@Summary		Retrieves all urls saved by user
+//	@Description	GetAllByUserID retrieves all active urls saved by user
+//	@Security		ApiKeyAuth
+//	@Accept			json
+//	@Produce		json
+//	@Tags			API
+//	@Success		200 {object}	dto.URLRequest
+//	@Success		204
+//	@Failure		401,500
+//	@Router			/api/user/urls   [get]
 func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

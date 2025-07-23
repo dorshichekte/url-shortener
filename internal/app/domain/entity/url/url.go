@@ -1,3 +1,4 @@
+// Package entity contains structures with business logic and application data.
 package entity
 
 type URL struct {
