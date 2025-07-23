@@ -7,7 +7,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"url-shortener/internal/app/adapter/primary/http/handler/errors"
+	errorshandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	entity "url-shortener/internal/app/domain/entity/url"
 )

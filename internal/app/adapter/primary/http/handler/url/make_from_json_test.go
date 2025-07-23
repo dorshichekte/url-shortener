@@ -73,7 +73,7 @@ func BenchmarkHandlerMakeFromJSON(b *testing.B) {
 		if err != nil {
 			b.Fatalf("failed to marshal request body: %v", err)
 		}
-		
+
 		req := httptest.NewRequest(http.MethodPost, "/api/shorten", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		req = req.WithContext(context.WithValue(req.Context(), middleware.UserIDKey, "test-user"))

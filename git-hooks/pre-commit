@@ -1,0 +1,9 @@
+#!/bin/sh
+
+gofmt -w .
+
+goimports -w .
+
+git add -u
+
+echo "Pre-commit hook: Code formatted!"

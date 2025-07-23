@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 
 	config "url-shortener/internal/app/config/env"
-	"url-shortener/internal/app/usecase/url"
+	urlusecase "url-shortener/internal/app/usecase/url"
 	"url-shortener/internal/pkg/validator"
 )
 
