@@ -1,3 +1,4 @@
+// Package postgres инициализирует соединение с базой данных PostgreSQL
 package postgres
 
 import (
@@ -16,6 +17,7 @@ import (
 	customerror "url-shortener/internal/pkg/error"
 )
 
+// NewConnection создает и проверяет соединение с PostgreSQL.
 func NewConnection(l *zap.Logger, cfg *config.Env) *sql.DB {
 	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
@@ -56,6 +58,7 @@ func applyMigrations(databaseDSN string) error {
 	return nil
 }
 
+// New создает структуру репозиториев, инициализируя их подключением к базе.
 func New(db *sql.DB, config *config.Env) Repositories {
 	return Repositories{
 		URL: url_repository_postgres.New(db, config),

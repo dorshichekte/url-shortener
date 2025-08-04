@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// New создает экземпляр Env конфига.
 func New() (*Env, error) {
 	config := &Env{}
 

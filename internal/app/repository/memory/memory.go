@@ -1,3 +1,4 @@
+// Пакет memory используется для записи и доступа данных в память.
 package memory
 
 import (
@@ -12,6 +13,7 @@ import (
 	"url-shortener/internal/pkg/osfile"
 )
 
+// New создает новый Storage.
 func New(cfg *config.Env) *Storage {
 	return &Storage{
 		mapURL: make(map[string]string),
@@ -20,6 +22,7 @@ func New(cfg *config.Env) *Storage {
 	}
 }
 
+// GetOriginalByID возвращает оригинальный URL по сокращенному.
 func (us *Storage) GetOriginalByID(context context.Context, url string) (model.URLData, error) {
 	var URLData model.URLData
 	value, found := us.mapURL[url]
@@ -31,10 +34,12 @@ func (us *Storage) GetOriginalByID(context context.Context, url string) (model.U
 	return URLData, nil
 }
 
+// GetByOriginalURL возвращает сокращенный URL по оригинальному.
 func (us *Storage) GetByOriginalURL(context context.Context, originalURL string) (string, error) {
 	return "", nil
 }
 
+// AddShorten добавляет пару оригинального и короткого URL в память.
 func (us *Storage) AddShorten(context context.Context, url, shortURL, userID string) (string, error) {
 	value, found := us.mapURL[url]
 	if found {
@@ -47,6 +52,7 @@ func (us *Storage) AddShorten(context context.Context, url, shortURL, userID str
 	return "", nil
 }
 
+// Write сохраняет событие в файл с использованием пакета osfile.
 func (us *Storage) Write(url, shortURL string) error {
 	data := osfile.Event{UUID: strconv.Itoa(len(us.mapURL)), ShortURL: shortURL, OriginalURL: url}
 	consumer, err := osfile.NewConsumer(us.config.FileStoragePath)
@@ -64,6 +70,7 @@ func (us *Storage) Write(url, shortURL string) error {
 	return nil
 }
 
+// AddBatch добавляет сразу несколько URL из батча в память и записывает их в файл.
 func (us *Storage) AddBatch(context context.Context, batches []entity.Batch, userID string) error {
 	for _, batch := range batches {
 		_, err := us.AddShorten(context, batch.OriginalURL, batch.ShortURL, userID)
@@ -79,10 +86,12 @@ func (us *Storage) AddBatch(context context.Context, batches []entity.Batch, use
 	return nil
 }
 
+// GetAllByUserID не реализован и возвращает ошибку ErrUnsupportedMethod.
 func (us *Storage) GetAllByUserID(context context.Context, userID string) ([]model.URL, error) {
 	return nil, constants.ErrUnsupportedMethod
 }
 
+// DeleteBatch не реализован и возвращает ошибку ErrUnsupportedMethod.
 func (us *Storage) DeleteBatch(event entity.DeleteBatch) error {
 	return constants.ErrUnsupportedMethod
 }

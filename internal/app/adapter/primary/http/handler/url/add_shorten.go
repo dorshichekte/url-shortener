@@ -11,6 +11,20 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// AddShorten godoc
+//
+//	@Summary		Создать короткую ссылку для одной URL
+//	@Description	Принимает оригинальный URL в теле запроса (plain text), возвращает короткую ссылку
+//	@Accept			plain
+//	@Produce		plain
+//	@Param			data	body		string	true	"Оригинальный URL"
+//	@Tags			URL
+//	@Success		201	{string}	string	"Короткая ссылка"
+//	@Failure		400	{string}	string	"Ошибка в запросе"
+//	@Failure		401	{string}	string	"Пользователь не авторизован"
+//	@Failure		409	{string}	string	"Короткая ссылка уже существует"
+//	@Failure		500	{string}	string	"Внутренняя ошибка сервера"
+//	@Router			/ [post]
 func (h *Handler) AddShorten(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

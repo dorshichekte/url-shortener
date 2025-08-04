@@ -16,6 +16,30 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// AddBatch godoc
+// @Summary      Пакетное создание коротких URL
+// @Description  Создает несколько сокращенных URL в одном запросе.
+//
+// Каждый URL должен быть валидным и содержать уникальный correlation_id.
+// Требуется аутентификация по API-ключу.
+//
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Tags         Пакетные операции
+// @Param        request body []dto.BatchRequest true "Запрос на пакетное создание URL"
+//
+//	example: [{"correlation_id": "1", "original_url": "https://example.com"}]
+//
+// @Success      201 {object} []dto.BatchResponse "Список созданных коротких URL"
+//
+// example: [{"correlation_id": "1", "short_url": "http://short.ly/abc123"}]
+//
+// @Failure      400
+// @Failure      401
+// @Failure      413
+// @Failure      500
+// @Router       /api/shorten/batch [post]
 func (h *Handler) AddBatch(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()

@@ -1,5 +1,6 @@
 package config
 
+// Константы енв конфига
 const (
 	defaultAddress             = "localhost:8080"
 	DefaultAddressWithProtocol = "http://localhost:8080"

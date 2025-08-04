@@ -9,6 +9,7 @@ import (
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
+// Auth мидлварина отвечающая за выдачу и парсинг токена
 func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

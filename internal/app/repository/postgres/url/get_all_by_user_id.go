@@ -7,6 +7,7 @@ import (
 	"url-shortener/internal/app/repository/model"
 )
 
+// GetAllByUserID возвращает список всех URL, принадлежащих пользователю с userID.
 func (s *urlRepositoryPostgres) GetAllByUserID(ctx context.Context, userID string) ([]model.URL, error) {
 	var listURLs []model.URL
 

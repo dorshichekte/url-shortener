@@ -12,6 +12,26 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// DeleteBatch godoc
+// @Summary      Пакетное удаление URL пользователя
+// @Description  Помечает указанные URL как удаленные (устанавливает флаг is_deleted=true) для конкретного пользователя.
+//
+//	Операция выполняется асинхронно, сразу возвращает статус Accepted (202).
+//	Требуется аутентификация по API-ключу.
+//
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Tags         Управление URL
+// @Param        request body []string true "Список сокращенных URL для удаления"
+//
+//	example: ["abc123", "def456"]
+//
+// @Success      202 "Запрос на удаление принят в обработку"
+// @Failure      400
+// @Failure      401
+// @Failure      500
+// @Router       /api/user/urls [delete]
 func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {

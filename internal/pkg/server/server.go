@@ -1,3 +1,4 @@
+// Пакет server инициализирует хттп сервер.
 package server
 
 import (
@@ -11,6 +12,7 @@ import (
 	adapter "url-shortener/internal/app/config/adapter"
 )
 
+// New создает и настраивает новый HTTP-сервер.
 func New(logger *zap.Logger, config *adapter.HTTPServer, handler http.Handler) *Server {
 	server := &http.Server{
 		Handler:           handler,
@@ -29,6 +31,7 @@ func New(logger *zap.Logger, config *adapter.HTTPServer, handler http.Handler) *
 	return &s
 }
 
+// Start запускает HTTP-сервер и отслеживает завершение через контекст.
 func (a *Server) Start(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Middleware тип-алиас для функций middleware.
 type Middleware = func(f http.Handler) http.Handler
 
 type responseWriter struct {
@@ -18,4 +19,5 @@ type gzipWriter struct {
 	http.ResponseWriter
 }
 
+// ContextKey тип для ключей контекста.
 type ContextKey string

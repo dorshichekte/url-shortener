@@ -6,6 +6,7 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// GetAllByUserID возвращает все URL, принадлежащие указанному пользователю.
 func (u *URLUseCase) GetAllByUserID(ctx context.Context, userID string) ([]entity.URL, error) {
 	urls, err := u.URLRepository.GetAllByUserID(ctx, userID)
 	if err != nil {

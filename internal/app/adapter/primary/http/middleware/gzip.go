@@ -9,10 +9,12 @@ import (
 	errorhandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 )
 
+// Write записывает данные.
 func (w gzipWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
+// Gzip сжимает ответ в gzip, если клиент поддерживает.
 func Gzip(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		acceptEncoding := r.Header.Get("Accept-Encoding")
@@ -43,6 +45,7 @@ func Gzip(next http.Handler) http.Handler {
 	})
 }
 
+// Decompress распаковывает gzip-запросы.
 func Decompress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		contentEncoding := r.Header.Get("Content-Encoding")

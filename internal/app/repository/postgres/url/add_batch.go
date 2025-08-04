@@ -6,6 +6,7 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// AddBatch выполняет пакетную вставку нескольких записей URL в базу данных Postgres.
 func (s *urlRepositoryPostgres) AddBatch(ctx context.Context, batches []entity.Batch, userID string) error {
 	tx, err := s.db.Begin()
 	if err != nil {

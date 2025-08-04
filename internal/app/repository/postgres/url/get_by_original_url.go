@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+// GetByOriginalURL возвращает короткий URL по оригинальному URL из базы данных.
 func (s *urlRepositoryPostgres) GetByOriginalURL(ctx context.Context, originalURL string) (string, error) {
 	query := `SELECT short_url
 			  FROM urls
