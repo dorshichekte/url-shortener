@@ -1,3 +1,4 @@
+// Пакет osfile предоставляет методы для работы с файлом.
 package osfile
 
 import (
@@ -6,6 +7,7 @@ import (
 	"os"
 )
 
+// NewConsumer открывает файл для записи (дописывания) и возвращает Consumer.
 func NewConsumer(filePath string) (*Consumer, error) {
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
@@ -18,14 +20,17 @@ func NewConsumer(filePath string) (*Consumer, error) {
 	}, nil
 }
 
+// WriteEvent записывает одно событие в файл в формате JSON.
 func (c *Consumer) WriteEvent(data *Event) error {
 	return c.encoder.Encode(&data)
 }
 
+// Close закрывает файл, открытый Consumer'ом.
 func (c *Consumer) Close() error {
 	return c.file.Close()
 }
 
+// Load считывает все события из файла, открытого через Producer.
 func (c *Consumer) Load(fileStoragePath string) (*[]Event, error) {
 	pr, err := NewProducer(fileStoragePath)
 	if err != nil {
@@ -43,6 +48,7 @@ func (c *Consumer) Load(fileStoragePath string) (*[]Event, error) {
 	return listEvents, nil
 }
 
+// NewProducer открывает файл для чтения и возвращает Producer.
 func NewProducer(filePath string) (*Producer, error) {
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
@@ -55,6 +61,7 @@ func NewProducer(filePath string) (*Producer, error) {
 	}, nil
 }
 
+// ReadEvent читает все события из файла и возвращает их слайс.
 func (p *Producer) ReadEvent() (*[]Event, error) {
 	var events []Event
 	for {
@@ -71,6 +78,7 @@ func (p *Producer) ReadEvent() (*[]Event, error) {
 	return &events, nil
 }
 
+// Close закрывает файл, открытый Producer'ом.
 func (p *Producer) Close() error {
 	return p.file.Close()
 }

@@ -1,5 +1,6 @@
 package config
 
+// Env конфигурация env конфига приложения.
 type Env struct {
 	ServerAddress   string `env:"SERVER_ADDRESS"`
 	DatabaseDSN     string `env:"DATABASE_DSN"`

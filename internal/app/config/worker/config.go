@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// New создает экземпляр Worker.
 func New() *Worker {
 	config := &Worker{}
 

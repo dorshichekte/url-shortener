@@ -9,6 +9,7 @@ import (
 	"url-shortener/internal/pkg/auth"
 )
 
+// AppendRoutes добавляет пути приложения
 func (r *Router) AppendRoutes(config *adapter.Router, handlers *handler.Handlers, auth auth.Auth) {
 	r.config = config
 

@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Log middleware для логирования HTTP-запросов и ответов.
 func Log(logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -29,11 +30,13 @@ func Log(logger *zap.Logger) func(http.Handler) http.Handler {
 	}
 }
 
+// WriteHeader перехватывает статус ответа для логирования.
 func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.status = statusCode
 	rw.ResponseWriter.WriteHeader(statusCode)
 }
 
+// Write перехватывает размер данных для логирования.
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	size, err := rw.ResponseWriter.Write(b)
 	rw.size += size

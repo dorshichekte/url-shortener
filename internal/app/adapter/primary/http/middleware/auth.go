@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"url-shortener/internal/pkg/auth"
-	"url-shortener/internal/pkg/util/error_response"
+	util "url-shortener/internal/pkg/util/error_response"
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 
+// Auth мидлварина отвечающая за выдачу и парсинг токена
 func Auth(auth auth.Auth) func(handler http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

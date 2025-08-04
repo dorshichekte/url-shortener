@@ -1,3 +1,4 @@
+// Пакет urlrepository включает интерфейс с описанием сигнатуры методов для URL-репозитория.
 package urlrepository
 
 import (
@@ -7,6 +8,9 @@ import (
 	"url-shortener/internal/app/repository/model"
 )
 
+// IURLRepository описывает поведение репозитория для работы с URL.
+//
+//go:generate mockgen -package mock -source url.go -destination ../../mock/url_repositoy.go UrlRepostiry
 type IURLRepository interface {
 	AddShorten(context context.Context, originalURL, shortURL, userID string) (string, error)
 	GetOriginalByID(context context.Context, shortURL string) (model.URLData, error)

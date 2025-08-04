@@ -1,3 +1,4 @@
+// Пакет graceful завершает процессы в приложении.
 package graceful
 
 import (
@@ -7,6 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// New создает экземпляр Graceful с переданными процессами и стандартным логгером.
 func New(processes ...Process) *Graceful {
 	return &Graceful{
 		processes: processes,
@@ -14,6 +16,7 @@ func New(processes ...Process) *Graceful {
 	}
 }
 
+// Start запускает все процессы параллельно с помощью errgroup.
 func (gr *Graceful) Start(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -45,6 +48,7 @@ func (gr *Graceful) Start(ctx context.Context) error {
 	return nil
 }
 
+// SetLogger позволяет установить пользовательский логгер вместо slog.Default().
 func (gr *Graceful) SetLogger(l *slog.Logger) {
 	gr.logger = l
 }

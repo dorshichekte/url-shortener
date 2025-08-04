@@ -1,0 +1,242 @@
+definitions:
+  dto.BatchRequest:
+    properties:
+      correlation_id:
+        minLength: 1
+        type: string
+      original_url:
+        type: string
+    required:
+    - correlation_id
+    - original_url
+    type: object
+  dto.BatchResponse:
+    properties:
+      correlation_id:
+        type: string
+      short_url:
+        type: string
+    type: object
+  dto.ShortenRequest:
+    properties:
+      url:
+        type: string
+    type: object
+  dto.ShortenResponse:
+    properties:
+      result:
+        type: string
+    type: object
+  dto.URLRequest:
+    properties:
+      original_url:
+        type: string
+      short_url:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    post:
+      consumes:
+      - text/plain
+      description: Принимает оригинальный URL в теле запроса (plain text), возвращает
+        короткую ссылку
+      parameters:
+      - description: Оригинальный URL
+        in: body
+        name: data
+        required: true
+        schema:
+          type: string
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Короткая ссылка
+          schema:
+            type: string
+        "400":
+          description: Ошибка в запросе
+          schema:
+            type: string
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            type: string
+        "409":
+          description: Короткая ссылка уже существует
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Создать короткую ссылку для одной URL
+      tags:
+      - URL
+  /{hash}:
+    get:
+      description: Выполняет редирект на оригинальный URL по его сокращенному идентификатору.
+      parameters:
+      - description: Сокращенный идентификатор URL
+        in: path
+        name: hash
+        required: true
+        type: string
+      responses:
+        "307":
+          description: Перенаправление на оригинальный URL
+        "404":
+          description: URL не найден
+          schema:
+            type: string
+        "410":
+          description: URL был удален
+          schema:
+            type: string
+      summary: Перенаправление на оригинальный URL
+      tags:
+      - Перенаправления
+  /api/shorten:
+    post:
+      consumes:
+      - application/json
+      description: Создает сокращенный URL на основе переданного оригинального URL.
+      parameters:
+      - description: Запрос на создание сокращенного URL
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ShortenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Сокращенный URL успешно создан
+          schema:
+            $ref: '#/definitions/dto.ShortenResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "409":
+          description: Conflict
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Создание сокращенного URL
+      tags:
+      - Создание URL
+  /api/shorten/batch:
+    post:
+      consumes:
+      - application/json
+      description: Создает несколько сокращенных URL в одном запросе.
+      parameters:
+      - description: Запрос на пакетное создание URL
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/dto.BatchRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Список созданных коротких URL
+          schema:
+            items:
+              $ref: '#/definitions/dto.BatchResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "413":
+          description: Request Entity Too Large
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Пакетное создание коротких URL
+      tags:
+      - Пакетные операции
+  /api/user/urls:
+    delete:
+      consumes:
+      - application/json
+      description: Помечает указанные URL как удаленные (устанавливает флаг is_deleted=true)
+        для конкретного пользователя.
+      parameters:
+      - description: Список сокращенных URL для удаления
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Запрос на удаление принят в обработку
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Пакетное удаление URL пользователя
+      tags:
+      - Управление URL
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех активных (не удаленных) URL, созданных пользователем.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список URL пользователя
+          schema:
+            items:
+              $ref: '#/definitions/dto.URLRequest'
+            type: array
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Получение всех URL пользователя
+      tags:
+      - Пользовательские URL
+  /ping:
+    get:
+      description: Проверяет доступность базы данных. Использует контекст с таймаутом.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: База данных доступна
+          schema:
+            type: string
+        "500":
+          description: Ошибка подключения к базе данных
+          schema:
+            type: string
+      summary: Проверка подключения к базе данных
+      tags:
+      - Healthcheck
+swagger: "2.0"

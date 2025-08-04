@@ -7,6 +7,7 @@ import (
 	"url-shortener/internal/app/repository/postgres"
 )
 
+// Worker выполняет фоновые задачи по удалению URL.
 type Worker struct {
 	Store    postgres.Repositories
 	wg       sync.WaitGroup

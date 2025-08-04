@@ -1,3 +1,4 @@
+// Пакет validator инициализирует валидатор, и предоставляет методы для работы с ним.
 package validator
 
 import (
@@ -10,16 +11,19 @@ import (
 	customerror "url-shortener/internal/pkg/error"
 )
 
+// New создает и возвращает новый экземпляр Validator с инициализированным валидатором.
 func New() *Validator {
 	return &Validator{
 		validator: validator.New(),
 	}
 }
 
+// ValidateStruct запускает валидацию структуры на основе тегов `validate`.
 func (v *Validator) ValidateStruct(s any) error {
 	return v.validator.Struct(s)
 }
 
+// ParseValidationErrors преобразует ошибки, возвращенные валидатором, в слайс ValidationError.
 func (v *Validator) ParseValidationErrors(err error) ([]ValidationError, error) {
 	var listErrors []ValidationError
 
@@ -36,6 +40,7 @@ func (v *Validator) ParseValidationErrors(err error) ([]ValidationError, error) 
 	return nil, customerror.New(errMessageFailedParseValidationErrors)
 }
 
+// CreateError создает кастомную ValidationError на основе типа ошибки из валидатора.
 func (v *Validator) CreateError(e validator.FieldError) ValidationError {
 	field := strings.ToLower(e.Field())
 

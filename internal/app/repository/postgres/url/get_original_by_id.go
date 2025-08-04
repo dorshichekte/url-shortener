@@ -9,6 +9,7 @@ import (
 	"url-shortener/internal/pkg/constants"
 )
 
+// GetOriginalByID возвращает данные оригинального URL по короткому URL из базы данных.
 func (s *urlRepositoryPostgres) GetOriginalByID(ctx context.Context, shortURL string) (model.URLData, error) {
 	var URLData model.URLData
 

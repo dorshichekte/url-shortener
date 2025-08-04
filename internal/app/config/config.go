@@ -1,3 +1,4 @@
+// Пакет config инициализирует конфиг приложения.
 package config
 
 import (
@@ -8,6 +9,7 @@ import (
 	worker "url-shortener/internal/app/config/worker"
 )
 
+// New создает экземпляр Config.
 func New() (*Config, error) {
 	_ = godotenv.Load()
 	envConfig, err := env.New()

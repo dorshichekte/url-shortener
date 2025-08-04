@@ -1,3 +1,4 @@
+// Пакет repository инициализирует репозиторий приложения.
 package repository
 
 import (
@@ -9,6 +10,7 @@ import (
 	"url-shortener/internal/app/repository/postgres"
 )
 
+// New создает и возвращает реализацию интерфейса IURLRepository.
 func New(db *sql.DB, config *c.Env) url_repository.IURLRepository {
 	if config.DatabaseDSN == "" || db == nil {
 		return memory.New(config)

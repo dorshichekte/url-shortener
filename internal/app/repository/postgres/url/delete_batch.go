@@ -4,6 +4,7 @@ import (
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
+// DeleteBatch помечает как удалённые (is_deleted = true) записи в таблице urls,
 func (s *urlRepositoryPostgres) DeleteBatch(event entity.DeleteBatch) error {
 	query := `
         UPDATE urls
