@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"url-shortener/internal/pkg/auth"
-	"url-shortener/internal/pkg/util/error_response"
+	util "url-shortener/internal/pkg/util/error_response"
 	stringUtils "url-shortener/internal/pkg/util/string"
 )
 

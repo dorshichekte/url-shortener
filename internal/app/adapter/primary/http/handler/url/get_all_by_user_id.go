@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	dto "url-shortener/internal/app/adapter/primary/http/dto/url"
-	"url-shortener/internal/app/adapter/primary/http/handler/errors"
+	errorshandler "url-shortener/internal/app/adapter/primary/http/handler/errors"
 	"url-shortener/internal/app/adapter/primary/http/middleware"
 	"url-shortener/internal/pkg/constants"
 )

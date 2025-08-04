@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"url-shortener/internal/app/usecase/url"
+	urlusecase "url-shortener/internal/app/usecase/url"
 )
 
 type UseCases struct {

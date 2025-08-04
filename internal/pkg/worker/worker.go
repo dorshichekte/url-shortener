@@ -3,7 +3,7 @@ package worker
 import (
 	"context"
 
-	"url-shortener/internal/app/config/worker"
+	config "url-shortener/internal/app/config/worker"
 	entity "url-shortener/internal/app/domain/entity/url"
 )
 
