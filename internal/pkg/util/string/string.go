@@ -1,18 +1,14 @@
 package string
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
+	"encoding/hex"
 )
 
 func CreateRandom() string {
-	scr := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(scr)
-
-	var result []byte
-	for i := 0; i < defaultRandomStringLength; i++ {
-		result = append(result, charset[r.Intn(len(charset))])
+	buf := make([]byte, 4)
+	if _, err := rand.Read(buf); err != nil {
+		panic("failed to generate secure random string: " + err.Error())
 	}
-
-	return string(result)
+	return hex.EncodeToString(buf)
 }

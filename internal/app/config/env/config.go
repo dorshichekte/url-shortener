@@ -40,7 +40,7 @@ func (c *Env) initDefaultValue() {
 	}
 
 	if c.BaseURL == "" {
-		c.BaseURL = defaultAddressWithProtocol
+		c.BaseURL = DefaultAddressWithProtocol
 	}
 
 	if c.FileStoragePath == "" {

@@ -21,7 +21,7 @@ func (u *URLUseCase) AddShorten(ctx context.Context, originalURL, userID string)
 		return url, customerror.New(errMessageShortURLAlreadyExists)
 	}
 
-	if u.Config.DatabaseDSN == "" {
+	if u.Config.DatabaseDSN == "" && u.Config.FileStoragePath != "" {
 		consumer, _ := osfile.NewConsumer(u.Config.FileStoragePath)
 		_ = consumer.WriteEvent(&osfile.Event{UUID: stringUtils.CreateRandom(), OriginalURL: url, ShortURL: shortURL})
 	}
