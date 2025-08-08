@@ -23,6 +23,7 @@ func (c *Env) initEnv() {
 	c.FileStoragePath = os.Getenv("FILE_STORAGE_PATH")
 	c.BaseURL = os.Getenv("BASE_URL")
 	c.AccessSecretKey = os.Getenv("ACCESS_SECRET_KEY")
+	c.EnableHTTPS = os.Getenv("ENABLE_HTTPS") == "true"
 }
 
 func (c *Env) initFlags() {
@@ -31,6 +32,7 @@ func (c *Env) initFlags() {
 	flag.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "File storage path")
 	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "Base host URL")
 	flag.StringVar(&c.AccessSecretKey, "ac", c.AccessSecretKey, "Access secret key")
+	flag.BoolVar(&c.EnableHTTPS, "s", c.EnableHTTPS, "Enables https")
 
 	flag.Parse()
 }
