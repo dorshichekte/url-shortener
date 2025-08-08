@@ -21,7 +21,7 @@ import (
 func New(logger *zap.Logger, auth auth.Auth, config *config.Config, useCases *usecase.UseCases, validator *validator.Validator, dbConnection *sql.DB) *HTTPAdapter {
 	rtr := newRouter(logger, auth, config, useCases, validator, dbConnection)
 
-	s := server.New(logger, &config.HTTPAdapter.Server, rtr)
+	s := server.New(logger, config, rtr)
 
 	return &HTTPAdapter{
 		server: s,
