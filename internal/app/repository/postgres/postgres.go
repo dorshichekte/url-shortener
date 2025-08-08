@@ -43,7 +43,7 @@ func applyMigrations(databaseDSN string) error {
 		return customerror.NewWithData(errMessageFailedGetCurrentDirectory, err)
 	}
 
-	migrationDirPath := "file.json://" + filepath.Join(wd, "migrations")
+	migrationDirPath := "file://" + filepath.Join(wd, "migrations")
 
 	m, err := migrate.New(migrationDirPath, databaseDSN)
 	if err != nil {

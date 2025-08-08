@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 )
 
@@ -36,7 +35,7 @@ func (c *Env) initFlags() {
 	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "Base host URL")
 	flag.StringVar(&c.AccessSecretKey, "ac", c.AccessSecretKey, "Access secret key")
 	flag.BoolVar(&c.EnableHTTPS, "s", c.EnableHTTPS, "Enables https")
-	flag.StringVar(&c.Config, "c", c.Config, "Configuration file.json")
+	flag.StringVar(&c.Config, "c", c.Config, "Configuration file")
 
 	flag.Parse()
 }
@@ -73,8 +72,6 @@ func (c *Env) initFile() {
 	if err != nil {
 		return
 	}
-
-	fmt.Println(c)
 }
 
 func (c *Env) init() (err error) {
