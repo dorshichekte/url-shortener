@@ -7,4 +7,5 @@ type Env struct {
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	BaseURL         string `env:"BASE_URL"`
 	AccessSecretKey string `env:"ACCESS_SECRET_KEY"`
+	EnableHTTPS     bool   `env:"ENABLE_HTTPS"`
 }

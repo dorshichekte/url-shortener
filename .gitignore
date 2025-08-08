@@ -36,3 +36,7 @@ docker-compose.yml
 
 # Util
 fix.md
+
+# Certs
+/certs/key.pem
+/certs/*.key
