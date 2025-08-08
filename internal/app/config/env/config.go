@@ -1,7 +1,9 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
 )
 
@@ -24,6 +26,7 @@ func (c *Env) initEnv() {
 	c.BaseURL = os.Getenv("BASE_URL")
 	c.AccessSecretKey = os.Getenv("ACCESS_SECRET_KEY")
 	c.EnableHTTPS = os.Getenv("ENABLE_HTTPS") == "true"
+	c.Config = os.Getenv("CONFIG")
 }
 
 func (c *Env) initFlags() {
@@ -33,6 +36,7 @@ func (c *Env) initFlags() {
 	flag.StringVar(&c.BaseURL, "b", c.BaseURL, "Base host URL")
 	flag.StringVar(&c.AccessSecretKey, "ac", c.AccessSecretKey, "Access secret key")
 	flag.BoolVar(&c.EnableHTTPS, "s", c.EnableHTTPS, "Enables https")
+	flag.StringVar(&c.Config, "c", c.Config, "Configuration file.json")
 
 	flag.Parse()
 }
@@ -55,9 +59,28 @@ func (c *Env) initDefaultValue() {
 	}
 }
 
+func (c *Env) initFile() {
+	if c.Config == "" {
+		return
+	}
+
+	f, err := os.ReadFile(c.Config)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(f, c)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(c)
+}
+
 func (c *Env) init() (err error) {
 	c.initEnv()
 	c.initFlags()
+	c.initFile()
 	c.initDefaultValue()
 
 	return err
