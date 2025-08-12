@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os/signal"
+	"syscall"
 
 	a "url-shortener/internal/app"
 	c "url-shortener/internal/app/config"
@@ -11,7 +13,17 @@ import (
 	w "url-shortener/internal/pkg/worker"
 )
 
+var (
+	buildVersion string = "N/A"
+	buildCommit  string = "N/A"
+	buildDate    string = "N/A"
+)
+
 func main() {
+	log.Printf("Build version: %s", buildVersion)
+	log.Printf("Build date: %s", buildDate)
+	log.Printf("Build commit: %s", buildCommit)
+
 	logger, err := l.New()
 	if err != nil {
 		log.Fatal(err)
@@ -25,7 +37,7 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer cancel()
 
 	app := a.New(ctx, logger, config)
