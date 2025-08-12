@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os/signal"
+	"syscall"
 
 	a "url-shortener/internal/app"
 	c "url-shortener/internal/app/config"
@@ -35,7 +37,7 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer cancel()
 
 	app := a.New(ctx, logger, config)
