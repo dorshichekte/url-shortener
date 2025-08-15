@@ -13,6 +13,13 @@ import (
 	util "url-shortener/internal/pkg/util/error_response"
 )
 
+// GetStats godoc
+// @Summary      Получение количество урл и пользователей.
+// @Description  Возвращает количество сокращенных урл в системе, и количество уникальных пользователей.
+//
+// @Success      200
+// @Failure      500 {string} string "Внутренняя ошибка сервера"
+// @Router       /api/internal/stats [get]
 func (h *Handler) GetStats(res http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), constants.DefaultTimeRequest)
 	defer cancel()
