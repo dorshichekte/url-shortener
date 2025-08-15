@@ -5,13 +5,13 @@ import (
 )
 
 // GetByOriginalURL возвращает короткий URL по оригинальному URL из базы данных.
-func (s *urlRepositoryPostgres) GetByOriginalURL(ctx context.Context, originalURL string) (string, error) {
+func (u *urlRepositoryPostgres) GetByOriginalURL(ctx context.Context, originalURL string) (string, error) {
 	query := `SELECT short_url
 			  FROM urls
 			  WHERE url = $1
 	`
 	var shortURL string
-	err := s.db.QueryRowContext(ctx, query, originalURL).Scan(&shortURL)
+	err := u.db.QueryRowContext(ctx, query, originalURL).Scan(&shortURL)
 	if err != nil {
 		return "", err
 	}

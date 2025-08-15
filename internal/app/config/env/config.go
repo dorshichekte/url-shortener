@@ -26,6 +26,7 @@ func (c *Env) initEnv() {
 	c.AccessSecretKey = os.Getenv("ACCESS_SECRET_KEY")
 	c.EnableHTTPS = os.Getenv("ENABLE_HTTPS") == "true"
 	c.Config = os.Getenv("CONFIG")
+	c.TrustedSubnet = os.Getenv("TRUSTED_SUBNET")
 }
 
 func (c *Env) initFlags() {
@@ -36,6 +37,7 @@ func (c *Env) initFlags() {
 	flag.StringVar(&c.AccessSecretKey, "ac", c.AccessSecretKey, "Access secret key")
 	flag.BoolVar(&c.EnableHTTPS, "s", c.EnableHTTPS, "Enables https")
 	flag.StringVar(&c.Config, "c", c.Config, "Configuration file")
+	flag.StringVar(&c.TrustedSubnet, "t", c.TrustedSubnet, "Trusted subnet")
 
 	flag.Parse()
 }

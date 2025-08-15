@@ -34,3 +34,8 @@ type DeleteBatchRequest struct {
 	ListURL []string `json:"list_url"`
 	UserID  string   `json:"user_id"`
 }
+
+type ServiceStatsResponse struct {
+	URLCount  int `json:"urls"`
+	UserCount int `json:"users"`
+}

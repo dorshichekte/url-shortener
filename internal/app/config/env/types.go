@@ -9,4 +9,5 @@ type Env struct {
 	AccessSecretKey string `env:"ACCESS_SECRET_KEY" json:"access_secret_key"`
 	EnableHTTPS     bool   `env:"ENABLE_HTTPS" json:"enable_https"`
 	Config          string `env:"CONFIG"`
+	TrustedSubnet   string `env:"TRUSTED_SUBNET" json:"trusted_subnet"`
 }

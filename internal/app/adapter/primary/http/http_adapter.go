@@ -33,7 +33,7 @@ func newRouter(logger *zap.Logger, auth auth.Auth, config *config.Config, useCas
 
 	h := handler.New(logger, config.Env, useCases, validator, dbConnection)
 
-	r.AppendRoutes(&config.HTTPAdapter.Router, h, auth)
+	r.AppendRoutes(config, h, auth)
 
 	return r.Router()
 }

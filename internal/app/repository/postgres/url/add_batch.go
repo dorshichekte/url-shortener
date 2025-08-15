@@ -7,8 +7,8 @@ import (
 )
 
 // AddBatch выполняет пакетную вставку нескольких записей URL в базу данных Postgres.
-func (s *urlRepositoryPostgres) AddBatch(ctx context.Context, batches []entity.Batch, userID string) error {
-	tx, err := s.db.Begin()
+func (u *urlRepositoryPostgres) AddBatch(ctx context.Context, batches []entity.Batch, userID string) error {
+	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}

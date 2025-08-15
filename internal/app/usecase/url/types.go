@@ -15,6 +15,7 @@ type IUrlUseCase interface {
 	GetAllByUserID(context context.Context, userID string) ([]entity.URL, error)
 	AddBatch(context context.Context, batches []entity.Batch, userID string) ([]entity.Batch, error)
 	DeleteBatch(event entity.DeleteBatch) error
+	GetStats(context context.Context) (entity.ServiceStats, error)
 }
 
 // URLUseCase реализует бизнес-логику URL сервиса.
