@@ -7,7 +7,7 @@ package mock
 import (
 	context "context"
 	reflect "reflect"
-	url "url-shortener/internal/app/domain/entity/url"
+	entity "url-shortener/internal/app/domain/entity/url"
 	model "url-shortener/internal/app/repository/model"
 
 	gomock "github.com/golang/mock/gomock"
@@ -37,7 +37,7 @@ func (m *MockIURLRepository) EXPECT() *MockIURLRepositoryMockRecorder {
 }
 
 // AddBatch mocks base method.
-func (m *MockIURLRepository) AddBatch(context context.Context, batches []url.Batch, userID string) error {
+func (m *MockIURLRepository) AddBatch(context context.Context, batches []entity.Batch, userID string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddBatch", context, batches, userID)
 	ret0, _ := ret[0].(error)
@@ -66,7 +66,7 @@ func (mr *MockIURLRepositoryMockRecorder) AddShorten(context, originalURL, short
 }
 
 // DeleteBatch mocks base method.
-func (m *MockIURLRepository) DeleteBatch(event url.DeleteBatch) error {
+func (m *MockIURLRepository) DeleteBatch(event entity.DeleteBatch) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteBatch", event)
 	ret0, _ := ret[0].(error)
@@ -122,4 +122,20 @@ func (m *MockIURLRepository) GetOriginalByID(context context.Context, shortURL s
 func (mr *MockIURLRepositoryMockRecorder) GetOriginalByID(context, shortURL interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOriginalByID", reflect.TypeOf((*MockIURLRepository)(nil).GetOriginalByID), context, shortURL)
+}
+
+// GetStats mocks base method.
+func (m *MockIURLRepository) GetStats(context context.Context) (int, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStats", context)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetStats indicates an expected call of GetStats.
+func (mr *MockIURLRepositoryMockRecorder) GetStats(context interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStats", reflect.TypeOf((*MockIURLRepository)(nil).GetStats), context)
 }

@@ -25,3 +25,9 @@ type Batch struct {
 	OriginalURL string
 	ShortURL    string
 }
+
+// ServiceStats содержит количество сокращенных ссылок и юзеров в сервисе.
+type ServiceStats struct {
+	URLCount  int
+	UserCount int
+}

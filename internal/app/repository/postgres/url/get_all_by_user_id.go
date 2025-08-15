@@ -8,14 +8,14 @@ import (
 )
 
 // GetAllByUserID возвращает список всех URL, принадлежащих пользователю с userID.
-func (s *urlRepositoryPostgres) GetAllByUserID(ctx context.Context, userID string) ([]model.URL, error) {
+func (u *urlRepositoryPostgres) GetAllByUserID(ctx context.Context, userID string) ([]model.URL, error) {
 	var listURLs []model.URL
 
 	query := `SELECT url, short_url 
    			  FROM urls 
     		  WHERE user_id = $1
     `
-	rows, err := s.db.QueryContext(ctx, query, userID)
+	rows, err := u.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s *urlRepositoryPostgres) GetAllByUserID(ctx context.Context, userID strin
 		if err = rows.Scan(&url.OriginalURL, &url.ShortURL); err != nil {
 			return nil, err
 		}
-		url.ShortURL = fmt.Sprintf("%s/%s", s.config.BaseURL, url.ShortURL)
+		url.ShortURL = fmt.Sprintf("%s/%s", u.config.BaseURL, url.ShortURL)
 		listURLs = append(listURLs, url)
 	}
 

@@ -95,3 +95,8 @@ func (us *Storage) GetAllByUserID(context context.Context, userID string) ([]mod
 func (us *Storage) DeleteBatch(event entity.DeleteBatch) error {
 	return constants.ErrUnsupportedMethod
 }
+
+// GetStats не реализован и возвращает ошибку ErrUnsupportedMethod.
+func (us *Storage) GetStats(context context.Context) (int, int, error) {
+	return 0, 0, constants.ErrUnsupportedMethod
+}
