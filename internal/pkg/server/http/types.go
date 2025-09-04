@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Http инкапсулирует HTTP-сервер и его зависимости.
-type Http struct {
+// HTTP инкапсулирует HTTP-сервер и его зависимости.
+type HTTP struct {
 	logger *zap.Logger
 	server *http.Server
 	config *config.Config

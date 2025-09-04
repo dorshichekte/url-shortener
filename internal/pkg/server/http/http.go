@@ -13,7 +13,7 @@ import (
 )
 
 // New создает и настраивает новый HTTP-сервер.
-func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Http {
+func New(logger *zap.Logger, config *config.Config, handler http.Handler) *HTTP {
 	server := &http.Server{
 		Handler:           handler,
 		ReadTimeout:       config.HTTPAdapter.Server.ReadTimeout,
@@ -22,7 +22,7 @@ func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Http 
 		Addr:              config.HTTPAdapter.Server.Address,
 	}
 
-	s := Http{
+	s := HTTP{
 		logger: logger,
 		server: server,
 		config: config,
@@ -32,7 +32,7 @@ func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Http 
 }
 
 // Start запускает HTTP-сервер и отслеживает завершение через контекст.
-func (h *Http) Start(ctx context.Context) error {
+func (h *HTTP) Start(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
