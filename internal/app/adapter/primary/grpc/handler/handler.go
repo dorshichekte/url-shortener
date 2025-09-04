@@ -25,7 +25,7 @@ func (h *GRPCHandlers) AddBatch(ctx context.Context, req *proto.BatchRequest) (*
 	return h.url.AddBatch(ctx, req)
 }
 
-func (h *GRPCHandlers) AddShorten(ctx context.Context, req *proto.BatchRequest) (*proto.BatchResponse, error) {
+func (h *GRPCHandlers) AddShorten(ctx context.Context, req *proto.ShortenRequest) (*proto.ShortenResponse, error) {
 	return h.url.AddShorten(ctx, req)
 }
 
@@ -33,16 +33,12 @@ func (h *GRPCHandlers) DeleteBatch(ctx context.Context, req *proto.DeleteBatchRe
 	return h.url.DeleteBatch(ctx, req)
 }
 
-func (h *GRPCHandlers) GetAllByUserID(ctx context.Context, empty *emptypb.Empty) (*proto.UrlResponse, error) {
+func (h *GRPCHandlers) GetAllByUserID(ctx context.Context, empty *emptypb.Empty) (*proto.UserUrlResponse, error) {
 	return h.url.GetAllByUserID(ctx, empty)
 }
 
 func (h *GRPCHandlers) GetStats(ctx context.Context, empty *emptypb.Empty) (*proto.ServiceStatsResponse, error) {
 	return h.url.GetStats(ctx, empty)
-}
-
-func (h *GRPCHandlers) MakeFromJSON(ctx context.Context, req *proto.ShortenRequest) (*proto.ShortenResponse, error) {
-	return h.url.MakeFromJSON(ctx, req)
 }
 
 func (h *GRPCHandlers) Ping(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
