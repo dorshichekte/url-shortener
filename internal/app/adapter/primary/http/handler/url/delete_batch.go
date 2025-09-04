@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"url-shortener/internal/pkg/constants"
 
 	"go.uber.org/zap"
 
@@ -35,7 +36,7 @@ import (
 func (h *Handler) DeleteBatch(res http.ResponseWriter, req *http.Request) {
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {
-		h.logger.Error(errMessageFailedGetUserIDFromContext)
+		h.logger.Error(constants.ErrFailedGetUserIDFromContext.Error())
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}

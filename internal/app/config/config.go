@@ -14,7 +14,7 @@ func New() (*Config, error) {
 	_ = godotenv.Load()
 	envConfig, err := env.New()
 	if err != nil {
-		return &Config{}, err
+		panic(err)
 	}
 
 	httpAdapterConfig := adapter.New(envConfig.ServerAddress)

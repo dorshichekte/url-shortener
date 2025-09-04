@@ -40,9 +40,12 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer cancel()
 
-	app := a.New(ctx, logger, config)
+	app := a.New(logger, config)
 
-	graceful := g.New(g.NewProcess(app.HTTPAdapter))
+	graceful := g.New(
+		g.NewProcess(app.HTTPAdapter),
+		g.NewProcess(app.GRPCAdapter),
+	)
 
 	worker := w.New(ctx, config.Worker)
 	defer worker.StopJob()

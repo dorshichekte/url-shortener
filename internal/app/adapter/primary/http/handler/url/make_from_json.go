@@ -42,7 +42,7 @@ func (h *Handler) MakeFromJSON(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {
-		h.logger.Error(errMessageFailedGetUserIDFromContext)
+		h.logger.Error(constants.ErrFailedGetUserIDFromContext.Error())
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}

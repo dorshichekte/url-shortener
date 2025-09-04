@@ -23,8 +23,8 @@ type BatchResponse struct {
 	ShortURL string `json:"short_url"`
 }
 
-// URLRequest входные данные пары "оригинальный URL — сокращённый URL".
-type URLRequest struct {
+// URLResponse входные данные пары "оригинальный URL — сокращённый URL".
+type URLResponse struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }

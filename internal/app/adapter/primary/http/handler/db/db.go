@@ -2,15 +2,12 @@
 package dbhandler
 
 import (
-	"database/sql"
-
 	"go.uber.org/zap"
 )
 
 // New создаёт новый экземпляр Handler с заданными зависимостями.
-func New(logger *zap.Logger, dbConnection *sql.DB) *Handler {
+func New(logger *zap.Logger) *Handler {
 	return &Handler{
-		logger:       logger,
-		dbConnection: dbConnection,
+		logger: logger,
 	}
 }

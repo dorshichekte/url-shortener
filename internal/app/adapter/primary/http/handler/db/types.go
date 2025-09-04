@@ -1,13 +1,13 @@
 package dbhandler
 
 import (
-	"database/sql"
-
 	"go.uber.org/zap"
+
+	dbusecase "url-shortener/internal/app/usecase/db"
 )
 
 // Handler структура обработчика базы данных.
 type Handler struct {
-	dbConnection *sql.DB
-	logger       *zap.Logger
+	useCase dbusecase.IDBUseCase
+	logger  *zap.Logger
 }

@@ -1,8 +1,8 @@
 package httpadapter
 
-import "url-shortener/internal/pkg/server"
+import server "url-shortener/internal/pkg/server/http"
 
-// HTTPAdapter
+// HTTPAdapter сервер httpadapter
 type HTTPAdapter struct {
-	server *server.Server
+	server *server.Http
 }

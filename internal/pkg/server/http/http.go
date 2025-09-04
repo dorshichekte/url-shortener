@@ -1,5 +1,5 @@
 // Пакет server инициализирует хттп сервер.
-package server
+package httpserver
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 )
 
 // New создает и настраивает новый HTTP-сервер.
-func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Server {
+func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Http {
 	server := &http.Server{
 		Handler:           handler,
 		ReadTimeout:       config.HTTPAdapter.Server.ReadTimeout,
@@ -22,7 +22,7 @@ func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Serve
 		Addr:              config.HTTPAdapter.Server.Address,
 	}
 
-	s := Server{
+	s := Http{
 		logger: logger,
 		server: server,
 		config: config,
@@ -32,16 +32,16 @@ func New(logger *zap.Logger, config *config.Config, handler http.Handler) *Serve
 }
 
 // Start запускает HTTP-сервер и отслеживает завершение через контекст.
-func (a *Server) Start(ctx context.Context) error {
+func (h *Http) Start(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
 		<-ctx.Done()
 
-		ctx, cancel := context.WithTimeout(context.Background(), a.config.HTTPAdapter.Server.ShutdownTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), h.config.HTTPAdapter.Server.ShutdownTimeout)
 		defer cancel()
 
-		err := a.server.Shutdown(ctx)
+		err := h.server.Shutdown(ctx)
 		if err != nil {
 			return err
 		}
@@ -51,10 +51,10 @@ func (a *Server) Start(ctx context.Context) error {
 
 	g.Go(func() error {
 		var err error
-		if a.config.Env.EnableHTTPS {
-			err = a.server.ListenAndServeTLS("certs/cert.pem", "certs/key.pem")
+		if h.config.Env.EnableHTTPS {
+			err = h.server.ListenAndServeTLS("certs/cert.pem", "certs/key.pem")
 		} else {
-			err = a.server.ListenAndServe()
+			err = h.server.ListenAndServe()
 		}
 		if err != nil {
 			if errors.Is(err, http.ErrServerClosed) {

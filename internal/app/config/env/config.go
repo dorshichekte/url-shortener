@@ -27,6 +27,7 @@ func (c *Env) initEnv() {
 	c.EnableHTTPS = os.Getenv("ENABLE_HTTPS") == "true"
 	c.Config = os.Getenv("CONFIG")
 	c.TrustedSubnet = os.Getenv("TRUSTED_SUBNET")
+	c.GrpcAddress = os.Getenv("GRPC_ADDRESS")
 }
 
 func (c *Env) initFlags() {
@@ -38,6 +39,7 @@ func (c *Env) initFlags() {
 	flag.BoolVar(&c.EnableHTTPS, "s", c.EnableHTTPS, "Enables https")
 	flag.StringVar(&c.Config, "c", c.Config, "Configuration file")
 	flag.StringVar(&c.TrustedSubnet, "t", c.TrustedSubnet, "Trusted subnet")
+	flag.StringVar(&c.GrpcAddress, "g", c.GrpcAddress, "Grpc address")
 
 	flag.Parse()
 }
@@ -57,6 +59,10 @@ func (c *Env) initDefaultValue() {
 
 	if c.AccessSecretKey == "" {
 		c.AccessSecretKey = defaultAccessSecret
+	}
+
+	if c.GrpcAddress == "" {
+		c.GrpcAddress = grpcPort
 	}
 }
 

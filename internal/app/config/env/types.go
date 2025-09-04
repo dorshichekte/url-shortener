@@ -10,4 +10,5 @@ type Env struct {
 	EnableHTTPS     bool   `env:"ENABLE_HTTPS" json:"enable_https"`
 	Config          string `env:"CONFIG"`
 	TrustedSubnet   string `env:"TRUSTED_SUBNET" json:"trusted_subnet"`
+	GrpcAddress     string `env:"GRPC_ADDRESS" json:"grpc_address"`
 }
