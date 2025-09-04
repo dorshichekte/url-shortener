@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "url_shortener/internal/app/adapter/primary/grpc/proto";
+
+import "google/protobuf/empty.proto";
+
+message DeleteBatchRequest {
+  repeated string short_url = 2;
+}
+
+message ShortenRequest {
+  string url = 1;
+}
+
+message ShortenResponse {
+  string result = 1;
+}
+
+message BatchRequest {
+  message Item {
+    string correlation_id = 1;
+    string original_url = 2;
+  }
+
+  repeated Item items = 1;
+}
+
+message BatchResponse {
+  message Item {
+    string correlation_id = 1;
+    string original_url = 2;
+  }
+
+  repeated Item items = 1;
+}
+
+message ServiceStatsResponse {
+  int64 urls = 1;
+  int64 user_count = 2;
+}
+
+message UrlResponse {
+  string short_url = 1;
+  string original_url = 2;
+}
+
+message UserUrlResponse {
+  repeated UrlResponse urls = 1;
+}
+
+service Url {
+  rpc AddBatch(BatchRequest) returns (BatchResponse);
+  rpc AddShorten(ShortenRequest) returns (ShortenResponse);
+  rpc DeleteBatch(DeleteBatchRequest) returns (google.protobuf.Empty);
+  rpc GetAllByUserID(google.protobuf.Empty) returns (UserUrlResponse);
+  rpc GetStats(google.protobuf.Empty) returns(ServiceStatsResponse);
+
+  rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

@@ -23,7 +23,7 @@ import (
 // @Accept       json
 // @Produce      json
 // @Tags         Пользовательские URL
-// @Success      200 {array} dto.URLRequest "Список URL пользователя"
+// @Success      200 {array} dto.URLResponse "Список URL пользователя"
 //
 //	example: [{"short_url": "http://short.ly/abc", "original_url": "https://example.com"}]
 //
@@ -37,7 +37,7 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 
 	userID, ok := req.Context().Value(middleware.UserIDKey).(string)
 	if userID == "" && !ok {
-		h.logger.Error(errMessageFailedGetUserIDFromContext)
+		h.logger.Error(constants.ErrFailedGetUserIDFromContext.Error())
 		h.handleError(res, http.StatusUnauthorized)
 		return
 	}
@@ -56,9 +56,9 @@ func (h *Handler) GetAllByUserID(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var urlData []dto.URLRequest
+	var urlData []dto.URLResponse
 	for _, url := range listURLS {
-		urlData = append(urlData, dto.URLRequest{ShortURL: url.ShortURL, OriginalURL: url.OriginalURL})
+		urlData = append(urlData, dto.URLResponse{ShortURL: url.ShortURL, OriginalURL: url.OriginalURL})
 	}
 
 	res.Header().Set("Content-Type", "application/json")

@@ -5,7 +5,8 @@ import "errors"
 
 // Глобальные константы ошибок.
 var (
-	ErrURLNotFound       = errors.New(errMessageURLNotFound)
-	ErrURLAlreadyExists  = errors.New(errMessageURLAlreadyExists)
-	ErrUnsupportedMethod = errors.New(errMessageUnsupportedMethod)
+	ErrURLNotFound                = errors.New(errMessageURLNotFound)
+	ErrURLAlreadyExists           = errors.New(errMessageURLAlreadyExists)
+	ErrUnsupportedMethod          = errors.New(errMessageUnsupportedMethod)
+	ErrFailedGetUserIDFromContext = errors.New(errMessageFailedGetUserIDFromContext)
 )

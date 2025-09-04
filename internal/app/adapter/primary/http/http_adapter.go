@@ -3,8 +3,8 @@ package httpadapter
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
+	httpserver "url-shortener/internal/pkg/server/http"
 
 	"go.uber.org/zap"
 
@@ -13,32 +13,31 @@ import (
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/usecase"
 	"url-shortener/internal/pkg/auth"
-	"url-shortener/internal/pkg/server"
 	"url-shortener/internal/pkg/validator"
 )
 
 // New создает новый экземпляр HTTPAdapter.
-func New(logger *zap.Logger, auth auth.Auth, config *config.Config, useCases *usecase.UseCases, validator *validator.Validator, dbConnection *sql.DB) *HTTPAdapter {
-	rtr := newRouter(logger, auth, config, useCases, validator, dbConnection)
+func New(logger *zap.Logger, auth auth.Auth, config *config.Config, useCases *usecase.UseCases, validator *validator.Validator) *HTTPAdapter {
+	rtr := newRouter(logger, auth, config, useCases, validator)
 
-	s := server.New(logger, &config.HTTPAdapter.Server, rtr)
+	s := httpserver.New(logger, config, rtr)
 
 	return &HTTPAdapter{
 		server: s,
 	}
 }
 
-func newRouter(logger *zap.Logger, auth auth.Auth, config *config.Config, useCases *usecase.UseCases, validator *validator.Validator, dbConnection *sql.DB) http.Handler {
+func newRouter(logger *zap.Logger, auth auth.Auth, config *config.Config, useCases *usecase.UseCases, validator *validator.Validator) http.Handler {
 	r := router.New(logger)
 
-	h := handler.New(logger, config.Env, useCases, validator, dbConnection)
+	h := handler.New(logger, config.Env, useCases, validator)
 
-	r.AppendRoutes(&config.HTTPAdapter.Router, h, auth)
+	r.AppendRoutes(config, h, auth)
 
 	return r.Router()
 }
 
 // Start запускает HTTP-сервер.
-func (a HTTPAdapter) Start(ctx context.Context) error {
+func (a *HTTPAdapter) Start(ctx context.Context) error {
 	return a.server.Start(ctx)
 }

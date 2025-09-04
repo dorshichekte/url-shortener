@@ -2,8 +2,6 @@
 package handler
 
 import (
-	"database/sql"
-
 	"go.uber.org/zap"
 
 	db_handler "url-shortener/internal/app/adapter/primary/http/handler/db"
@@ -14,9 +12,9 @@ import (
 )
 
 // New создаёт новый экземпляр Handlers с заданными зависимостями.
-func New(logger *zap.Logger, config *config.Env, useCases *usecase.UseCases, validator *validator.Validator, dbConnection *sql.DB) *Handlers {
+func New(logger *zap.Logger, config *config.Env, useCases *usecase.UseCases, validator *validator.Validator) *Handlers {
 	return &Handlers{
-		Database: db_handler.New(logger, dbConnection),
+		Database: db_handler.New(logger),
 		URL:      url_handler.New(logger, config, useCases.URL, validator),
 	}
 }

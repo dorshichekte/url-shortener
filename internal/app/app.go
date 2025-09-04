@@ -2,10 +2,9 @@
 package app
 
 import (
-	"context"
-
 	"go.uber.org/zap"
 
+	grpcadapter "url-shortener/internal/app/adapter/primary/grpc"
 	hp "url-shortener/internal/app/adapter/primary/http"
 	"url-shortener/internal/app/config"
 	"url-shortener/internal/app/repository"
@@ -16,7 +15,7 @@ import (
 )
 
 // New создает и инициализирует все зависимости приложения: логгер, конфиг, базу данных,
-func New(ctx context.Context, logger *zap.Logger, config *config.Config) *App {
+func New(logger *zap.Logger, config *config.Config) *App {
 	validator := v.New()
 	auth := a.New(config.Env.AccessSecretKey)
 
@@ -24,11 +23,13 @@ func New(ctx context.Context, logger *zap.Logger, config *config.Config) *App {
 
 	repositories := repository.New(postgresConnection, config.Env)
 
-	useCases := usecase.New(config.Env, repositories)
+	useCases := usecase.New(config.Env, repositories, postgresConnection)
 
-	httpAdapter := hp.New(logger, auth, config, useCases, validator, postgresConnection)
+	grpcAdapter := grpcadapter.New(logger, config, useCases, validator)
+	httpAdapter := hp.New(logger, auth, config, useCases, validator)
 
 	return &App{
 		HTTPAdapter: httpAdapter,
+		GRPCAdapter: grpcAdapter,
 	}
 }

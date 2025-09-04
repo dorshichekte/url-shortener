@@ -1,5 +1,5 @@
 // Пакет server инициализирует хттп сервер.
-package server
+package httpserver
 
 import (
 	"context"
@@ -9,20 +9,20 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
-	adapter "url-shortener/internal/app/config/adapter"
+	"url-shortener/internal/app/config"
 )
 
 // New создает и настраивает новый HTTP-сервер.
-func New(logger *zap.Logger, config *adapter.HTTPServer, handler http.Handler) *Server {
+func New(logger *zap.Logger, config *config.Config, handler http.Handler) *HTTP {
 	server := &http.Server{
 		Handler:           handler,
-		ReadTimeout:       config.ReadTimeout,
-		WriteTimeout:      config.WriteTimeout,
-		ReadHeaderTimeout: config.ReadHeaderTimeout,
-		Addr:              config.Address,
+		ReadTimeout:       config.HTTPAdapter.Server.ReadTimeout,
+		WriteTimeout:      config.HTTPAdapter.Server.WriteTimeout,
+		ReadHeaderTimeout: config.HTTPAdapter.Server.ReadHeaderTimeout,
+		Addr:              config.HTTPAdapter.Server.Address,
 	}
 
-	s := Server{
+	s := HTTP{
 		logger: logger,
 		server: server,
 		config: config,
@@ -32,16 +32,16 @@ func New(logger *zap.Logger, config *adapter.HTTPServer, handler http.Handler) *
 }
 
 // Start запускает HTTP-сервер и отслеживает завершение через контекст.
-func (a *Server) Start(ctx context.Context) error {
+func (h *HTTP) Start(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
 		<-ctx.Done()
 
-		ctx, cancel := context.WithTimeout(context.Background(), a.config.ShutdownTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), h.config.HTTPAdapter.Server.ShutdownTimeout)
 		defer cancel()
 
-		err := a.server.Shutdown(ctx)
+		err := h.server.Shutdown(ctx)
 		if err != nil {
 			return err
 		}
@@ -50,7 +50,12 @@ func (a *Server) Start(ctx context.Context) error {
 	})
 
 	g.Go(func() error {
-		err := a.server.ListenAndServe()
+		var err error
+		if h.config.Env.EnableHTTPS {
+			err = h.server.ListenAndServeTLS("certs/cert.pem", "certs/key.pem")
+		} else {
+			err = h.server.ListenAndServe()
+		}
 		if err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
 				// ok

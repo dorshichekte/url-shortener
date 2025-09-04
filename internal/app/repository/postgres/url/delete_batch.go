@@ -5,14 +5,14 @@ import (
 )
 
 // DeleteBatch помечает как удалённые (is_deleted = true) записи в таблице urls,
-func (s *urlRepositoryPostgres) DeleteBatch(event entity.DeleteBatch) error {
+func (u *urlRepositoryPostgres) DeleteBatch(event entity.DeleteBatch) error {
 	query := `
         UPDATE urls
         SET is_deleted = true
         WHERE short_url = ANY($1::text[]) AND user_id = $2
     `
 
-	_, err := s.db.Exec(query, event.ListURL, event.UserID)
+	_, err := u.db.Exec(query, event.ListURL, event.UserID)
 	if err != nil {
 		return err
 	}
